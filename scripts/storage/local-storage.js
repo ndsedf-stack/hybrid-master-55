@@ -1,354 +1,226 @@
-// ===================================================================
-// HYBRID MASTER 51 - GESTION DU STOCKAGE LOCAL
-// ===================================================================
-// Sauvegarde et récupération des données utilisateur
+/**
+ * LOCAL STORAGE - Gestion du stockage local
+ * Module pour gérer la persistance des données
+ * 
+ * @module storage/local-storage
+ * @version 1.0.0
+ */
 
 export class LocalStorage {
   constructor() {
-    this.storageKey = 'hybrid_master_51_data';
-    this.version = '1.0.0';
+    this.prefix = 'hybrid_master_';
+    this.checkAvailability();
   }
 
   /**
-   * Initialise le stockage avec des valeurs par défaut
+   * Vérifie la disponibilité de localStorage
    */
-  initialize() {
-    if (!this.hasData()) {
-      this.saveData({
-        version: this.version,
-        currentWeek: 1,
-        userProfile: {
-          name: '',
-          startDate: new Date().toISOString(),
-          bodyWeight: null,
-          benchPR: null,
-          squatPR: null,
-          deadliftPR: null
-        },
-        workoutHistory: [],
-        settings: {
-          units: 'kg',
-          restTimerSound: true,
-          darkMode: false
-        }
-      });
+  checkAvailability() {
+    try {
+      const test = '__storage_test__';
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
+      return true;
+    } catch (e) {
+      console.error('localStorage not available:', e);
+      return false;
     }
   }
 
   /**
-   * Vérifie si des données existent
+   * Sauvegarde une valeur
+   * @param {string} key - Clé
+   * @param {any} value - Valeur (sera JSONifiée)
    */
-  hasData() {
-    return localStorage.getItem(this.storageKey) !== null;
+  set(key, value) {
+    try {
+      const fullKey = this.prefix + key;
+      const jsonValue = JSON.stringify(value);
+      localStorage.setItem(fullKey, jsonValue);
+      return true;
+    } catch (error) {
+      console.error(`Error saving to localStorage (${key}):`, error);
+      return false;
+    }
   }
 
   /**
-   * Récupère toutes les données
+   * Récupère une valeur
+   * @param {string} key - Clé
+   * @param {any} defaultValue - Valeur par défaut
    */
-  getData() {
+  get(key, defaultValue = null) {
     try {
-      const data = localStorage.getItem(this.storageKey);
-      return data ? JSON.parse(data) : null;
+      const fullKey = this.prefix + key;
+      const item = localStorage.getItem(fullKey);
+      
+      if (item === null) {
+        return defaultValue;
+      }
+
+      return JSON.parse(item);
     } catch (error) {
-      console.error('Erreur lecture localStorage:', error);
+      console.error(`Error reading from localStorage (${key}):`, error);
+      return defaultValue;
+    }
+  }
+
+  /**
+   * Supprime une valeur
+   * @param {string} key - Clé
+   */
+  remove(key) {
+    try {
+      const fullKey = this.prefix + key;
+      localStorage.removeItem(fullKey);
+      return true;
+    } catch (error) {
+      console.error(`Error removing from localStorage (${key}):`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Vide tout le stockage de l'app
+   */
+  clear() {
+    try {
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith(this.prefix)) {
+          localStorage.removeItem(key);
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Obtient toutes les clés de l'app
+   */
+  keys() {
+    try {
+      const keys = Object.keys(localStorage);
+      return keys
+        .filter(key => key.startsWith(this.prefix))
+        .map(key => key.substring(this.prefix.length));
+    } catch (error) {
+      console.error('Error getting keys:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Obtient la taille utilisée (approximatif)
+   */
+  getSize() {
+    let size = 0;
+    try {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith(this.prefix)) {
+          size += localStorage.getItem(key).length;
+        }
+      });
+      return size;
+    } catch (error) {
+      console.error('Error calculating size:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Exporte toutes les données
+   */
+  export() {
+    const data = {};
+    
+    try {
+      this.keys().forEach(key => {
+        data[key] = this.get(key);
+      });
+      return data;
+    } catch (error) {
+      console.error('Error exporting data:', error);
       return null;
     }
   }
 
   /**
-   * Sauvegarde toutes les données
+   * Importe des données
+   * @param {Object} data - Données à importer
+   * @param {boolean} overwrite - Écraser les données existantes
    */
-  saveData(data) {
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(data));
-      return true;
-    } catch (error) {
-      console.error('Erreur sauvegarde localStorage:', error);
+  import(data, overwrite = false) {
+    if (!data || typeof data !== 'object') {
+      console.error('Invalid data for import');
       return false;
     }
-  }
 
-  /**
-   * Récupère la semaine actuelle
-   */
-  getCurrentWeek() {
-    const data = this.getData();
-    return data?.currentWeek || 1;
-  }
-
-  /**
-   * Définit la semaine actuelle
-   */
-  setCurrentWeek(weekNumber) {
-    const data = this.getData();
-    if (data) {
-      data.currentWeek = weekNumber;
-      this.saveData(data);
-    }
-  }
-
-  /**
-   * Récupère le profil utilisateur
-   */
-  getUserProfile() {
-    const data = this.getData();
-    return data?.userProfile || {};
-  }
-
-  /**
-   * Met à jour le profil utilisateur
-   */
-  updateUserProfile(profile) {
-    const data = this.getData();
-    if (data) {
-      data.userProfile = { ...data.userProfile, ...profile };
-      this.saveData(data);
-    }
-  }
-
-  /**
-   * Ajoute une séance à l'historique
-   */
-  addWorkoutToHistory(workout) {
-    const data = this.getData();
-    if (data) {
-      const workoutEntry = {
-        id: Date.now(),
-        date: new Date().toISOString(),
-        week: workout.week,
-        day: workout.day,
-        exercises: workout.exercises,
-        duration: workout.duration,
-        notes: workout.notes || ''
-      };
-      
-      data.workoutHistory.push(workoutEntry);
-      
-      // Limiter l'historique à 100 séances
-      if (data.workoutHistory.length > 100) {
-        data.workoutHistory = data.workoutHistory.slice(-100);
-      }
-      
-      this.saveData(data);
-      return workoutEntry;
-    }
-    return null;
-  }
-
-  /**
-   * Récupère l'historique des séances
-   */
-  getWorkoutHistory(limit = 10) {
-    const data = this.getData();
-    if (data?.workoutHistory) {
-      return data.workoutHistory.slice(-limit).reverse();
-    }
-    return [];
-  }
-
-  /**
-   * Récupère une séance spécifique
-   */
-  getWorkout(workoutId) {
-    const data = this.getData();
-    return data?.workoutHistory.find(w => w.id === workoutId);
-  }
-
-  /**
-   * Supprime une séance de l'historique
-   */
-  deleteWorkout(workoutId) {
-    const data = this.getData();
-    if (data) {
-      data.workoutHistory = data.workoutHistory.filter(w => w.id !== workoutId);
-      this.saveData(data);
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Récupère les paramètres
-   */
-  getSettings() {
-    const data = this.getData();
-    return data?.settings || {};
-  }
-
-  /**
-   * Met à jour les paramètres
-   */
-  updateSettings(settings) {
-    const data = this.getData();
-    if (data) {
-      data.settings = { ...data.settings, ...settings };
-      this.saveData(data);
-    }
-  }
-
-  /**
-   * Calcule les statistiques globales
-   */
-  getStatistics() {
-    const data = this.getData();
-    const history = data?.workoutHistory || [];
-
-    return {
-      totalWorkouts: history.length,
-      totalDuration: history.reduce((sum, w) => sum + (w.duration || 0), 0),
-      currentStreak: this.calculateStreak(history),
-      bestStreak: this.calculateBestStreak(history),
-      lastWorkout: history[history.length - 1]?.date,
-      workoutsByWeek: this.groupWorkoutsByWeek(history),
-      exerciseFrequency: this.calculateExerciseFrequency(history)
-    };
-  }
-
-  /**
-   * Calcule la série actuelle d'entraînements
-   */
-  calculateStreak(history) {
-    if (history.length === 0) return 0;
-
-    let streak = 1;
-    const sortedHistory = [...history].sort((a, b) => 
-      new Date(b.date) - new Date(a.date)
-    );
-
-    for (let i = 0; i < sortedHistory.length - 1; i++) {
-      const current = new Date(sortedHistory[i].date);
-      const next = new Date(sortedHistory[i + 1].date);
-      const daysDiff = Math.floor((current - next) / (1000 * 60 * 60 * 24));
-
-      if (daysDiff <= 3) { // Tolérance de 3 jours
-        streak++;
-      } else {
-        break;
-      }
-    }
-
-    return streak;
-  }
-
-  /**
-   * Calcule la meilleure série d'entraînements
-   */
-  calculateBestStreak(history) {
-    if (history.length === 0) return 0;
-
-    let bestStreak = 1;
-    let currentStreak = 1;
-
-    const sortedHistory = [...history].sort((a, b) => 
-      new Date(a.date) - new Date(b.date)
-    );
-
-    for (let i = 0; i < sortedHistory.length - 1; i++) {
-      const current = new Date(sortedHistory[i].date);
-      const next = new Date(sortedHistory[i + 1].date);
-      const daysDiff = Math.floor((next - current) / (1000 * 60 * 60 * 24));
-
-      if (daysDiff <= 3) {
-        currentStreak++;
-        bestStreak = Math.max(bestStreak, currentStreak);
-      } else {
-        currentStreak = 1;
-      }
-    }
-
-    return bestStreak;
-  }
-
-  /**
-   * Groupe les séances par semaine
-   */
-  groupWorkoutsByWeek(history) {
-    const byWeek = {};
-    history.forEach(workout => {
-      if (!byWeek[workout.week]) {
-        byWeek[workout.week] = [];
-      }
-      byWeek[workout.week].push(workout);
-    });
-    return byWeek;
-  }
-
-  /**
-   * Calcule la fréquence des exercices
-   */
-  calculateExerciseFrequency(history) {
-    const frequency = {};
-    history.forEach(workout => {
-      workout.exercises?.forEach(exercise => {
-        const name = exercise.name;
-        if (!frequency[name]) {
-          frequency[name] = 0;
+    try {
+      Object.entries(data).forEach(([key, value]) => {
+        if (overwrite || !this.get(key)) {
+          this.set(key, value);
         }
-        frequency[name]++;
       });
-    });
-    return frequency;
-  }
-
-  /**
-   * Exporte toutes les données en JSON
-   */
-  exportData() {
-    const data = this.getData();
-    const dataStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `hybrid_master_51_backup_${Date.now()}.json`;
-    link.click();
-    
-    URL.revokeObjectURL(url);
-  }
-
-  /**
-   * Importe des données depuis un fichier JSON
-   */
-  importData(jsonData) {
-    try {
-      const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
-      
-      // Validation basique
-      if (data.version && data.currentWeek) {
-        this.saveData(data);
-        return true;
-      }
-      
-      throw new Error('Format de données invalide');
+      return true;
     } catch (error) {
-      console.error('Erreur import données:', error);
+      console.error('Error importing data:', error);
       return false;
     }
   }
 
   /**
-   * Réinitialise toutes les données
+   * Sauvegarde la progression d'une semaine
    */
-  resetData() {
-    localStorage.removeItem(this.storageKey);
-    this.initialize();
+  saveWeekProgress(week, day, progress) {
+    return this.set(`week_${week}_${day}`, progress);
   }
 
   /**
-   * Nettoie les anciennes données
+   * Récupère la progression d'une semaine
    */
-  cleanupOldData(daysToKeep = 90) {
-    const data = this.getData();
-    if (data?.workoutHistory) {
-      const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
-      
-      data.workoutHistory = data.workoutHistory.filter(workout => 
-        new Date(workout.date) > cutoffDate
-      );
-      
-      this.saveData(data);
-    }
+  getWeekProgress(week, day) {
+    return this.get(`week_${week}_${day}`, {
+      completed: false,
+      completedSets: [],
+      modifiedWeights: {},
+      notes: ''
+    });
+  }
+
+  /**
+   * Sauvegarde un poids modifié
+   */
+  saveWeight(exerciseId, week, weight) {
+    return this.set(`weight_${exerciseId}_${week}`, weight);
+  }
+
+  /**
+   * Récupère un poids modifié
+   */
+  getWeight(exerciseId, week, defaultWeight) {
+    return this.get(`weight_${exerciseId}_${week}`, defaultWeight);
+  }
+
+  /**
+   * Sauvegarde les préférences utilisateur
+   */
+  savePreferences(prefs) {
+    return this.set('user_preferences', prefs);
+  }
+
+  /**
+   * Récupère les préférences utilisateur
+   */
+  getPreferences() {
+    return this.get('user_preferences', {
+      soundEnabled: true,
+      vibrationEnabled: true,
+      autoTimer: true,
+      theme: 'dark'
+    });
   }
 }
