@@ -1,168 +1,454 @@
-/* ===================================================================
-   HYBRID MASTER 51 - DESIGN RESPONSIVE
-   ===================================================================
-   Adaptations pour mobile, tablette et desktop
-   =================================================================== */
+/* ================================================================ */
+/* 08-RESPONSIVE.CSS - Mobile et Tablette */
+/* ================================================================ */
 
-/* ============================================
-   MOBILE (max 480px)
-   ============================================ */
-@media (max-width: 480px) {
-  .container {
-    padding: 0 var(--space-3);
-  }
-  
-  .logo {
-    font-size: 32px;
-  }
-  
-  .app-title {
-    font-size: var(--text-xl);
-  }
-  
-  .header-left {
-    flex-direction: column;
-    text-align: center;
-    gap: var(--space-2);
-  }
-  
-  .week-selector {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .btn-nav {
-    width: 100%;
-  }
-  
-  .day-tab {
-    padding: var(--space-3);
-  }
-  
-  .day-emoji {
-    font-size: 24px;
-  }
-  
-  .day-name {
-    font-size: var(--text-base);
-  }
-  
-  .exercise-params {
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-  
-  .param {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .technique-badge {
-    font-size: var(--text-xs);
-    padding: var(--space-1) var(--space-2);
-  }
-  
-  .footer-actions {
-    width: 100%;
-  }
-  
-  .btn {
-    font-size: var(--text-sm);
-  }
-}
+/* ================================================================ */
+/* TABLETTE (768px - 1024px) */
+/* ================================================================ */
 
-/* ============================================
-   TABLETTE (481px - 768px)
-   ============================================ */
-@media (min-width: 481px) and (max-width: 768px) {
+@media (max-width: 1024px) {
+  :root {
+    --spacing-xl: 2rem;
+  }
+  
   .container {
     max-width: 100%;
   }
   
-  .day-navigation {
+  .logo {
+    font-size: 2rem;
+  }
+  
+  .week-info h1 {
+    font-size: 1.75rem;
+  }
+  
+  .day-tabs {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .exercise-params {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* ============================================
-   DESKTOP (769px+)
-   ============================================ */
-@media (min-width: 769px) {
-  /* Optimisations desktop déjà dans layout.css */
-}
-
-/* ============================================
-   ORIENTATION PAYSAGE
-   ============================================ */
-@media (max-height: 600px) and (orientation: landscape) {
-  .app-header {
-    padding: var(--space-2) 0;
+  .timer {
+    min-width: 200px;
   }
   
-  .app-main {
-    padding: var(--space-4) 0;
-  }
-  
-  .section-card {
-    padding: var(--space-4);
+  .timer-display-value {
+    font-size: 3.5rem;
   }
 }
 
-/* ============================================
-   IMPRESSION
-   ============================================ */
+/* ================================================================ */
+/* MOBILE (max 768px) */
+/* ================================================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --spacing-sm: 0.75rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.25rem;
+    --spacing-xl: 1.5rem;
+    --font-size-base: 0.95rem;
+    --font-size-lg: 1.15rem;
+    --font-size-xl: 1.35rem;
+    --font-size-2xl: 1.75rem;
+  }
+  
+  /* Container */
+  .container {
+    padding: var(--spacing-sm);
+  }
+  
+  /* Header */
+  .main-header {
+    padding: var(--spacing-lg) 0;
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .logo {
+    font-size: 1.75rem;
+    letter-spacing: 2px;
+  }
+  
+  .tagline {
+    font-size: var(--font-size-sm);
+  }
+  
+  /* Week Navigation */
+  .week-navigation {
+    padding: var(--spacing-md);
+  }
+  
+  .week-controls {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .btn-week {
+    width: 100%;
+    min-width: auto;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .week-info h1 {
+    font-size: 1.5rem;
+  }
+  
+  .block-name {
+    font-size: var(--font-size-base);
+  }
+  
+  /* Day Tabs */
+  .day-tabs {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+  }
+  
+  .day-tab {
+    padding: var(--spacing-md);
+  }
+  
+  .day-icon {
+    font-size: 2rem;
+  }
+  
+  .day-label {
+    font-size: var(--font-size-base);
+  }
+  
+  /* Stats */
+  .stats-section {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+  }
+  
+  .stat-card {
+    padding: var(--spacing-md);
+  }
+  
+  .stat-value {
+    font-size: 1.75rem;
+  }
+  
+  /* Workout Header */
+  .workout-header {
+    padding: var(--spacing-lg);
+  }
+  
+  .workout-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .workout-meta {
+    gap: var(--spacing-md);
+  }
+  
+  /* Exercise Card */
+  .exercise-card {
+    padding: var(--spacing-lg);
+  }
+  
+  .exercise-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .exercise-number {
+    width: 40px;
+    height: 40px;
+    font-size: var(--font-size-lg);
+  }
+  
+  .exercise-title h3 {
+    font-size: var(--font-size-lg);
+  }
+  
+  .exercise-badges {
+    width: 100%;
+  }
+  
+  /* Meta Grid */
+  .meta-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+  }
+  
+  .meta-item {
+    padding: var(--spacing-sm);
+  }
+  
+  .meta-value {
+    font-size: var(--font-size-xl);
+  }
+  
+  /* Weight Control */
+  .weight-control {
+    flex-wrap: wrap;
+  }
+  
+  .weight-input {
+    width: 100%;
+    max-width: 120px;
+  }
+  
+  .btn-weight-adjust {
+    width: 36px;
+    height: 36px;
+    font-size: var(--font-size-lg);
+  }
+  
+  /* Tempo */
+  .tempo-display {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .tempo-value {
+    font-size: 1.5rem;
+  }
+  
+  /* Sets Tracker */
+  .sets-tracker {
+    padding: var(--spacing-md);
+  }
+  
+  .sets-checkboxes {
+    gap: var(--spacing-sm);
+  }
+  
+  .set-number {
+    width: 50px;
+    height: 50px;
+    font-size: var(--font-size-lg);
+    border-width: 3px;
+  }
+  
+  .set-checkbox:hover .set-number {
+    border-width: 3px;
+  }
+  
+  /* Timer */
+  .timer-fixed {
+    top: 80px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+  
+  .timer {
+    padding: var(--spacing-md);
+    min-width: auto;
+  }
+  
+  .timer-display-value {
+    font-size: 3rem;
+  }
+  
+  .timer-controls {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+  
+  .btn-timer-control {
+    width: 100%;
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+  }
+  
+  /* Superset Container */
+  .superset-container {
+    padding: var(--spacing-md);
+  }
+  
+  .superset-label {
+    top: -12px;
+    left: 15px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.7rem;
+  }
+  
+  /* Badges */
+  .badge {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.7rem;
+  }
+  
+  /* Buttons */
+  .btn-start-rest-timer {
+    padding: var(--spacing-md);
+    font-size: var(--font-size-base);
+  }
+  
+  /* Charts */
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-card {
+    padding: var(--spacing-md);
+  }
+  
+  .chart-canvas {
+    height: 250px;
+  }
+}
+
+/* ================================================================ */
+/* PETITS MOBILES (max 480px) */
+/* ================================================================ */
+
+@media (max-width: 480px) {
+  :root {
+    --spacing-xs: 0.375rem;
+    --spacing-sm: 0.625rem;
+    --spacing-md: 0.875rem;
+    --spacing-lg: 1rem;
+    --spacing-xl: 1.25rem;
+    --font-size-sm: 0.8rem;
+    --font-size-base: 0.875rem;
+    --font-size-lg: 1rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+  }
+  
+  .container {
+    padding: var(--spacing-xs);
+  }
+  
+  .main-header {
+    padding: var(--spacing-md) 0;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+  }
+  
+  .week-navigation {
+    padding: var(--spacing-sm);
+  }
+  
+  .week-info h1 {
+    font-size: 1.35rem;
+  }
+  
+  .badge {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
+  }
+  
+  .day-tabs {
+    grid-template-columns: 1fr;
+  }
+  
+  .day-tab {
+    padding: var(--spacing-sm);
+  }
+  
+  .stats-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-card {
+    padding: var(--spacing-sm);
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  
+  .workout-header {
+    padding: var(--spacing-md);
+  }
+  
+  .workout-header h2 {
+    font-size: 1.25rem;
+  }
+  
+  .exercise-card {
+    padding: var(--spacing-md);
+  }
+  
+  .exercise-number {
+    width: 35px;
+    height: 35px;
+    font-size: var(--font-size-base);
+  }
+  
+  .exercise-title h3 {
+    font-size: var(--font-size-base);
+  }
+  
+  .meta-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .meta-value {
+    font-size: var(--font-size-lg);
+  }
+  
+  .tempo-value {
+    font-size: 1.25rem;
+  }
+  
+  .set-number {
+    width: 45px;
+    height: 45px;
+    font-size: var(--font-size-base);
+  }
+  
+  .timer-display-value {
+    font-size: 2.5rem;
+  }
+  
+  .btn-start-rest-timer {
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+  }
+  
+  .exercise-notes {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* ================================================================ */
+/* LANDSCAPE MOBILE */
+/* ================================================================ */
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .timer-fixed {
+    top: 60px;
+    right: 5px;
+  }
+  
+  .timer {
+    padding: var(--spacing-sm);
+  }
+  
+  .timer-display-value {
+    font-size: 2rem;
+  }
+  
+  .main-header {
+    padding: var(--spacing-md) 0;
+  }
+}
+
+/* ================================================================ */
+/* PRINT */
+/* ================================================================ */
+
 @media print {
-  .app-header,
-  .app-footer,
-  .btn,
-  .day-navigation {
+  .timer-fixed,
+  .btn-week,
+  .btn-weight-adjust,
+  .btn-timer-control,
+  .btn-start-rest-timer {
     display: none !important;
   }
   
-  .app-main {
-    padding: 0;
-  }
-  
-  .section-card,
   .exercise-card {
-    background: white !important;
-    color: black !important;
-    border: 1px solid #000 !important;
-    box-shadow: none !important;
-    break-inside: avoid;
-  }
-}
-
-/* ============================================
-   TOUCH DEVICES
-   ============================================ */
-@media (hover: none) and (pointer: coarse) {
-  .btn,
-  .day-tab,
-  .btn-nav {
-    min-height: 44px;
-    min-width: 44px;
+    page-break-inside: avoid;
   }
   
-  .exercise-card {
-    padding: var(--space-5);
-  }
-}
-
-/* ============================================
-   LARGE SCREENS (1920px+)
-   ============================================ */
-@media (min-width: 1920px) {
-  .container {
-    max-width: 1400px;
-  }
-  
-  .day-navigation {
-    grid-template-columns: repeat(4, 1fr);
+  body {
+    background: white;
+    color: black;
   }
 }
