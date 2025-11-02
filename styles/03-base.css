@@ -1,36 +1,85 @@
-/* ===================================================================
-   03-BASE.CSS - Styles de Base
-   ================================================================ */
+/* ================================================================ */
+/* 03-BASE.CSS - Styles de base */
+/* ================================================================ */
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 16px;
+  font-family: var(--font-family-primary);
+  background: var(--color-bg);
+  color: var(--color-text);
   line-height: 1.6;
-  color: #f1f5f9;
-  background: #0f172a;
-  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ================================================================ */
+/* TYPOGRAPHIE */
+/* ================================================================ */
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   line-height: 1.2;
-  margin-bottom: 1rem;
-  color: #f1f5f9;
+  margin-bottom: var(--spacing-sm);
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.5rem; }
+h1 { font-size: var(--font-size-2xl); }
+h2 { font-size: var(--font-size-xl); }
+h3 { font-size: var(--font-size-lg); }
 
 p {
-  margin-bottom: 1rem;
-  color: #cbd5e1;
+  margin-bottom: var(--spacing-sm);
 }
 
-button {
-  font-family: inherit;
-  cursor: pointer;
-  border: none;
-  outline: none;
-  transition: all 0.3s ease;
+strong {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* ================================================================ */
+/* LINKS */
+/* ================================================================ */
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* ================================================================ */
+/* SCROLLBAR CUSTOM */
+/* ================================================================ */
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-dark);
+}
+
+/* ================================================================ */
+/* SELECTION */
+/* ================================================================ */
+
+::selection {
+  background: var(--color-primary);
+  color: var(--color-secondary);
+}
+
+::-moz-selection {
+  background: var(--color-primary);
+  color: var(--color-secondary);
 }
