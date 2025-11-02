@@ -1,0 +1,264 @@
+/* ===================================================================
+   05-COMPONENTS.CSS - Composants UI (Boutons, Badges, etc.)
+   ================================================================ */
+
+/* BOUTONS PRINCIPAUX */
+.btn-primary {
+  background: linear-gradient(135deg, #00d4aa, #3b82f6);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 212, 170, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* BOUTONS DE NAVIGATION SEMAINE */
+.btn-week-nav {
+  background: #334155;
+  color: #f1f5f9;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.btn-week-nav:hover {
+  background: #475569;
+  border-color: #00d4aa;
+  transform: translateY(-2px);
+}
+
+.btn-week-nav:active {
+  transform: translateY(0);
+}
+
+.btn-week-nav:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* BOUTONS DE SEMAINE (GRILLE) */
+.week-btn {
+  background: #334155;
+  color: #cbd5e1;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.week-btn:hover {
+  background: #475569;
+  border-color: #00d4aa;
+  transform: scale(1.05);
+}
+
+.week-btn.active {
+  background: linear-gradient(135deg, #00d4aa, #3b82f6);
+  color: white;
+  border-color: #00d4aa;
+  box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
+}
+
+.week-btn.deload {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: white;
+  border-color: #f59e0b;
+}
+
+.week-btn.deload:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+/* BADGES */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-primary {
+  background: #00d4aa;
+  color: #0f172a;
+}
+
+.badge-secondary {
+  background: #3b82f6;
+  color: white;
+}
+
+.badge-warning {
+  background: #f59e0b;
+  color: #0f172a;
+}
+
+.badge-danger {
+  background: #ef4444;
+  color: white;
+}
+
+/* CARTES */
+.card {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #334155;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: #00d4aa;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #334155;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #f1f5f9;
+}
+
+.card-body {
+  color: #cbd5e1;
+}
+
+/* MODALES (si besoin futur) */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.9);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-close {
+  background: #ef4444;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  float: right;
+}
+
+/* ALERTES */
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid;
+}
+
+.alert-info {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+  color: #93c5fd;
+}
+
+.alert-success {
+  background: rgba(0, 212, 170, 0.1);
+  border-color: #00d4aa;
+  color: #5eead4;
+}
+
+.alert-warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: #f59e0b;
+  color: #fcd34d;
+}
+
+.alert-danger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+/* LOADING SPINNER (si besoin) */
+.spinner {
+  border: 3px solid #334155;
+  border-top-color: #00d4aa;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 2rem auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* TOOLTIPS (si besoin futur) */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  background: #334155;
+  color: #f1f5f9;
+  text-align: center;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
