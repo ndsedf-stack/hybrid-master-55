@@ -1,6 +1,6 @@
 /**
- * WORKOUT SESSION - Gestion des séances en cours
- * Module pour tracker la progression pendant une séance
+ * HYBRID MASTER 51 - WORKOUT SESSION
+ * Gère l'état d'une séance d'entraînement
  * 
  * @module modules/workout-session
  * @version 1.0.0
@@ -9,293 +9,202 @@
 export class WorkoutSession {
   constructor(programData) {
     this.programData = programData;
-    this.currentSession = null;
+    this.isActive = false;
+    this.currentWeek = null;
+    this.currentDay = null;
     this.startTime = null;
-    this.completedSets = new Set();
-    this.modifiedWeights = new Map();
+    this.exercises = {};
+    this.completedSets = [];
   }
 
   /**
-   * Démarre une nouvelle séance
-   * @param {number} week - Numéro de semaine
-   * @param {string} day - Jour de la séance
+   * Démarre une session
    */
   start(week, day) {
-    const workout = this.programData.getWorkout(week, day);
-    
-    if (!workout) {
-      throw new Error(`Workout not found for week ${week}, day ${day}`);
+    if (this.isActive) {
+      console.warn('⚠️ Session already active');
+      return;
     }
 
-    this.currentSession = {
-      week,
-      day,
-      workout,
-      startTime: new Date(),
-      completedSets: [],
-      modifiedWeights: {},
-      notes: ''
-    };
-
+    this.currentWeek = week;
+    this.currentDay = day;
     this.startTime = Date.now();
-    this.completedSets.clear();
-    this.modifiedWeights.clear();
+    this.isActive = true;
+    this.completedSets = [];
 
-    // Charger les données sauvegardées
-    this.loadProgress();
+    // Charger les exercices
+    const workout = this.programData.getWorkout(week, day);
+    this.exercises = {};
+    
+    workout.exercises.forEach(ex => {
+      this.exercises[ex.id] = {
+        id: ex.id,
+        name: ex.name,
+        sets: ex.sets,
+        reps: ex.reps,
+        weight: ex.weight,
+        completedSets: [],
+        modifiedWeight: null
+      };
+    });
 
-    // Émettre événement
-    window.dispatchEvent(new CustomEvent('sessionStarted', {
-      detail: this.currentSession
-    }));
+    console.log(`🏋️ Session started: Week ${week}, ${day}`);
 
-    return this.currentSession;
+    // Dispatch event
+    const event = new CustomEvent('workoutStarted', {
+      detail: {
+        week: week,
+        day: day,
+        startTime: this.startTime
+      }
+    });
+    window.dispatchEvent(event);
   }
 
   /**
-   * Termine la séance
+   * Termine une session
    */
   end() {
-    if (!this.currentSession) {
-      return null;
+    if (!this.isActive) {
+      console.warn('⚠️ No active session to end');
+      return;
     }
 
     const endTime = Date.now();
     const duration = Math.floor((endTime - this.startTime) / 1000);
+    const completion = this.calculateCompletion();
 
-    const summary = {
-      ...this.currentSession,
-      endTime: new Date(),
-      duration, // en secondes
-      totalSets: this.getTotalSets(),
-      completedSets: this.completedSets.size,
-      completion: this.getCompletionRate()
-    };
+    console.log(`✅ Session ended: ${completion}% complete in ${duration}s`);
 
-    // Sauvegarder l'historique
-    this.saveToHistory(summary);
+    // Dispatch event
+    const event = new CustomEvent('sessionEnded', {
+      detail: {
+        week: this.currentWeek,
+        day: this.currentDay,
+        duration: duration,
+        completion: completion,
+        exercises: this.exercises
+      }
+    });
+    window.dispatchEvent(event);
 
-    // Émettre événement
-    window.dispatchEvent(new CustomEvent('sessionEnded', {
-      detail: summary
-    }));
-
-    // Réinitialiser
-    this.currentSession = null;
+    // Reset
+    this.isActive = false;
+    this.currentWeek = null;
+    this.currentDay = null;
     this.startTime = null;
-
-    return summary;
   }
 
   /**
    * Marque une série comme complétée
-   * @param {string} exerciseId - ID de l'exercice
-   * @param {number} setNumber - Numéro de la série
    */
   completeSet(exerciseId, setNumber) {
-    if (!this.currentSession) {
-      console.warn('No active session');
+    if (!this.isActive) {
+      console.warn('⚠️ No active session');
       return;
     }
 
-    const key = `${exerciseId}_${setNumber}`;
-    this.completedSets.add(key);
-
-    // Sauvegarder
-    this.saveProgress();
-
-    // Émettre événement
-    window.dispatchEvent(new CustomEvent('setCompleted', {
-      detail: { exerciseId, setNumber }
-    }));
+    if (this.exercises[exerciseId]) {
+      if (!this.exercises[exerciseId].completedSets.includes(setNumber)) {
+        this.exercises[exerciseId].completedSets.push(setNumber);
+        this.completedSets.push(`${exerciseId}_${setNumber}`);
+        console.log(`✅ Set completed: ${exerciseId} - Set ${setNumber}`);
+      }
+    }
   }
 
   /**
-   * Annule une série
-   * @param {string} exerciseId - ID de l'exercice
-   * @param {number} setNumber - Numéro de la série
+   * Démarque une série
    */
   uncompleteSet(exerciseId, setNumber) {
-    const key = `${exerciseId}_${setNumber}`;
-    this.completedSets.delete(key);
+    if (!this.isActive) {
+      console.warn('⚠️ No active session');
+      return;
+    }
 
-    this.saveProgress();
-
-    window.dispatchEvent(new CustomEvent('setUncompleted', {
-      detail: { exerciseId, setNumber }
-    }));
+    if (this.exercises[exerciseId]) {
+      this.exercises[exerciseId].completedSets = 
+        this.exercises[exerciseId].completedSets.filter(s => s !== setNumber);
+      
+      this.completedSets = this.completedSets.filter(s => s !== `${exerciseId}_${setNumber}`);
+      
+      console.log(`❌ Set uncompleted: ${exerciseId} - Set ${setNumber}`);
+    }
   }
 
   /**
-   * Modifie le poids d'un exercice
-   * @param {string} exerciseId - ID de l'exercice
-   * @param {number} weight - Nouveau poids
+   * Met à jour le poids d'un exercice
    */
   updateWeight(exerciseId, weight) {
-    if (!this.currentSession) {
+    if (!this.isActive) {
+      console.warn('⚠️ No active session');
       return;
     }
 
-    this.modifiedWeights.set(exerciseId, weight);
-    this.saveProgress();
-
-    window.dispatchEvent(new CustomEvent('weightUpdated', {
-      detail: { exerciseId, weight }
-    }));
-  }
-
-  /**
-   * Ajoute une note à la séance
-   * @param {string} note - Note textuelle
-   */
-  addNote(note) {
-    if (!this.currentSession) {
-      return;
+    if (this.exercises[exerciseId]) {
+      this.exercises[exerciseId].modifiedWeight = weight;
+      console.log(`⚖️ Weight updated: ${exerciseId} = ${weight}kg`);
     }
-
-    this.currentSession.notes = note;
-    this.saveProgress();
   }
 
   /**
-   * Obtient le nombre total de séries
+   * Calcule le pourcentage de complétion
    */
-  getTotalSets() {
-    if (!this.currentSession) {
+  calculateCompletion() {
+    if (!this.isActive || Object.keys(this.exercises).length === 0) {
       return 0;
     }
 
-    return this.currentSession.workout.exercises.reduce((total, ex) => {
-      return total + (ex.sets || 0);
-    }, 0);
+    let totalSets = 0;
+    let completedSets = 0;
+
+    Object.values(this.exercises).forEach(ex => {
+      totalSets += ex.sets;
+      completedSets += ex.completedSets.length;
+    });
+
+    return totalSets > 0 ? Math.round((completedSets / totalSets) * 100) : 0;
   }
 
   /**
-   * Calcule le taux de complétion
+   * Retourne les stats de la session
    */
-  getCompletionRate() {
-    const total = this.getTotalSets();
-    if (total === 0) return 0;
-
-    return Math.round((this.completedSets.size / total) * 100);
-  }
-
-  /**
-   * Obtient les stats de la séance en cours
-   */
-  getSessionStats() {
-    if (!this.currentSession) {
+  getStats() {
+    if (!this.isActive) {
       return null;
     }
 
-    const elapsed = this.startTime ? Math.floor((Date.now() - this.startTime) / 1000) : 0;
+    const duration = Math.floor((Date.now() - this.startTime) / 1000);
+    const completion = this.calculateCompletion();
 
     return {
-      week: this.currentSession.week,
-      day: this.currentSession.day,
-      elapsed, // secondes
-      totalSets: this.getTotalSets(),
-      completedSets: this.completedSets.size,
-      completion: this.getCompletionRate(),
-      modifiedWeights: Array.from(this.modifiedWeights.entries())
+      week: this.currentWeek,
+      day: this.currentDay,
+      duration: duration,
+      completion: completion,
+      totalExercises: Object.keys(this.exercises).length,
+      completedSets: this.completedSets.length
     };
   }
 
   /**
-   * Sauvegarde la progression
-   */
-  saveProgress() {
-    if (!this.currentSession) {
-      return;
-    }
-
-    const key = `session_${this.currentSession.week}_${this.currentSession.day}`;
-    const data = {
-      completedSets: Array.from(this.completedSets),
-      modifiedWeights: Array.from(this.modifiedWeights.entries()),
-      notes: this.currentSession.notes,
-      lastUpdate: new Date().toISOString()
-    };
-
-    localStorage.setItem(key, JSON.stringify(data));
-  }
-
-  /**
-   * Charge la progression sauvegardée
-   */
-  loadProgress() {
-    if (!this.currentSession) {
-      return;
-    }
-
-    const key = `session_${this.currentSession.week}_${this.currentSession.day}`;
-    const saved = localStorage.getItem(key);
-
-    if (!saved) {
-      return;
-    }
-
-    try {
-      const data = JSON.parse(saved);
-      
-      if (data.completedSets) {
-        this.completedSets = new Set(data.completedSets);
-      }
-      if (data.modifiedWeights) {
-        this.modifiedWeights = new Map(data.modifiedWeights);
-      }
-      if (data.notes) {
-        this.currentSession.notes = data.notes;
-      }
-    } catch (error) {
-      console.error('Error loading progress:', error);
-    }
-  }
-
-  /**
-   * Sauvegarde dans l'historique
-   */
-  saveToHistory(summary) {
-    const history = this.getHistory();
-    history.push(summary);
-
-    // Garder les 100 dernières séances
-    if (history.length > 100) {
-      history.shift();
-    }
-
-    localStorage.setItem('workout_history', JSON.stringify(history));
-  }
-
-  /**
-   * Récupère l'historique
-   */
-  getHistory() {
-    const saved = localStorage.getItem('workout_history');
-    
-    if (!saved) {
-      return [];
-    }
-
-    try {
-      return JSON.parse(saved);
-    } catch (error) {
-      console.error('Error loading history:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Vérifie si une séance est en cours
+   * Vérifie si une session est active
    */
   isSessionActive() {
-    return this.currentSession !== null;
+    return this.isActive;
   }
 
   /**
-   * Obtient la séance en cours
+   * Retourne les données de la session
    */
-  getCurrentSession() {
-    return this.currentSession;
+  getSessionData() {
+    return {
+      isActive: this.isActive,
+      currentWeek: this.currentWeek,
+      currentDay: this.currentDay,
+      startTime: this.startTime,
+      exercises: this.exercises,
+      completedSets: this.completedSets
+    };
   }
 }
