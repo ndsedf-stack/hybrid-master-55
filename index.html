@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hybrid Master 51 - Programme d'Entraînement</title>
+  
+  <!-- ✅ CSS FILES - CHEMINS RELATIFS CORRECTS -->
+  <link rel="stylesheet" href="./styles/01-reset.css">
+  <link rel="stylesheet" href="./styles/02-variables.css">
+  <link rel="stylesheet" href="./styles/03-base.css">
+  <link rel="stylesheet" href="./styles/04-layout.css">
+  <link rel="stylesheet" href="./styles/05-components.css">
+  <link rel="stylesheet" href="./styles/08-responsive.css">
+  
+  <meta name="description" content="Programme d'entraînement Hybrid Master 51 sur 26 semaines">
+  <meta name="theme-color" content="#00d4aa">
+</head>
+<body>
+  
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="container">
+      <h1>HYBRID MASTER 51</h1>
+      <p>Programme d'Entraînement Complet - 26 Semaines</p>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="container">
+    
+    <!-- Navigation Semaines -->
+    <section class="week-controls">
+      <div class="week-selector">
+        <button class="btn-week-nav" id="prevWeek">← Précédent</button>
+        <div class="week-info">
+          <span class="current-week" id="weekDisplay">Semaine 1</span>
+          <span class="block-badge" id="blockBadge">Bloc 1</span>
+        </div>
+        <button class="btn-week-nav" id="nextWeek">Suivant →</button>
+      </div>
+      <div class="week-grid" id="weekGrid"></div>
+    </section>
+
+    <!-- Stats Overview -->
+    <section class="stats-overview" id="statsOverview">
+      <div class="stat-card">
+        <span class="stat-label">Volume Total</span>
+        <span class="stat-value" id="totalVolume">-</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Exercices</span>
+        <span class="stat-value" id="totalExercises">-</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Temps Estimé</span>
+        <span class="stat-value" id="estimatedTime">-</span>
+      </div>
+    </section>
+
+    <!-- Séances -->
+    <section class="workouts-section">
+      <h2 class="section-title">Séances de la Semaine</h2>
+      <div class="workout-days" id="workoutDays"></div>
+    </section>
+
+    <!-- Détails Séance -->
+    <section class="workout-details" id="workoutDetails"></section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <div class="container">
+      <p>&copy; 2024 Hybrid Master 51</p>
+    </div>
+  </footer>
+
+  <!-- ✅ JAVASCRIPT - TYPE MODULE OBLIGATOIRE -->
+  <script type="module" src="./scripts/app.js"></script>
+  
+</body>
+</html>
