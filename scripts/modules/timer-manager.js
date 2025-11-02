@@ -1,390 +1,306 @@
-// ===================================================================
-// HYBRID MASTER 51 - GESTION DES TIMERS
-// ===================================================================
-// Gère les timers de repos et d'entraînement
+/**
+ * TIMER MANAGER - Gestion des timers de repos
+ * Module pour gérer les temps de repos entre séries
+ * 
+ * @module modules/timer-manager
+ * @version 1.0.0
+ */
 
 export class TimerManager {
   constructor() {
-    this.timers = new Map();
-    this.activeTimer = null;
-    this.callbacks = {
-      onTick: null,
-      onComplete: null,
-      onStart: null,
-      onPause: null,
-      onReset: null
-    };
+    this.isRunning = false;
+    this.isPaused = false;
+    this.timeRemaining = 0;
+    this.timerInterval = null;
+    this.displayElement = null;
+    
+    this.initDisplay();
+    this.attachEventListeners();
   }
 
   /**
-   * Crée un nouveau timer
+   * Initialise l'affichage du timer
    */
-  createTimer(id, duration, options = {}) {
-    const timer = {
-      id,
-      duration, // en secondes
-      remaining: duration,
-      startTime: null,
-      pauseTime: null,
-      isRunning: false,
-      isPaused: false,
-      interval: null,
-      type: options.type || 'rest', // 'rest', 'work', 'warmup'
-      autoStart: options.autoStart || false,
-      sound: options.sound !== false,
-      callbacks: {
-        onTick: options.onTick || null,
-        onComplete: options.onComplete || null
+  initDisplay() {
+    this.displayElement = document.getElementById('timer-display');
+    
+    if (!this.displayElement) {
+      console.warn('Timer display element not found');
+    }
+  }
+
+  /**
+   * Attache les event listeners
+   */
+  attachEventListeners() {
+    // Boutons contrôle
+    const startBtn = document.getElementById('timer-start');
+    const pauseBtn = document.getElementById('timer-pause');
+    const resetBtn = document.getElementById('timer-reset');
+
+    if (startBtn) {
+      startBtn.addEventListener('click', () => this.toggle());
+    }
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', () => this.pause());
+    }
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => this.reset());
+    }
+
+    // Raccourci clavier ESPACE
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !e.target.matches('input, textarea')) {
+        e.preventDefault();
+        this.toggle();
       }
-    };
-
-    this.timers.set(id, timer);
-
-    if (timer.autoStart) {
-      this.startTimer(id);
-    }
-
-    return timer;
+    });
   }
 
   /**
-   * Démarre un timer
+   * Démarre un timer avec durée spécifiée
+   * @param {number} seconds - Durée en secondes
    */
-  startTimer(id) {
-    const timer = this.timers.get(id);
-    if (!timer) return false;
-
-    if (timer.isRunning) return false;
-
-    timer.isRunning = true;
-    timer.isPaused = false;
-    timer.startTime = Date.now();
-
-    // Si le timer était en pause, ajuster le temps de départ
-    if (timer.pauseTime) {
-      const pauseDuration = Date.now() - timer.pauseTime;
-      timer.startTime += pauseDuration;
-      timer.pauseTime = null;
+  start(seconds) {
+    if (this.isRunning && !this.isPaused) {
+      return;
     }
 
-    // Démarrer l'intervalle
-    timer.interval = setInterval(() => {
-      this.tickTimer(id);
-    }, 100); // Update every 100ms for smooth display
+    this.timeRemaining = seconds;
+    this.isRunning = true;
+    this.isPaused = false;
 
-    this.activeTimer = id;
+    this.updateDisplay();
+    this.startInterval();
 
-    // Callback
-    if (this.callbacks.onStart) {
-      this.callbacks.onStart(timer);
-    }
-
-    return true;
+    // Émettre événement
+    window.dispatchEvent(new CustomEvent('timerStarted', {
+      detail: { duration: seconds }
+    }));
   }
 
   /**
-   * Met en pause un timer
+   * Toggle play/pause
    */
-  pauseTimer(id) {
-    const timer = this.timers.get(id);
-    if (!timer || !timer.isRunning) return false;
-
-    timer.isRunning = false;
-    timer.isPaused = true;
-    timer.pauseTime = Date.now();
-
-    if (timer.interval) {
-      clearInterval(timer.interval);
-      timer.interval = null;
+  toggle() {
+    if (!this.isRunning) {
+      // Démarrer avec temps par défaut (90s)
+      this.start(90);
+    } else if (this.isPaused) {
+      this.resume();
+    } else {
+      this.pause();
     }
-
-    // Callback
-    if (this.callbacks.onPause) {
-      this.callbacks.onPause(timer);
-    }
-
-    return true;
   }
 
   /**
-   * Réinitialise un timer
+   * Met en pause
    */
-  resetTimer(id) {
-    const timer = this.timers.get(id);
-    if (!timer) return false;
-
-    this.stopTimer(id);
-    timer.remaining = timer.duration;
-    timer.startTime = null;
-    timer.pauseTime = null;
-    timer.isRunning = false;
-    timer.isPaused = false;
-
-    // Callback
-    if (this.callbacks.onReset) {
-      this.callbacks.onReset(timer);
+  pause() {
+    if (!this.isRunning || this.isPaused) {
+      return;
     }
 
-    return true;
+    this.isPaused = true;
+    this.stopInterval();
+
+    window.dispatchEvent(new CustomEvent('timerPaused'));
   }
 
   /**
-   * Arrête complètement un timer
+   * Reprend après pause
    */
-  stopTimer(id) {
-    const timer = this.timers.get(id);
-    if (!timer) return false;
-
-    if (timer.interval) {
-      clearInterval(timer.interval);
-      timer.interval = null;
+  resume() {
+    if (!this.isPaused) {
+      return;
     }
 
-    timer.isRunning = false;
-    timer.isPaused = false;
+    this.isPaused = false;
+    this.startInterval();
 
-    if (this.activeTimer === id) {
-      this.activeTimer = null;
-    }
-
-    return true;
+    window.dispatchEvent(new CustomEvent('timerResumed'));
   }
 
   /**
-   * Tick du timer (appelé à chaque intervalle)
+   * Arrête et réinitialise
    */
-  tickTimer(id) {
-    const timer = this.timers.get(id);
-    if (!timer || !timer.isRunning) return;
+  stop() {
+    this.isRunning = false;
+    this.isPaused = false;
+    this.timeRemaining = 0;
+    this.stopInterval();
+    this.updateDisplay();
 
-    const elapsed = (Date.now() - timer.startTime) / 1000;
-    timer.remaining = Math.max(0, timer.duration - elapsed);
+    window.dispatchEvent(new CustomEvent('timerStopped'));
+  }
 
-    // Callback personnalisé du timer
-    if (timer.callbacks.onTick) {
-      timer.callbacks.onTick(timer);
+  /**
+   * Réinitialise au temps initial
+   */
+  reset() {
+    const initialTime = this.timeRemaining;
+    this.stop();
+    
+    window.dispatchEvent(new CustomEvent('timerReset', {
+      detail: { duration: initialTime }
+    }));
+  }
+
+  /**
+   * Démarre l'intervalle
+   */
+  startInterval() {
+    this.stopInterval(); // Nettoie l'ancien intervalle
+
+    this.timerInterval = setInterval(() => {
+      this.tick();
+    }, 1000);
+  }
+
+  /**
+   * Arrête l'intervalle
+   */
+  stopInterval() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  /**
+   * Tick du timer (chaque seconde)
+   */
+  tick() {
+    if (this.isPaused) {
+      return;
     }
 
-    // Callback global
-    if (this.callbacks.onTick) {
-      this.callbacks.onTick(timer);
+    this.timeRemaining--;
+
+    // Notification à 10 secondes
+    if (this.timeRemaining === 10) {
+      this.playBeep();
+      window.dispatchEvent(new CustomEvent('timerWarning'));
     }
 
     // Timer terminé
-    if (timer.remaining <= 0) {
-      this.completeTimer(id);
+    if (this.timeRemaining <= 0) {
+      this.complete();
+      return;
+    }
+
+    this.updateDisplay();
+  }
+
+  /**
+   * Timer terminé
+   */
+  complete() {
+    this.stop();
+    this.playEndSound();
+    this.vibrate();
+
+    window.dispatchEvent(new CustomEvent('timerCompleted'));
+
+    // Notification navigateur
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('Repos terminé !', {
+        body: 'Prêt pour la prochaine série',
+        icon: '/icon-192x192.png'
+      });
     }
   }
 
   /**
-   * Termine un timer
+   * Met à jour l'affichage
    */
-  completeTimer(id) {
-    const timer = this.timers.get(id);
-    if (!timer) return;
-
-    this.stopTimer(id);
-    timer.remaining = 0;
-
-    // Son si activé
-    if (timer.sound) {
-      this.playSound();
+  updateDisplay() {
+    if (!this.displayElement) {
+      return;
     }
 
-    // Callback personnalisé du timer
-    if (timer.callbacks.onComplete) {
-      timer.callbacks.onComplete(timer);
-    }
+    const minutes = Math.floor(this.timeRemaining / 60);
+    const seconds = this.timeRemaining % 60;
+    const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-    // Callback global
-    if (this.callbacks.onComplete) {
-      this.callbacks.onComplete(timer);
-    }
+    this.displayElement.textContent = timeString;
+
+    // Classes CSS selon état
+    this.displayElement.classList.toggle('running', this.isRunning && !this.isPaused);
+    this.displayElement.classList.toggle('paused', this.isPaused);
+    this.displayElement.classList.toggle('warning', this.timeRemaining <= 10);
   }
 
   /**
-   * Ajoute du temps à un timer
+   * Joue un bip
    */
-  addTime(id, seconds) {
-    const timer = this.timers.get(id);
-    if (!timer) return false;
-
-    timer.duration += seconds;
-    timer.remaining += seconds;
-
-    return true;
-  }
-
-  /**
-   * Retire du temps à un timer
-   */
-  removeTime(id, seconds) {
-    const timer = this.timers.get(id);
-    if (!timer) return false;
-
-    timer.duration = Math.max(0, timer.duration - seconds);
-    timer.remaining = Math.max(0, timer.remaining - seconds);
-
-    return true;
-  }
-
-  /**
-   * Récupère un timer
-   */
-  getTimer(id) {
-    return this.timers.get(id);
-  }
-
-  /**
-   * Récupère le timer actif
-   */
-  getActiveTimer() {
-    return this.activeTimer ? this.timers.get(this.activeTimer) : null;
-  }
-
-  /**
-   * Supprime un timer
-   */
-  deleteTimer(id) {
-    this.stopTimer(id);
-    return this.timers.delete(id);
-  }
-
-  /**
-   * Supprime tous les timers
-   */
-  clearAllTimers() {
-    this.timers.forEach((timer, id) => {
-      this.stopTimer(id);
-    });
-    this.timers.clear();
-    this.activeTimer = null;
-  }
-
-  /**
-   * Définit un callback global
-   */
-  on(event, callback) {
-    if (this.callbacks.hasOwnProperty(`on${event.charAt(0).toUpperCase() + event.slice(1)}`)) {
-      this.callbacks[`on${event.charAt(0).toUpperCase() + event.slice(1)}`] = callback;
-    }
-  }
-
-  /**
-   * Formate le temps en mm:ss
-   */
-  static formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }
-
-  /**
-   * Parse un temps "XXs" ou "XXmin" en secondes
-   */
-  static parseTime(timeString) {
-    if (!timeString) return 0;
-
-    const minMatch = timeString.match(/(\d+)\s*min/i);
-    if (minMatch) {
-      return parseInt(minMatch[1]) * 60;
-    }
-
-    const secMatch = timeString.match(/(\d+)\s*s/i);
-    if (secMatch) {
-      return parseInt(secMatch[1]);
-    }
-
-    return 0;
-  }
-
-  /**
-   * Crée un timer de repos depuis une string (ex: "90s", "2min")
-   */
-  createRestTimer(restString, options = {}) {
-    const duration = TimerManager.parseTime(restString);
-    const timerId = `rest_${Date.now()}`;
-    
-    return this.createTimer(timerId, duration, {
-      type: 'rest',
-      ...options
-    });
-  }
-
-  /**
-   * Joue un son de notification
-   */
-  playSound() {
-    try {
-      // Utiliser l'API Web Audio pour créer un bip
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+  playBeep() {
+    if ('AudioContext' in window) {
+      const audioCtx = new AudioContext();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
 
       oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
+      gainNode.connect(audioCtx.destination);
 
       oscillator.frequency.value = 800;
       oscillator.type = 'sine';
 
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
 
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.5);
-    } catch (error) {
-      console.error('Erreur lecture son:', error);
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + 0.1);
     }
   }
 
   /**
-   * Récupère tous les timers actifs
+   * Joue le son de fin
    */
-  getActiveTimers() {
-    return Array.from(this.timers.values()).filter(timer => timer.isRunning);
+  playEndSound() {
+    if ('AudioContext' in window) {
+      const audioCtx = new AudioContext();
+      
+      // Séquence de 3 bips
+      [0, 0.15, 0.3].forEach(delay => {
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.frequency.value = 1200;
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime + delay);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + delay + 0.1);
+
+        oscillator.start(audioCtx.currentTime + delay);
+        oscillator.stop(audioCtx.currentTime + delay + 0.1);
+      });
+    }
   }
 
   /**
-   * Récupère l'état de tous les timers
+   * Vibration (mobile)
    */
-  getTimersState() {
-    const state = {};
-    this.timers.forEach((timer, id) => {
-      state[id] = {
-        remaining: timer.remaining,
-        duration: timer.duration,
-        isRunning: timer.isRunning,
-        isPaused: timer.isPaused,
-        type: timer.type
-      };
-    });
-    return state;
+  vibrate() {
+    if ('vibrate' in navigator) {
+      navigator.vibrate([200, 100, 200]);
+    }
   }
 
   /**
-   * Vérifie si un timer est en cours
+   * Obtient le temps restant
    */
-  hasActiveTimer() {
-    return this.activeTimer !== null;
+  getTimeRemaining() {
+    return this.timeRemaining;
   }
 
   /**
-   * Récupère le temps restant formaté
+   * Vérifie si le timer tourne
    */
-  getRemainingFormatted(id) {
-    const timer = this.timers.get(id);
-    return timer ? TimerManager.formatTime(timer.remaining) : '00:00';
-  }
-
-  /**
-   * Récupère le pourcentage de progression
-   */
-  getProgress(id) {
-    const timer = this.timers.get(id);
-    if (!timer) return 0;
-    return ((timer.duration - timer.remaining) / timer.duration) * 100;
+  isTimerRunning() {
+    return this.isRunning && !this.isPaused;
   }
 }
-
-// Export d'une instance singleton
-export const timerManager = new TimerManager();
