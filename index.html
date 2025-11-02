@@ -1,158 +1,754 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Programme de musculation Hybrid Master 51 - 26 semaines">
-    <title>Hybrid Master 51 - Programme Musculation</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hybrid Master 51 - Programme Musculation</title>
+  
+  <style>
+    /* ================================================================ */
+    /* RESET & VARIABLES */
+    /* ================================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     
-    <!-- CSS Modulaire (ordre important) -->
-    <link rel="stylesheet" href="css/01-reset.css">
-    <link rel="stylesheet" href="css/02-variables.css">
-    <link rel="stylesheet" href="css/03-base.css">
-    <link rel="stylesheet" href="css/04-layout.css">
-    <link rel="stylesheet" href="css/05-components.css">
-    <link rel="stylesheet" href="css/06-workout-mode.css">
-    <link rel="stylesheet" href="css/07-statistics.css">
-    <link rel="stylesheet" href="css/08-responsive.css">
+    :root {
+      /* Couleurs */
+      --color-primary: #00d4aa;
+      --color-primary-dark: #00b38f;
+      --color-secondary: #1a1a2e;
+      --color-bg: #0f0f1e;
+      --color-bg-card: #1e1e3f;
+      --color-text: #ffffff;
+      --color-text-muted: #a0a0b0;
+      --color-success: #00ff88;
+      --color-warning: #ffaa00;
+      --color-danger: #ff4444;
+      
+      /* Espacements */
+      --spacing-xs: 0.5rem;
+      --spacing-sm: 1rem;
+      --spacing-md: 1.5rem;
+      --spacing-lg: 2rem;
+      --spacing-xl: 3rem;
+      
+      /* Typographie */
+      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      --font-size-sm: 0.875rem;
+      --font-size-base: 1rem;
+      --font-size-lg: 1.25rem;
+      --font-size-xl: 1.5rem;
+      --font-size-2xl: 2rem;
+      
+      /* Borders */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      
+      /* Shadows */
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* ================================================================ */
+    /* BASE */
+    /* ================================================================ */
+    body {
+      font-family: var(--font-family);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    /* ================================================================ */
+    /* LAYOUT */
+    /* ================================================================ */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--spacing-md);
+    }
+    
+    header {
+      background: var(--color-secondary);
+      padding: var(--spacing-lg) 0;
+      margin-bottom: var(--spacing-xl);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+    }
+    
+    .logo {
+      font-size: var(--font-size-2xl);
+      font-weight: 900;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    
+    /* ================================================================ */
+    /* NAVIGATION SEMAINES */
+    /* ================================================================ */
+    .week-navigation {
+      background: var(--color-bg-card);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .week-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .btn-week {
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-week:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+      transform: scale(1.05);
+    }
+    
+    .btn-week:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    .week-info h1 {
+      font-size: var(--font-size-2xl);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .week-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .block-name {
+      color: var(--color-text-muted);
+      font-size: var(--font-size-lg);
+    }
+    
+    /* ================================================================ */
+    /* BADGES */
+    /* ================================================================ */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-sm);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .badge-block {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .badge-technique {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .badge-deload {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      animation: pulse 2s infinite;
+    }
+    
+    .badge-rpe {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+    
+    .badge-compound {
+      background: #ff6b6b;
+    }
+    
+    .badge-isolation {
+      background: #4ecdc4;
+    }
+    
+    .badge-superset {
+      background: #f7b731;
+      color: var(--color-secondary);
+    }
+    
+    .badge-technique-rp {
+      background: #ee5a6f;
+    }
+    
+    .badge-technique-ds {
+      background: #fd79a8;
+    }
+    
+    .badge-technique-mr {
+      background: #a29bfe;
+    }
+    
+    .badge-technique-cl {
+      background: #ff7675;
+    }
+    
+    .badge-technique-pt {
+      background: #74b9ff;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    /* ================================================================ */
+    /* ONGLETS JOURS */
+    /* ================================================================ */
+    .day-tabs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .day-tab {
+      background: var(--color-bg-card);
+      border: 2px solid transparent;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    
+    .day-tab:hover {
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+    
+    .day-tab.active {
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      border-color: var(--color-primary);
+    }
+    
+    .day-icon {
+      font-size: var(--font-size-xl);
+      display: block;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .day-label {
+      font-weight: 700;
+      display: block;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .day-duration {
+      font-size: var(--font-size-sm);
+      opacity: 0.8;
+    }
+    
+    /* ================================================================ */
+    /* WORKOUT */
+    /* ================================================================ */
+    .workout-header {
+      background: var(--color-bg-card);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .workout-header h2 {
+      font-size: var(--font-size-xl);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .workout-meta {
+      display: flex;
+      gap: var(--spacing-lg);
+      flex-wrap: wrap;
+    }
+    
+    .meta-item {
+      display: flex;
+      gap: var(--spacing-xs);
+      align-items: center;
+    }
+    
+    /* ================================================================ */
+    /* EXERCISES */
+    /* ================================================================ */
+    .exercises-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+    }
+    
+    .superset-container {
+      position: relative;
+      background: linear-gradient(135deg, rgba(247, 183, 49, 0.1) 0%, rgba(247, 183, 49, 0.05) 100%);
+      border: 2px solid rgba(247, 183, 49, 0.3);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+    }
+    
+    .superset-label {
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: #f7b731;
+      color: var(--color-secondary);
+      padding: 0.25rem 1rem;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: var(--font-size-sm);
+    }
+    
+    .exercise-card {
+      background: var(--color-bg-card);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+    }
+    
+    .exercise-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .exercise-card.is-superset {
+      background: rgba(30, 30, 63, 0.6);
+    }
+    
+    .exercise-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--spacing-md);
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+    
+    .exercise-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      flex: 1;
+    }
+    
+    .exercise-number {
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: var(--font-size-lg);
+    }
+    
+    .exercise-title h3 {
+      font-size: var(--font-size-lg);
+      margin: 0;
+    }
+    
+    .exercise-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-xs);
+    }
+    
+    /* ================================================================ */
+    /* META GRID */
+    /* ================================================================ */
+    .exercise-meta {
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: var(--spacing-md);
+    }
+    
+    .meta-item {
+      background: rgba(0, 0, 0, 0.2);
+      padding: var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      text-align: center;
+    }
+    
+    .meta-label {
+      display: block;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      margin-bottom: var(--spacing-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .meta-value {
+      display: block;
+      font-size: var(--font-size-xl);
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+    
+    /* ================================================================ */
+    /* WEIGHT CONTROL */
+    /* ================================================================ */
+    .weight-control {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-xs);
+    }
+    
+    .btn-weight-adjust {
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-weight-adjust:hover {
+      background: var(--color-primary-dark);
+      transform: scale(1.1);
+    }
+    
+    .weight-input {
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--color-primary);
+      color: var(--color-text);
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      width: 70px;
+      text-align: center;
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+    }
+    
+    .weight-unit {
+      color: var(--color-text-muted);
+      font-weight: 700;
+    }
+    
+    /* ================================================================ */
+    /* TEMPO */
+    /* ================================================================ */
+    .tempo-display {
+      background: rgba(0, 212, 170, 0.1);
+      border-left: 4px solid var(--color-primary);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+    }
+    
+    .tempo-label {
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+    
+    .tempo-value {
+      font-size: var(--font-size-xl);
+      font-weight: 900;
+      color: var(--color-primary);
+      font-family: 'Courier New', monospace;
+    }
+    
+    .tempo-help {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+    }
+    
+    /* ================================================================ */
+    /* SETS TRACKER */
+    /* ================================================================ */
+    .sets-tracker {
+      background: rgba(0, 0, 0, 0.2);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .sets-label {
+      font-weight: 700;
+      margin-bottom: var(--spacing-sm);
+      color: var(--color-primary);
+    }
+    
+    .sets-checkboxes {
+      display: flex;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+    }
+    
+    .set-checkbox {
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .set-checkbox input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+    }
+    
+    .set-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--color-primary);
+      border-radius: 50%;
+      font-weight: 900;
+      font-size: var(--font-size-lg);
+      transition: all 0.3s ease;
+    }
+    
+    .set-checkbox input:checked + .set-number {
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      transform: scale(1.1);
+    }
+    
+    .set-checkbox:hover .set-number {
+      border-width: 4px;
+    }
+    
+    /* ================================================================ */
+    /* NOTES */
+    /* ================================================================ */
+    .exercise-notes {
+      background: rgba(255, 170, 0, 0.1);
+      border-left: 4px solid var(--color-warning);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-size-sm);
+      line-height: 1.6;
+    }
+    
+    /* ================================================================ */
+    /* TIMER */
+    /* ================================================================ */
+    .btn-start-rest-timer {
+      width: 100%;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      color: var(--color-secondary);
+      border: none;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-start-rest-timer:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .timer {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      background: var(--color-bg-card);
+      padding: var(--spacing-xl);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      min-width: 200px;
+      text-align: center;
+    }
+    
+    .timer-display-value {
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--color-primary);
+      font-family: 'Courier New', monospace;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .timer-running .timer-display-value {
+      animation: pulse 1s infinite;
+    }
+    
+    .timer-warning .timer-display-value {
+      color: var(--color-danger);
+      animation: blink 0.5s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    
+    .timer-controls {
+      display: flex;
+      gap: var(--spacing-sm);
+      justify-content: center;
+    }
+    
+    .btn-timer-control {
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-timer-control:hover {
+      background: var(--color-primary-dark);
+    }
+    
+    /* ================================================================ */
+    /* STATS */
+    /* ================================================================ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .stat-card {
+      background: var(--color-bg-card);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+    
+    .stat-label {
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .stat-value {
+      font-size: var(--font-size-2xl);
+      font-weight: 900;
+      color: var(--color-primary);
+    }
+    
+    /* ================================================================ */
+    /* ERROR */
+    /* ================================================================ */
+    .error-message {
+      background: rgba(255, 68, 68, 0.1);
+      border: 2px solid var(--color-danger);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+    
+    /* ================================================================ */
+    /* RESPONSIVE */
+    /* ================================================================ */
+    @media (max-width: 768px) {
+      .container {
+        padding: var(--spacing-sm);
+      }
+      
+      .week-controls {
+        flex-direction: column;
+      }
+      
+      .meta-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .timer {
+        right: 10px;
+        top: 80px;
+        padding: var(--spacing-md);
+      }
+      
+      .timer-display-value {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Application Container -->
-    <div id="app">
-        <!-- Header -->
-        <header class="app-header">
-            <div class="header-content">
-                <h1>
-                    <span class="brand-icon">💪</span>
-                    Hybrid Master 51
-                </h1>
-                <p class="subtitle">Programme 26 semaines - Force & Hypertrophie</p>
-            </div>
-            <nav class="header-nav">
-                <button id="stats-btn" class="nav-btn" aria-label="Statistiques">
-                    📊 Statistiques
-                </button>
-                <button id="settings-btn" class="nav-btn" aria-label="Paramètres">
-                    ⚙️ Paramètres
-                </button>
-            </nav>
-        </header>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">💪 Hybrid Master 51</div>
+      </div>
+    </div>
+  </header>
 
-        <!-- Week Selector -->
-        <section id="weekSelector" class="week-selector">
-            <div class="week-selector-header">
-                <h2>Sélectionner une semaine</h2>
-                <div class="week-info">
-                    <span id="current-week-display" class="current-week">Semaine 1</span>
-                    <span id="bloc-display" class="bloc-badge">Bloc 1</span>
-                </div>
-            </div>
-            <div id="week-grid" class="week-grid">
-                <!-- Généré dynamiquement par JavaScript -->
-            </div>
-        </section>
-
-        <!-- Workout Grid -->
-        <section id="workout-section" class="workout-section">
-            <div class="workout-header">
-                <h2>Séances de la semaine</h2>
-                <button id="start-session-btn" class="btn-primary" disabled>
-                    ▶️ Démarrer la séance
-                </button>
-            </div>
-            <div id="workout-grid" class="workout-grid">
-                <!-- Généré dynamiquement -->
-            </div>
-        </section>
-
-        <!-- Workout Details -->
-        <section id="workout-details" class="workout-details hidden">
-            <div class="details-header">
-                <button id="back-to-week-btn" class="btn-secondary">
-                    ← Retour
-                </button>
-                <h2 id="workout-title">Détails de la séance</h2>
-            </div>
-            <div id="exercices-list" class="exercices-list">
-                <!-- Généré dynamiquement -->
-            </div>
-        </section>
-
-        <!-- Session Mode (Timer & Progression) -->
-        <section id="session-mode" class="session-mode hidden">
-            <div class="session-header">
-                <button id="exit-session-btn" class="btn-danger">
-                    ✕ Quitter
-                </button>
-                <h2 id="session-title">Séance en cours</h2>
-                <div id="session-timer" class="session-timer">00:00</div>
-            </div>
-            <div id="session-content" class="session-content">
-                <!-- Exercice actuel + timer + contrôles -->
-            </div>
-        </section>
-
-        <!-- Statistics Modal -->
-        <div id="stats-modal" class="modal hidden">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>📊 Statistiques</h2>
-                    <button id="close-stats-modal" class="close-modal" aria-label="Fermer">✕</button>
-                </div>
-                <div id="stats-content" class="stats-content">
-                    <!-- Généré dynamiquement -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Settings Modal -->
-        <div id="settings-modal" class="modal hidden">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>⚙️ Paramètres</h2>
-                    <button id="close-settings-modal" class="close-modal" aria-label="Fermer">✕</button>
-                </div>
-                <div class="settings-content">
-                    <div class="setting-item">
-                        <label for="user-name">Nom d'utilisateur</label>
-                        <input type="text" id="user-name" placeholder="Votre nom">
-                    </div>
-                    <div class="setting-item">
-                        <label for="rest-timer-sound">Son timer repos</label>
-                        <input type="checkbox" id="rest-timer-sound" checked>
-                    </div>
-                    <div class="setting-item">
-                        <button id="export-data-btn" class="btn-secondary">
-                            📤 Exporter données
-                        </button>
-                        <button id="import-data-btn" class="btn-secondary">
-                            📥 Importer données
-                        </button>
-                    </div>
-                    <div class="setting-item">
-                        <button id="reset-data-btn" class="btn-danger">
-                            🗑️ Réinitialiser tout
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer class="app-footer">
-            <p>Hybrid Master 51 © 2025 - Programme de musculation professionnel</p>
-            <p class="footer-links">
-                <a href="#" id="about-link">À propos</a> | 
-                <a href="#" id="help-link">Aide</a> | 
-                <a href="#" id="contact-link">Contact</a>
-            </p>
-        </footer>
+  <!-- Main Container -->
+  <div class="container">
+    
+    <!-- Navigation Semaines -->
+    <div class="week-navigation">
+      <div class="week-controls">
+        <button id="prev-week" class="btn-week">◀ Précédent</button>
+        <div id="week-display"></div>
+        <button id="next-week" class="btn-week">Suivant ▶</button>
+      </div>
     </div>
 
-    <!-- Toast Notifications -->
-    <div id="toast-container" class="toast-container"></div>
+    <!-- Statistiques -->
+    <div id="stats-container" class="stats-grid"></div>
 
-    <!-- JavaScript Module (defer pour chargement après DOM) -->
-    <script type="module" src="js/app.js" defer></script>
+    <!-- Onglets Jours -->
+    <div id="day-tabs" class="day-tabs"></div>
+
+    <!-- Workout Container -->
+    <div id="workout-container"></div>
+
+    <!-- Timer Display -->
+    <div id="timer-display"></div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="./scripts/app.js"></script>
 </body>
 </html>
