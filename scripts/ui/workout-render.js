@@ -1,312 +1,347 @@
-// ===================================================================
-// HYBRID MASTER 51 - MOTEUR DE RENDU DES SÉANCES
-// ===================================================================
-// Génère le HTML des séances d'entraînement
+/**
+ * WORKOUT RENDERER - Affichage des séances d'entraînement
+ * Module UI responsable du rendu visuel des workouts
+ * 
+ * @module ui/workout-renderer
+ * @version 1.0.0
+ */
 
 export class WorkoutRenderer {
-  constructor(programData, progressionEngine) {
-    this.programData = programData;
-    this.progressionEngine = progressionEngine;
+  constructor() {
+    this.container = document.getElementById('workout-container');
+    this.currentWeek = 1;
+    this.currentDay = 'dimanche';
   }
 
   /**
-   * Rend une semaine complète
+   * Affiche une séance complète
+   * @param {Object} workout - Données de la séance
+   * @param {number} weekNumber - Numéro de semaine
    */
-  renderWeek(weekNumber) {
-    const workouts = this.programData.weeklySchedule;
-    const container = document.createElement('div');
-    container.className = 'workout-grid';
-
-    Object.entries(workouts).forEach(([day, workout]) => {
-      const card = this.renderWorkoutCard(day, workout, weekNumber);
-      container.appendChild(card);
-    });
-
-    return container;
-  }
-
-  /**
-   * Rend une carte de séance
-   */
-  renderWorkoutCard(day, workout, weekNumber) {
-    const card = document.createElement('div');
-    card.className = 'workout-card';
-    card.dataset.day = day;
-
-    // Header
-    const header = this.createWorkoutHeader(day, workout);
-    card.appendChild(header);
-
-    // Échauffement
-    if (day !== 'maison') {
-      const warmup = this.createWarmupSection();
-      card.appendChild(warmup);
+  render(workout, weekNumber) {
+    if (!this.container) {
+      console.error('Container #workout-container not found');
+      return;
     }
 
-    // Exercices
-    const exerciseList = this.createExerciseList(workout.exercises, weekNumber);
-    card.appendChild(exerciseList);
-
-    return card;
+    this.currentWeek = weekNumber;
+    this.container.innerHTML = this.generateWorkoutHTML(workout, weekNumber);
+    this.attachEventListeners();
   }
 
   /**
-   * Crée l'en-tête d'une séance
+   * Génère le HTML d'une séance
    */
-  createWorkoutHeader(day, workout) {
-    const header = document.createElement('div');
-    header.className = 'workout-header';
-
-    const dayIcon = this.getDayIcon(day);
-    const dayName = day.charAt(0).toUpperCase() + day.slice(1);
-
-    header.innerHTML = `
-      <h3 class="workout-day">
-        <span class="workout-icon">${dayIcon}</span>
-        ${dayName}
-      </h3>
-      <div class="workout-duration">
-        <span>⏱️</span>
-        <span>${workout.duration || '60-90min'}</span>
-      </div>
-    `;
-
-    return header;
-  }
-
-  /**
-   * Crée la section échauffement
-   */
-  createWarmupSection() {
-    const section = document.createElement('div');
-    section.className = 'warmup-section';
-    section.innerHTML = `
-      <div class="alert alert-info">
-        <span class="alert-icon">🔥</span>
-        <div class="alert-content">
-          <div class="alert-title">Échauffement</div>
-          <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.875rem;">
-            <li>5-10min cardio léger</li>
-            <li>Mobilité articulaire</li>
-            <li>2 séries d'échauffement par exercice</li>
-          </ul>
-        </div>
-      </div>
-    `;
-    return section;
-  }
-
-  /**
-   * Crée la liste des exercices
-   */
-  createExerciseList(exercises, weekNumber) {
-    const list = document.createElement('ul');
-    list.className = 'exercise-list';
-
-    exercises.forEach((exercise, index) => {
-      const item = this.createExerciseItem(exercise, weekNumber, index);
-      list.appendChild(item);
-    });
-
-    return list;
-  }
-
-  /**
-   * Crée un élément d'exercice
-   */
-  createExerciseItem(exercise, weekNumber, index) {
-    const item = document.createElement('li');
-    item.className = 'exercise-item';
-    item.dataset.exerciseIndex = index;
-
-    // Marquer les supersets
-    if (exercise.superset) {
-      item.classList.add('superset');
-    }
-
-    // Nom de l'exercice
-    const name = document.createElement('div');
-    name.className = 'exercise-name';
-    
-    // Gestion de la rotation biceps
-    let exerciseName = exercise.name;
-    if (exercise.name === 'Biceps Rotation') {
-      const isInclineWeek = this.progressionEngine.isBicepsInclineWeek(weekNumber);
-      exerciseName = isInclineWeek ? 'Incline Curl' : 'Spider Curl';
-    }
-    
-    name.textContent = exerciseName;
-    item.appendChild(name);
-
-    // Détails de l'exercice
-    const details = this.createExerciseDetails(exercise, weekNumber);
-    item.appendChild(details);
-
-    // Techniques spéciales
-    if (exercise.technique) {
-      const technique = this.createTechniqueBadge(exercise.technique);
-      item.appendChild(technique);
-    }
-
-    return item;
-  }
-
-  /**
-   * Crée les détails d'un exercice
-   */
-  createExerciseDetails(exercise, weekNumber) {
-    const details = document.createElement('div');
-    details.className = 'exercise-details';
-
-    // Calcul du poids pour cette semaine
-    const weight = this.progressionEngine.calculateWeightForWeek(
-      exercise,
-      weekNumber
-    );
-
-    // Sets
-    const sets = this.createDetailBadge('📊', `${exercise.sets} séries`);
-    details.appendChild(sets);
-
-    // Reps
-    const reps = this.createDetailBadge('🔢', exercise.reps);
-    details.appendChild(reps);
-
-    // Poids
-    if (weight) {
-      const weightBadge = this.createDetailBadge('💪', weight);
-      details.appendChild(weightBadge);
-    }
-
-    // Repos
-    if (exercise.rest) {
-      const rest = this.createDetailBadge('⏱️', exercise.rest);
-      details.appendChild(rest);
-    }
-
-    // Tempo
-    if (exercise.tempo) {
-      const tempo = this.createDetailBadge('⏲️', `Tempo: ${exercise.tempo}`);
-      details.appendChild(tempo);
-    }
-
-    return details;
-  }
-
-  /**
-   * Crée un badge de détail
-   */
-  createDetailBadge(icon, text) {
-    const badge = document.createElement('span');
-    badge.className = 'detail-badge';
-    badge.innerHTML = `
-      <span>${icon}</span>
-      <span>${text}</span>
-    `;
-    return badge;
-  }
-
-  /**
-   * Crée un badge de technique
-   */
-  createTechniqueBadge(technique) {
-    const badge = document.createElement('div');
-    badge.className = 'technique-badge';
-    badge.textContent = technique;
-    return badge;
-  }
-
-  /**
-   * Retourne l'icône pour un jour
-   */
-  getDayIcon(day) {
-    const icons = {
-      dimanche: '🏋️',
-      mardi: '💪',
-      jeudi: '🔥',
-      maison: '🏠'
-    };
-    return icons[day] || '💪';
-  }
-
-  /**
-   * Rend les statistiques de volume par muscle
-   */
-  renderVolumeStats(weekNumber) {
-    const stats = this.calculateVolumeStats(weekNumber);
-    
-    const container = document.createElement('div');
-    container.className = 'volume-chart';
-    container.innerHTML = '<h4 class="volume-chart-title">📊 Volume par Groupe Musculaire</h4>';
-
-    Object.entries(stats).forEach(([muscle, volume]) => {
-      const maxVolume = Math.max(...Object.values(stats));
-      const percentage = (volume / maxVolume) * 100;
-
-      const bar = document.createElement('div');
-      bar.className = 'muscle-group-bar';
-      bar.innerHTML = `
-        <div class="muscle-group-header">
-          <span class="muscle-group-name">${muscle}</span>
-          <span class="muscle-group-value">${volume} séries</span>
-        </div>
-        <div class="bar-container">
-          <div class="bar-fill" style="width: ${percentage}%"></div>
+  generateWorkoutHTML(workout, weekNumber) {
+    if (!workout || !workout.exercises) {
+      return `
+        <div class="no-workout">
+          <p>Aucune séance disponible pour ce jour</p>
         </div>
       `;
-      container.appendChild(bar);
-    });
-
-    return container;
-  }
-
-  /**
-   * Calcule les statistiques de volume
-   */
-  calculateVolumeStats(weekNumber) {
-    const stats = {};
-    const workouts = this.programData.weeklySchedule;
-
-    Object.values(workouts).forEach(workout => {
-      workout.exercises.forEach(exercise => {
-        const muscle = this.getMuscleGroup(exercise.name);
-        if (!stats[muscle]) stats[muscle] = 0;
-        stats[muscle] += exercise.sets;
-      });
-    });
-
-    return stats;
-  }
-
-  /**
-   * Détermine le groupe musculaire d'un exercice
-   */
-  getMuscleGroup(exerciseName) {
-    const mapping = {
-      'Trap Bar': 'Jambes',
-      'Split Squat': 'Jambes',
-      'Leg Curl': 'Jambes',
-      'Calf': 'Mollets',
-      'Press': 'Pectoraux',
-      'Bench': 'Pectoraux',
-      'Fly': 'Pectoraux',
-      'Row': 'Dos',
-      'Pull': 'Dos',
-      'Lat': 'Dos',
-      'Overhead': 'Épaules',
-      'Lateral': 'Épaules',
-      'Curl': 'Biceps',
-      'Extension': 'Triceps',
-      'Dips': 'Triceps',
-      'Cable Crunch': 'Abdos',
-      'Crunch': 'Abdos',
-      'Plank': 'Abdos'
-    };
-
-    for (const [key, value] of Object.entries(mapping)) {
-      if (exerciseName.includes(key)) return value;
     }
 
-    return 'Autre';
+    const isDeload = workout.isDeload || false;
+    const technique = workout.technique || '';
+
+    return `
+      <div class="workout-header">
+        <h2>${workout.name}</h2>
+        <div class="workout-meta">
+          <span class="duration">⏱️ ${workout.duration} min</span>
+          ${isDeload ? '<span class="badge badge-deload">DELOAD -40%</span>' : ''}
+          ${technique ? `<span class="badge badge-technique">${technique}</span>` : ''}
+        </div>
+      </div>
+
+      <div class="exercises-list" id="exercises-list">
+        ${workout.exercises.map((ex, index) => this.generateExerciseHTML(ex, index)).join('')}
+      </div>
+
+      <div class="workout-footer">
+        <button class="btn btn-primary" id="start-workout">
+          ▶️ Démarrer la séance
+        </button>
+      </div>
+    `;
+  }
+
+  /**
+   * Génère le HTML d'un exercice
+   */
+  generateExerciseHTML(exercise, index) {
+    if (exercise.category === 'superset') {
+      return this.generateSupersetHTML(exercise, index);
+    }
+
+    const badgeClass = exercise.category === 'compound' ? 'badge-compound' : 'badge-isolation';
+    const badgeText = exercise.category === 'compound' ? 'Polyarticulaire' : 'Isolation';
+
+    return `
+      <div class="exercise-card" data-exercise-id="${exercise.id}">
+        <div class="exercise-header">
+          <div class="exercise-number">${index + 1}</div>
+          <div class="exercise-info">
+            <h3 class="exercise-name">${exercise.name}</h3>
+            <span class="badge ${badgeClass}">${badgeText}</span>
+          </div>
+        </div>
+
+        <div class="exercise-details">
+          <div class="detail-group">
+            <label>Séries</label>
+            <span class="detail-value">${exercise.sets}</span>
+          </div>
+          <div class="detail-group">
+            <label>Répétitions</label>
+            <span class="detail-value">${exercise.reps}</span>
+          </div>
+          <div class="detail-group">
+            <label>Poids</label>
+            <div class="weight-control">
+              <button class="btn-adjust" data-action="decrease">-</button>
+              <input type="number" 
+                     class="weight-input" 
+                     value="${exercise.weight}" 
+                     step="2.5"
+                     data-exercise-id="${exercise.id}">
+              <span class="unit">kg</span>
+              <button class="btn-adjust" data-action="increase">+</button>
+            </div>
+          </div>
+          <div class="detail-group">
+            <label>Repos</label>
+            <span class="detail-value">${exercise.rest}s</span>
+          </div>
+        </div>
+
+        ${exercise.tempo ? `
+          <div class="tempo-display">
+            <label>Tempo</label>
+            <span class="tempo-value">${exercise.tempo}</span>
+            <span class="tempo-help">(descente-pause-montée)</span>
+          </div>
+        ` : ''}
+
+        ${exercise.rpe ? `
+          <div class="rpe-display">
+            <label>RPE</label>
+            <span class="rpe-value">${exercise.rpe}/10</span>
+          </div>
+        ` : ''}
+
+        ${exercise.notes ? `
+          <div class="exercise-notes">
+            <span class="notes-icon">📝</span>
+            <p>${exercise.notes}</p>
+          </div>
+        ` : ''}
+
+        <div class="sets-tracker">
+          ${Array.from({length: exercise.sets}, (_, i) => `
+            <label class="set-checkbox">
+              <input type="checkbox" 
+                     data-exercise-id="${exercise.id}" 
+                     data-set="${i + 1}">
+              <span>Série ${i + 1}</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Génère le HTML d'un superset
+   */
+  generateSupersetHTML(superset, index) {
+    return `
+      <div class="exercise-card superset-card" data-exercise-id="${superset.id}">
+        <div class="superset-header">
+          <div class="exercise-number">${index + 1}</div>
+          <div class="superset-info">
+            <span class="badge badge-superset">SUPERSET</span>
+            <h3 class="exercise-name">${superset.name}</h3>
+          </div>
+        </div>
+
+        <div class="superset-exercises">
+          ${superset.exercises.map((ex, i) => `
+            <div class="superset-exercise">
+              <h4>${String.fromCharCode(65 + i)}. ${ex.name}</h4>
+              <div class="exercise-details">
+                <div class="detail-group">
+                  <label>Répétitions</label>
+                  <span class="detail-value">${ex.reps}</span>
+                </div>
+                <div class="detail-group">
+                  <label>Poids</label>
+                  <div class="weight-control">
+                    <button class="btn-adjust" data-action="decrease">-</button>
+                    <input type="number" 
+                           class="weight-input" 
+                           value="${ex.weight}" 
+                           step="2.5"
+                           data-exercise-id="${superset.id}_${i}">
+                    <span class="unit">kg</span>
+                    <button class="btn-adjust" data-action="increase">+</button>
+                  </div>
+                </div>
+                ${ex.tempo ? `
+                  <div class="detail-group">
+                    <label>Tempo</label>
+                    <span class="detail-value">${ex.tempo}</span>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          `).join('<div class="superset-divider">↓ puis ↓</div>')}
+        </div>
+
+        <div class="exercise-details">
+          <div class="detail-group">
+            <label>Séries totales</label>
+            <span class="detail-value">${superset.sets}</span>
+          </div>
+          <div class="detail-group">
+            <label>Repos après cycle</label>
+            <span class="detail-value">${superset.rest}s</span>
+          </div>
+          ${superset.rpe ? `
+            <div class="detail-group">
+              <label>RPE</label>
+              <span class="detail-value">${superset.rpe}/10</span>
+            </div>
+          ` : ''}
+        </div>
+
+        ${superset.notes ? `
+          <div class="exercise-notes">
+            <span class="notes-icon">📝</span>
+            <p>${superset.notes}</p>
+          </div>
+        ` : ''}
+
+        <div class="sets-tracker">
+          ${Array.from({length: superset.sets}, (_, i) => `
+            <label class="set-checkbox">
+              <input type="checkbox" 
+                     data-exercise-id="${superset.id}" 
+                     data-set="${i + 1}">
+              <span>Cycle ${i + 1}</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Attache les event listeners
+   */
+  attachEventListeners() {
+    // Ajustement poids
+    document.querySelectorAll('.btn-adjust').forEach(btn => {
+      btn.addEventListener('click', (e) => this.handleWeightAdjust(e));
+    });
+
+    // Input poids manuel
+    document.querySelectorAll('.weight-input').forEach(input => {
+      input.addEventListener('change', (e) => this.handleWeightChange(e));
+    });
+
+    // Checkboxes séries
+    document.querySelectorAll('.set-checkbox input').forEach(cb => {
+      cb.addEventListener('change', (e) => this.handleSetCheck(e));
+    });
+
+    // Bouton démarrer séance
+    const startBtn = document.getElementById('start-workout');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => this.startWorkout());
+    }
+  }
+
+  /**
+   * Gère l'ajustement du poids (+/-)
+   */
+  handleWeightAdjust(e) {
+    const button = e.target;
+    const action = button.dataset.action;
+    const input = button.parentElement.querySelector('.weight-input');
+    
+    if (!input) return;
+
+    const currentWeight = parseFloat(input.value) || 0;
+    const newWeight = action === 'increase' 
+      ? currentWeight + 2.5 
+      : Math.max(0, currentWeight - 2.5);
+
+    input.value = newWeight.toFixed(1);
+    this.saveWeight(input.dataset.exerciseId, newWeight);
+  }
+
+  /**
+   * Gère le changement manuel du poids
+   */
+  handleWeightChange(e) {
+    const input = e.target;
+    const weight = parseFloat(input.value) || 0;
+    this.saveWeight(input.dataset.exerciseId, weight);
+  }
+
+  /**
+   * Gère le check d'une série
+   */
+  handleSetCheck(e) {
+    const checkbox = e.target;
+    const exerciseId = checkbox.dataset.exerciseId;
+    const setNumber = parseInt(checkbox.dataset.set);
+
+    this.saveSetCompletion(exerciseId, setNumber, checkbox.checked);
+  }
+
+  /**
+   * Sauvegarde un poids modifié
+   */
+  saveWeight(exerciseId, weight) {
+    const key = `weight_${this.currentWeek}_${exerciseId}`;
+    localStorage.setItem(key, weight.toString());
+    
+    // Émettre un événement custom
+    window.dispatchEvent(new CustomEvent('weightChanged', {
+      detail: { exerciseId, weight, week: this.currentWeek }
+    }));
+  }
+
+  /**
+   * Sauvegarde la complétion d'une série
+   */
+  saveSetCompletion(exerciseId, setNumber, completed) {
+    const key = `set_${this.currentWeek}_${exerciseId}_${setNumber}`;
+    localStorage.setItem(key, completed.toString());
+
+    // Émettre un événement custom
+    window.dispatchEvent(new CustomEvent('setCompleted', {
+      detail: { exerciseId, setNumber, completed, week: this.currentWeek }
+    }));
+  }
+
+  /**
+   * Démarre le mode séance
+   */
+  startWorkout() {
+    window.dispatchEvent(new CustomEvent('workoutStarted', {
+      detail: { week: this.currentWeek, day: this.currentDay }
+    }));
+  }
+
+  /**
+   * Nettoie le rendu
+   */
+  clear() {
+    if (this.container) {
+      this.container.innerHTML = '';
+    }
   }
 }
