@@ -1,6 +1,6 @@
 /**
- * TIMER MANAGER - Gestion des timers de repos
- * Module pour gérer les temps de repos entre séries
+ * HYBRID MASTER 51 - TIMER MANAGER
+ * Gère le timer de repos entre les séries
  * 
  * @module modules/timer-manager
  * @version 1.0.0
@@ -8,299 +8,267 @@
 
 export class TimerManager {
   constructor() {
+    this.duration = 0;
+    this.remaining = 0;
+    this.intervalId = null;
     this.isRunning = false;
-    this.isPaused = false;
-    this.timeRemaining = 0;
-    this.timerInterval = null;
-    this.displayElement = null;
-    
-    this.initDisplay();
-    this.attachEventListeners();
+
+    this.initElements();
+    this.attachListeners();
   }
 
   /**
-   * Initialise l'affichage du timer
+   * Initialise les éléments DOM
    */
-  initDisplay() {
-    this.displayElement = document.getElementById('timer-display');
-    
-    if (!this.displayElement) {
-      console.warn('Timer display element not found');
+  initElements() {
+    this.display = document.getElementById('timer-display');
+    this.startBtn = document.getElementById('timer-start');
+    this.resetBtn = document.getElementById('timer-reset');
+
+    if (!this.display) {
+      console.error('❌ Timer display element not found');
     }
   }
 
   /**
    * Attache les event listeners
    */
-  attachEventListeners() {
-    // Boutons contrôle
-    const startBtn = document.getElementById('timer-start');
-    const pauseBtn = document.getElementById('timer-pause');
-    const resetBtn = document.getElementById('timer-reset');
+  attachListeners() {
+    // Bouton start/pause
+    if (this.startBtn) {
+      this.startBtn.addEventListener('click', () => {
+        if (this.isRunning) {
+          this.pause();
+        } else {
+          if (this.remaining > 0) {
+            this.resume();
+          }
+        }
+      });
+    }
 
-    if (startBtn) {
-      startBtn.addEventListener('click', () => this.toggle());
+    // Bouton reset
+    if (this.resetBtn) {
+      this.resetBtn.addEventListener('click', () => {
+        this.reset();
+      });
     }
-    if (pauseBtn) {
-      pauseBtn.addEventListener('click', () => this.pause());
-    }
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => this.reset());
-    }
+
+    // Event custom pour démarrer le timer
+    window.addEventListener('startTimer', (e) => {
+      this.start(e.detail.duration);
+    });
 
     // Raccourci clavier ESPACE
     document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && !e.target.matches('input, textarea')) {
-        e.preventDefault();
-        this.toggle();
+      if (e.code === 'Space') {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          if (this.isRunning) {
+            this.pause();
+          } else if (this.remaining > 0) {
+            this.resume();
+          }
+        }
       }
     });
   }
 
   /**
-   * Démarre un timer avec durée spécifiée
+   * Démarre un nouveau timer
    * @param {number} seconds - Durée en secondes
    */
   start(seconds) {
-    if (this.isRunning && !this.isPaused) {
-      return;
-    }
-
-    this.timeRemaining = seconds;
+    this.duration = seconds;
+    this.remaining = seconds;
     this.isRunning = true;
-    this.isPaused = false;
 
     this.updateDisplay();
-    this.startInterval();
+    this.updateButtonStates();
 
-    // Émettre événement
-    window.dispatchEvent(new CustomEvent('timerStarted', {
-      detail: { duration: seconds }
-    }));
-  }
-
-  /**
-   * Toggle play/pause
-   */
-  toggle() {
-    if (!this.isRunning) {
-      // Démarrer avec temps par défaut (90s)
-      this.start(90);
-    } else if (this.isPaused) {
-      this.resume();
-    } else {
-      this.pause();
-    }
-  }
-
-  /**
-   * Met en pause
-   */
-  pause() {
-    if (!this.isRunning || this.isPaused) {
-      return;
-    }
-
-    this.isPaused = true;
-    this.stopInterval();
-
-    window.dispatchEvent(new CustomEvent('timerPaused'));
-  }
-
-  /**
-   * Reprend après pause
-   */
-  resume() {
-    if (!this.isPaused) {
-      return;
-    }
-
-    this.isPaused = false;
-    this.startInterval();
-
-    window.dispatchEvent(new CustomEvent('timerResumed'));
-  }
-
-  /**
-   * Arrête et réinitialise
-   */
-  stop() {
-    this.isRunning = false;
-    this.isPaused = false;
-    this.timeRemaining = 0;
-    this.stopInterval();
-    this.updateDisplay();
-
-    window.dispatchEvent(new CustomEvent('timerStopped'));
-  }
-
-  /**
-   * Réinitialise au temps initial
-   */
-  reset() {
-    const initialTime = this.timeRemaining;
-    this.stop();
-    
-    window.dispatchEvent(new CustomEvent('timerReset', {
-      detail: { duration: initialTime }
-    }));
-  }
-
-  /**
-   * Démarre l'intervalle
-   */
-  startInterval() {
-    this.stopInterval(); // Nettoie l'ancien intervalle
-
-    this.timerInterval = setInterval(() => {
+    this.intervalId = setInterval(() => {
       this.tick();
     }, 1000);
-  }
 
-  /**
-   * Arrête l'intervalle
-   */
-  stopInterval() {
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-      this.timerInterval = null;
-    }
+    console.log(`⏱️ Timer started: ${seconds}s`);
   }
 
   /**
    * Tick du timer (chaque seconde)
    */
   tick() {
-    if (this.isPaused) {
-      return;
-    }
+    if (this.remaining > 0) {
+      this.remaining--;
+      this.updateDisplay();
 
-    this.timeRemaining--;
+      // Animation quand proche de la fin
+      if (this.remaining <= 10 && this.remaining > 0) {
+        this.display?.classList.add('timer-warning');
+      }
 
-    // Notification à 10 secondes
-    if (this.timeRemaining === 10) {
-      this.playBeep();
-      window.dispatchEvent(new CustomEvent('timerWarning'));
+      // Timer terminé
+      if (this.remaining === 0) {
+        this.complete();
+      }
     }
+  }
 
-    // Timer terminé
-    if (this.timeRemaining <= 0) {
-      this.complete();
-      return;
+  /**
+   * Pause le timer
+   */
+  pause() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
     }
+    this.isRunning = false;
+    this.updateButtonStates();
+    console.log('⏸️ Timer paused');
+  }
+
+  /**
+   * Reprend le timer
+   */
+  resume() {
+    if (this.remaining > 0) {
+      this.isRunning = true;
+      this.intervalId = setInterval(() => {
+        this.tick();
+      }, 1000);
+      this.updateButtonStates();
+      console.log('▶️ Timer resumed');
+    }
+  }
+
+  /**
+   * Reset le timer
+   */
+  reset() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+    this.remaining = 0;
+    this.duration = 0;
+    this.isRunning = false;
 
     this.updateDisplay();
+    this.updateButtonStates();
+    this.display?.classList.remove('timer-warning', 'timer-complete');
+    
+    console.log('🔄 Timer reset');
   }
 
   /**
    * Timer terminé
    */
   complete() {
-    this.stop();
-    this.playEndSound();
-    this.vibrate();
+    this.pause();
+    this.display?.classList.add('timer-complete');
+    this.display?.classList.remove('timer-warning');
 
-    window.dispatchEvent(new CustomEvent('timerCompleted'));
+    // Notification sonore (si autorisée)
+    this.playSound();
 
-    // Notification navigateur
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('Repos terminé !', {
-        body: 'Prêt pour la prochaine série',
-        icon: '/icon-192x192.png'
-      });
+    // Vibration mobile
+    if ('vibrate' in navigator) {
+      navigator.vibrate([200, 100, 200]);
     }
+
+    // Event custom
+    const event = new CustomEvent('timerCompleted', {
+      detail: { duration: this.duration }
+    });
+    window.dispatchEvent(event);
+
+    console.log('✅ Timer completed');
+
+    // Auto-reset après 3 secondes
+    setTimeout(() => {
+      this.reset();
+    }, 3000);
   }
 
   /**
-   * Met à jour l'affichage
+   * Joue un son de notification
    */
-  updateDisplay() {
-    if (!this.displayElement) {
-      return;
-    }
-
-    const minutes = Math.floor(this.timeRemaining / 60);
-    const seconds = this.timeRemaining % 60;
-    const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-    this.displayElement.textContent = timeString;
-
-    // Classes CSS selon état
-    this.displayElement.classList.toggle('running', this.isRunning && !this.isPaused);
-    this.displayElement.classList.toggle('paused', this.isPaused);
-    this.displayElement.classList.toggle('warning', this.timeRemaining <= 10);
-  }
-
-  /**
-   * Joue un bip
-   */
-  playBeep() {
-    if ('AudioContext' in window) {
-      const audioCtx = new AudioContext();
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
+  playSound() {
+    // Créer un bip simple avec Web Audio API
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
 
       oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
+      gainNode.connect(audioContext.destination);
 
       oscillator.frequency.value = 800;
       oscillator.type = 'sine';
 
-      gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
 
-      oscillator.start(audioCtx.currentTime);
-      oscillator.stop(audioCtx.currentTime + 0.1);
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+      console.warn('Could not play sound:', error);
     }
   }
 
   /**
-   * Joue le son de fin
+   * Met à jour l'affichage du timer
    */
-  playEndSound() {
-    if ('AudioContext' in window) {
-      const audioCtx = new AudioContext();
-      
-      // Séquence de 3 bips
-      [0, 0.15, 0.3].forEach(delay => {
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
+  updateDisplay() {
+    if (!this.display) return;
 
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
+    const minutes = Math.floor(this.remaining / 60);
+    const seconds = this.remaining % 60;
+    const formatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-        oscillator.frequency.value = 1200;
-        oscillator.type = 'sine';
+    this.display.textContent = formatted;
 
-        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime + delay);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + delay + 0.1);
-
-        oscillator.start(audioCtx.currentTime + delay);
-        oscillator.stop(audioCtx.currentTime + delay + 0.1);
-      });
+    // Animation pulse si en cours
+    if (this.isRunning) {
+      this.display.classList.add('timer-active');
+    } else {
+      this.display.classList.remove('timer-active');
     }
   }
 
   /**
-   * Vibration (mobile)
+   * Met à jour l'état des boutons
    */
-  vibrate() {
-    if ('vibrate' in navigator) {
-      navigator.vibrate([200, 100, 200]);
+  updateButtonStates() {
+    if (!this.startBtn) return;
+
+    if (this.isRunning) {
+      this.startBtn.textContent = '⏸️';
+      this.startBtn.title = 'Pause (ESPACE)';
+    } else {
+      this.startBtn.textContent = '▶️';
+      this.startBtn.title = 'Démarrer/Reprendre (ESPACE)';
+    }
+
+    // Désactiver boutons si timer à 0
+    if (this.startBtn) {
+      this.startBtn.disabled = this.remaining === 0 && !this.isRunning;
+    }
+    if (this.resetBtn) {
+      this.resetBtn.disabled = this.remaining === 0 && !this.isRunning;
     }
   }
 
   /**
-   * Obtient le temps restant
-   */
-  getTimeRemaining() {
-    return this.timeRemaining;
-  }
-
-  /**
-   * Vérifie si le timer tourne
+   * Retourne si le timer est en cours
    */
   isTimerRunning() {
-    return this.isRunning && !this.isPaused;
+    return this.isRunning;
+  }
+
+  /**
+   * Retourne le temps restant
+   */
+  getRemaining() {
+    return this.remaining;
   }
 }
