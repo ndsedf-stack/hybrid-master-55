@@ -1,324 +1,595 @@
-/* ================================================================ */
-/* 06-WORKOUT-MODE.CSS - Mode Séance */
-/* ================================================================ */
+/**
+ * 06-WORKOUT-MODE.CSS
+ * Styles pour le mode séance d'entraînement
+ */
 
-/* ================================================================ */
-/* EXERCISE META */
-/* ================================================================ */
+/* ============================================================================
+   WORKOUT CONTAINER
+   ============================================================================ */
 
-.exercise-meta {
-  margin-bottom: var(--spacing-lg);
+.workout-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
-.meta-item {
-  background: rgba(0, 0, 0, 0.3);
-  padding: var(--spacing-md);
-  border-radius: var(--radius-sm);
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 1.5rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-top-color: var(--color-primary, #00d4aa);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.no-workout {
   text-align: center;
-  border: 1px solid rgba(0, 212, 170, 0.2);
+  padding: 3rem 1rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+/* ============================================================================
+   WORKOUT HEADER
+   ============================================================================ */
+
+.workout-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--color-border, rgba(255, 255, 255, 0.1));
+}
+
+.workout-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--color-primary, #00d4aa);
+}
+
+.workout-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.workout-meta .duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-bg-secondary, rgba(255, 255, 255, 0.05));
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* ============================================================================
+   BADGES
+   ============================================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-deload {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+  color: white;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.badge-technique {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.badge-compound {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  color: white;
+}
+
+.badge-isolation {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+}
+
+.badge-superset {
+  background: linear-gradient(135deg, #fa709a, #fee140);
+  color: #1a1a2e;
+  font-weight: 700;
+}
+
+.badge-block {
+  background: var(--color-primary, #00d4aa);
+  color: #1a1a2e;
+  font-weight: 700;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ============================================================================
+   EXERCISES LIST
+   ============================================================================ */
+
+.exercises-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ============================================================================
+   EXERCISE CARD
+   ============================================================================ */
+
+.exercise-card {
+  background: var(--color-bg-card, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: 12px;
+  padding: 1.5rem;
   transition: all 0.3s ease;
 }
 
-.meta-item:hover {
-  border-color: var(--color-primary);
-  background: rgba(0, 0, 0, 0.5);
+.exercise-card:hover {
+  border-color: var(--color-primary, #00d4aa);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 212, 170, 0.15);
 }
 
-.meta-label {
-  display: block;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  margin-bottom: var(--spacing-xs);
+/* Header */
+.exercise-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.exercise-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--color-primary, #00d4aa);
+  color: #1a1a2e;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.exercise-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.exercise-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #ffffff);
+  margin: 0;
+}
+
+/* Details */
+.exercise-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--color-bg-secondary, rgba(255, 255, 255, 0.02));
+  border-radius: 8px;
+}
+
+.detail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.detail-group label {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.6));
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
 }
 
-.meta-value {
-  display: block;
-  font-size: var(--font-size-2xl);
-  font-weight: 900;
-  color: var(--color-primary);
-  font-family: 'Courier New', monospace;
+.detail-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #ffffff);
 }
 
-/* ================================================================ */
-/* WEIGHT CONTROL */
-/* ================================================================ */
-
+/* Weight Control */
 .weight-control {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-}
-
-.btn-weight-adjust {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: var(--color-secondary);
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: var(--font-size-xl);
-  font-weight: 900;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 212, 170, 0.3);
-}
-
-.btn-weight-adjust:hover {
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, #008c72 100%);
-  transform: scale(1.15);
-  box-shadow: 0 4px 15px rgba(0, 212, 170, 0.6);
-}
-
-.btn-weight-adjust:active {
-  transform: scale(1.05);
+  gap: 0.5rem;
 }
 
 .weight-input {
-  width: 90px;
+  width: 70px;
+  padding: 0.4rem 0.6rem;
+  background: var(--color-bg-input, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: 6px;
+  color: var(--color-text-primary, #ffffff);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
 }
 
-.weight-unit {
-  color: var(--color-text-muted);
-  font-weight: 700;
-  font-size: var(--font-size-lg);
+.weight-input:focus {
+  outline: none;
+  border-color: var(--color-primary, #00d4aa);
+  box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
 }
 
-/* ================================================================ */
-/* TEMPO DISPLAY */
-/* ================================================================ */
-
-.tempo-display {
-  background: linear-gradient(135deg, rgba(0, 212, 170, 0.2) 0%, rgba(0, 212, 170, 0.05) 100%);
-  border-left: 5px solid var(--color-primary);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--radius-sm);
-  margin-bottom: var(--spacing-lg);
+.btn-adjust {
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
+  justify-content: center;
+  background: var(--color-primary, #00d4aa);
+  color: #1a1a2e;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.tempo-label {
-  font-weight: 900;
-  color: var(--color-primary);
+.btn-adjust:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
+}
+
+.btn-adjust:active {
+  transform: scale(0.95);
+}
+
+.unit {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.6));
+  font-weight: 600;
+}
+
+/* Tempo Display */
+.tempo-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  border-left: 3px solid #667eea;
+  border-radius: 6px;
+}
+
+.tempo-display label {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.6));
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: var(--font-size-base);
+  font-weight: 600;
 }
 
 .tempo-value {
-  font-size: 2rem;
-  font-weight: 900;
-  color: var(--color-primary);
-  font-family: 'Courier New', monospace;
-  text-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #667eea;
+  letter-spacing: 2px;
 }
 
 .tempo-help {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.5));
   font-style: italic;
 }
 
-/* ================================================================ */
-/* SETS TRACKER */
-/* ================================================================ */
-
-.sets-tracker {
-  background: rgba(0, 0, 0, 0.3);
-  padding: var(--spacing-lg);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--spacing-lg);
-  border: 1px solid rgba(0, 212, 170, 0.2);
-}
-
-.sets-label {
-  font-weight: 700;
-  margin-bottom: var(--spacing-md);
-  color: var(--color-primary);
-  font-size: var(--font-size-base);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.sets-checkboxes {
+/* RPE Display */
+.rpe-display {
   display: flex;
-  gap: var(--spacing-md);
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(238, 90, 111, 0.1));
+  border-left: 3px solid #ff6b6b;
+  border-radius: 6px;
+}
+
+.rpe-display label {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.6));
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.rpe-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ff6b6b;
+}
+
+/* Exercise Notes */
+.exercise-notes {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--color-bg-secondary, rgba(255, 255, 255, 0.02));
+  border-left: 3px solid var(--color-primary, #00d4aa);
+  border-radius: 6px;
+}
+
+.notes-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.exercise-notes p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-text-primary, rgba(255, 255, 255, 0.9));
+}
+
+/* Sets Tracker */
+.sets-tracker {
+  display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
 }
 
 .set-checkbox {
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: var(--color-bg-secondary, rgba(255, 255, 255, 0.03));
+  border: 2px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.set-checkbox:hover {
+  border-color: var(--color-primary, #00d4aa);
+  background: rgba(0, 212, 170, 0.05);
 }
 
 .set-checkbox input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
+  width: 20px;
+  height: 20px;
   cursor: pointer;
+  accent-color: var(--color-primary, #00d4aa);
 }
 
-.set-number {
+.set-checkbox input[type="checkbox"]:checked + span {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.set-checkbox span {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #ffffff);
+}
+
+/* ============================================================================
+   SUPERSET CARD
+   ============================================================================ */
+
+.superset-card {
+  background: linear-gradient(135deg, rgba(250, 112, 154, 0.05), rgba(254, 225, 64, 0.05));
+  border: 2px solid rgba(250, 112, 154, 0.3);
+}
+
+.superset-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.superset-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.superset-exercises {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.superset-exercise {
+  padding: 1rem;
+  background: var(--color-bg-secondary, rgba(255, 255, 255, 0.02));
+  border-radius: 8px;
+}
+
+.superset-exercise h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #ffffff);
+  margin: 0 0 0.75rem 0;
+}
+
+.superset-divider {
+  text-align: center;
+  font-size: 1.5rem;
+  color: var(--color-primary, #00d4aa);
+  font-weight: 700;
+  padding: 0.5rem 0;
+}
+
+/* ============================================================================
+   WORKOUT FOOTER
+   ============================================================================ */
+
+.workout-footer {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  text-align: center;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--color-primary, #00d4aa), #00a896);
+  color: #1a1a2e;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 212, 170, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ============================================================================
+   TIMER DISPLAY (Header)
+   ============================================================================ */
+
+.timer-display-container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 60px;
-  height: 60px;
-  border: 4px solid var(--color-primary);
-  border-radius: 50%;
-  font-weight: 900;
-  font-size: var(--font-size-xl);
-  transition: all 0.3s ease;
-  background: rgba(0, 0, 0, 0.3);
-  color: var(--color-text);
+  gap: 1rem;
 }
 
-.set-checkbox:hover .set-number {
-  border-width: 5px;
-  transform: scale(1.1);
-  box-shadow: 0 0 20px rgba(0, 212, 170, 0.5);
-}
-
-.set-checkbox input:checked + .set-number {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: var(--color-secondary);
-  transform: scale(1.15);
-  box-shadow: 0 0 30px rgba(0, 212, 170, 0.8);
-  border-color: var(--color-primary);
-}
-
-/* ================================================================ */
-/* EXERCISE NOTES */
-/* ================================================================ */
-
-.exercise-notes {
-  background: linear-gradient(135deg, rgba(255, 170, 0, 0.15) 0%, rgba(255, 170, 0, 0.05) 100%);
-  border-left: 5px solid var(--color-warning);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--radius-sm);
-  margin-bottom: var(--spacing-lg);
-  font-size: var(--font-size-base);
-  line-height: 1.8;
-}
-
-.exercise-notes strong {
-  color: var(--color-warning);
-  font-weight: 900;
-}
-
-/* ================================================================ */
-/* TIMER BUTTON */
-/* ================================================================ */
-
-.btn-start-rest-timer {
-  width: 100%;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: var(--color-secondary);
-  border: none;
-  padding: var(--spacing-lg);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-lg);
-  font-weight: 900;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  box-shadow: 0 4px 15px rgba(0, 212, 170, 0.4);
-}
-
-.btn-start-rest-timer:hover {
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, #008c72 100%);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 212, 170, 0.6);
-}
-
-.btn-start-rest-timer:active {
-  transform: translateY(-1px);
-}
-
-/* ================================================================ */
-/* TIMER (FIXED) */
-/* ================================================================ */
-
-.timer {
-  background: var(--color-bg-card);
-  padding: var(--spacing-xl);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  min-width: 250px;
+.timer-display {
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary, #00d4aa);
+  min-width: 120px;
   text-align: center;
-  border: 3px solid var(--color-primary);
 }
 
-.timer-display-value {
-  font-size: 4.5rem;
-  font-weight: 900;
-  color: var(--color-primary);
-  font-family: 'Courier New', monospace;
-  margin-bottom: var(--spacing-md);
-  text-shadow: 0 0 30px rgba(0, 212, 170, 0.8);
-  line-height: 1;
+.timer-display.running {
+  animation: pulse-timer 1s ease-in-out infinite;
 }
 
-.timer-running .timer-display-value {
-  animation: pulse-timer 1s infinite;
+.timer-display.warning {
+  color: #ff6b6b;
+  animation: blink 0.5s ease-in-out infinite;
 }
 
 @keyframes pulse-timer {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.9;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
-.timer-warning .timer-display-value {
-  color: var(--color-danger);
-  animation: blink-timer 0.5s infinite;
-}
-
-@keyframes blink-timer {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(1.1);
-  }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 .timer-controls {
   display: flex;
-  gap: var(--spacing-sm);
-  justify-content: center;
+  gap: 0.5rem;
 }
 
-.btn-timer-control {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: var(--color-secondary);
-  border: none;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--radius-sm);
-  font-weight: 700;
-  font-size: var(--font-size-base);
+.timer-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-card, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: 10px;
+  font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.btn-timer-control:hover {
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, #008c72 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 212, 170, 0.5);
+.timer-btn:hover {
+  background: var(--color-primary, #00d4aa);
+  border-color: var(--color-primary, #00d4aa);
+  transform: scale(1.05);
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .workout-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .workout-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .exercise-details {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sets-tracker {
+    gap: 0.5rem;
+  }
+
+  .set-checkbox {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .timer-display {
+    font-size: 2rem;
+    min-width: 100px;
+  }
+
+  .timer-btn {
+    width: 40px;
+    height: 40px;
+  }
 }
