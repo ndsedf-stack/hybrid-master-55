@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Diagnostic Complet - Hybrid Master 51</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .test-label {
+            font-weight: 500;
+            color: #333;
+            flex: 1;
+        }
+
+        .test-status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .status-ok {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .error-detail {
+            margin-top: 8px;
+            padding: 12px;
+            background: #fff5f5;
+            border-left: 3px solid #e53e3e;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #c53030;
+            word-break: break-all;
+        }
+
+        .solution {
+            margin-top: 12px;
+            padding: 12px;
+            background: #e6fffa;
+            border-left: 3px solid #38b2ac;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #234e52;
+        }
+
+        .solution strong {
+            color: #2c7a7b;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .summary h2 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .critical-issues {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .critical-issues h3 {
+            color: #c53030;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .issue-item {
+            padding: 12px;
+            background: white;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #fc8181;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnostic Complet - Hybrid Master 51</h1>
+        <p class="subtitle">Analyse approfondie de tous les composants de l'application</p>
+
+        <!-- Section 1 : Environnement -->
+        <div class="test-section">
+            <h2>🌐 Environnement</h2>
+            <div id="env-tests"></div>
+        </div>
+
+        <!-- Section 2 : Structure des fichiers -->
+        <div class="test-section">
+            <h2>📁 Structure des Fichiers</h2>
+            <div id="file-tests"></div>
+        </div>
+
+        <!-- Section 3 : Modules JavaScript -->
+        <div class="test-section">
+            <h2>📦 Modules JavaScript</h2>
+            <div id="module-tests"></div>
+        </div>
+
+        <!-- Section 4 : Données du programme -->
+        <div class="test-section">
+            <h2>💪 Données du Programme</h2>
+            <div id="data-tests"></div>
+        </div>
+
+        <!-- Section 5 : Éléments DOM -->
+        <div class="test-section">
+            <h2>🎨 Éléments DOM</h2>
+            <div id="dom-tests"></div>
+        </div>
+
+        <!-- Section 6 : Console & Erreurs -->
+        <div class="test-section">
+            <h2>🐛 Console & Erreurs</h2>
+            <div id="console-tests"></div>
+        </div>
+
+        <!-- Problèmes critiques -->
+        <div id="critical-issues-container"></div>
+
+        <!-- Résumé -->
+        <div class="summary" id="summary"></div>
+
+        <button class="refresh-btn" onclick="location.reload()">🔄 Relancer le diagnostic</button>
+    </div>
+
+    <script type="module">
+        // Configuration
+        const config = {
+            basePath: './scripts/',
+            requiredModules: [
+                'core/program-data.js',
+                'ui/workout-renderer.js',
+                'ui/navigation-ui.js',
+                'modules/timer-manager.js',
+                'modules/workout-session.js',
+                'storage/local-storage.js'
+            ],
+            requiredDOM: [
+                'app',
+                'workout-container',
+                'week-display',
+                'prev-week',
+                'next-week',
+                'timer-display',
+                'timer-start',
+                'timer-reset'
+            ]
+        };
+
+        // Résultats
+        let results = {
+            total: 0,
+            passed: 0,
+            failed: 0,
+            warnings: 0,
+            criticalIssues: []
+        };
+
+        // Helper pour créer un test
+        function createTest(label, status, detail = null, solution = null) {
+            results.total++;
+            if (status === 'ok') results.passed++;
+            else if (status === 'error') results.failed++;
+            else if (status === 'warning') results.warnings++;
+
+            const statusText = {
+                'ok': '✅ OK',
+                'error': '❌ ERREUR',
+                'warning': '⚠️ ATTENTION'
+            };
+
+            let html = `
+                <div class="test-item">
+                    <span class="test-label">${label}</span>
+                    <span class="test-status status-${status}">${statusText[status]}</span>
+                </div>
+            `;
+
+            if (detail) {
+                html += `<div class="error-detail">❌ ${detail}</div>`;
+            }
+
+            if (solution) {
+                html += `<div class="solution"><strong>💡 Solution:</strong> ${solution}</div>`;
+            }
+
+            return html;
+        }
+
+        // Test 1 : Environnement
+        function testEnvironment() {
+            let html = '';
+
+            html += createTest('Navigateur supporté', 'ok');
+
+            // LocalStorage
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                html += createTest('LocalStorage disponible', 'ok');
+            } catch (e) {
+                html += createTest(
+                    'LocalStorage disponible',
+                    'error',
+                    e.message,
+                    'Activez les cookies/stockage local dans votre navigateur'
+                );
+            }
+
+            // Modules ES6
+            if (typeof document.createElement('script').noModule === 'boolean') {
+                html += createTest('Modules ES6 supportés', 'ok');
+            } else {
+                html += createTest(
+                    'Modules ES6 supportés',
+                    'error',
+                    'Navigateur trop ancien',
+                    'Utilisez un navigateur moderne (Chrome, Firefox, Safari récent)'
+                );
+            }
+
+            document.getElementById('env-tests').innerHTML = html;
+        }
+
+        // Test 2 : Structure des fichiers
+        async function testFileStructure() {
+            let html = '';
+
+            for (const modulePath of config.requiredModules) {
+                const fullPath = config.basePath + modulePath;
+                try {
+                    const response = await fetch(fullPath, { method: 'HEAD' });
+                    if (response.ok) {
+                        html += createTest(`${modulePath}`, 'ok');
+                    } else {
+                        html += createTest(
+                            modulePath,
+                            'error',
+                            `Fichier introuvable (${response.status})`,
+                            `Créez le fichier : ${fullPath}`
+                        );
+                        results.criticalIssues.push({
+                            file: modulePath,
+                            error: 'Fichier manquant',
+                            solution: `Créez le fichier : ${fullPath}`
+                        });
+                    }
+                } catch (e) {
+                    html += createTest(
+                        modulePath,
+                        'error',
+                        `Impossible de charger : ${e.message}`,
+                        `Vérifiez que le fichier existe : ${fullPath}`
+                    );
+                    results.criticalIssues.push({
+                        file: modulePath,
+                        error: e.message,
+                        solution: `Vérifiez que le fichier existe : ${fullPath}`
+                    });
+                }
+            }
+
+            document.getElementById('file-tests').innerHTML = html;
+        }
+
+        // Test 3 : Modules JavaScript
+        async function testModules() {
+            let html = '';
+
+            try {
+                const { ProgramData, PROGRAM } = await import('./scripts/core/program-data.js');
+                
+                if (ProgramData) {
+                    html += createTest('ProgramData class importée', 'ok');
+                } else {
+                    html += createTest(
+                        'ProgramData class importée',
+                        'error',
+                        'Classe ProgramData non exportée',
+                        'Vérifiez que program-data.js contient: export class ProgramData { ... }'
+                    );
+                }
+
+                if (PROGRAM) {
+                    html += createTest('PROGRAM data importée', 'ok');
+                    
+                    const weekCount = Object.keys(PROGRAM).filter(k => k.startsWith('week')).length;
+                    if (weekCount === 26) {
+                        html += createTest(`26 semaines présentes`, 'ok');
+                    } else {
+                        html += createTest(
+                            '26 semaines présentes',
+                            'error',
+                            `Seulement ${weekCount} semaines trouvées`,
+                            'Complétez program-data.js avec les 26 semaines'
+                        );
+                        results.criticalIssues.push({
+                            file: 'program-data.js',
+                            error: `Seulement ${weekCount}/26 semaines`,
+                            solution: 'Complétez les semaines manquantes'
+                        });
+                    }
+
+                    if (PROGRAM.week1) {
+                        const days = ['dimanche', 'mardi', 'vendredi', 'maison'];
+                        const missingDays = days.filter(d => !PROGRAM.week1[d]);
+                        
+                        if (missingDays.length === 0) {
+                            html += createTest('Structure des jours correcte', 'ok');
+                        } else {
+                            html += createTest(
+                                'Structure des jours correcte',
+                                'error',
+                                `Jours manquants: ${missingDays.join(', ')}`,
+                                'Ajoutez les jours manquants dans chaque semaine'
+                            );
+                        }
+
+                        if (PROGRAM.week1.dimanche && PROGRAM.week1.dimanche.exercises) {
+                            const exCount = PROGRAM.week1.dimanche.exercises.length;
+                            html += createTest(`Exercices Dimanche S1: ${exCount} exercices`, 'ok');
+                        } else {
+                            html += createTest(
+                                'Exercices présents',
+                                'error',
+                                'Aucun exercice trouvé pour Dimanche S1',
+                                'Vérifiez la structure: PROGRAM.week1.dimanche.exercises = [...]'
+                            );
+                        }
+                    }
+                } else {
+                    html += createTest(
+                        'PROGRAM data importée',
+                        'error',
+                        'Objet PROGRAM non exporté',
+                        'Vérifiez que program-data.js contient: export const PROGRAM = { ... }'
+                    );
+                }
+            } catch (e) {
+                html += createTest(
+                    'Import program-data.js',
+                    'error',
+                    e.message,
+                    'Vérifiez que le fichier existe et contient du code valide'
+                );
+                results.criticalIssues.push({
+                    file: 'program-data.js',
+                    error: e.message,
+                    solution: 'Fichier manquant ou contient des erreurs de syntaxe'
+                });
+            }
+
+            document.getElementById('module-tests').innerHTML = html;
+        }
+
+        // Test 4 : Données du programme
+        async function testProgramData() {
+            let html = '';
+
+            try {
+                const { ProgramData } = await import('./scripts/core/program-data.js');
+                const programData = new ProgramData();
+
+                try {
+                    const week1 = programData.getWeek(1);
+                    if (week1) {
+                        html += createTest('Méthode getWeek(1) fonctionne', 'ok');
+                    } else {
+                        html += createTest(
+                            'Méthode getWeek(1) fonctionne',
+                            'error',
+                            'Retourne null ou undefined',
+                            'Vérifiez la méthode getWeek() dans ProgramData'
+                        );
+                    }
+                } catch (e) {
+                    html += createTest(
+                        'Méthode getWeek(1)',
+                        'error',
+                        e.message,
+                        'Implémentez la méthode getWeek(weekNumber) dans ProgramData'
+                    );
+                }
+
+                try {
+                    const workout = programData.getWorkout(1, 'dimanche');
+                    if (workout && workout.exercises) {
+                        html += createTest(`Méthode getWorkout() retourne ${workout.exercises.length} exercices`, 'ok');
+                    } else {
+                        html += createTest(
+                            'Méthode getWorkout()',
+                            'error',
+                            'Ne retourne pas de tableau d\'exercices',
+                            'Vérifiez la structure retournée par getWorkout()'
+                        );
+                    }
+                } catch (e) {
+                    html += createTest(
+                        'Méthode getWorkout()',
+                        'error',
+                        e.message,
+                        'Implémentez la méthode getWorkout(week, day)'
+                    );
+                }
+
+            } catch (e) {
+                html += createTest(
+                    'Initialisation ProgramData',
+                    'error',
+                    e.message,
+                    'Vérifiez le constructeur de la classe ProgramData'
+                );
+            }
+
+            document.getElementById('data-tests').innerHTML = html;
+        }
+
+        // Test 5 : Éléments DOM
+        function testDOM() {
+            let html = '';
+
+            for (const id of config.requiredDOM) {
+                const element = document.getElementById(id);
+                if (element) {
+                    html += createTest(`#${id}`, 'ok');
+                } else {
+                    html += createTest(
+                        `#${id}`,
+                        'error',
+                        'Élément introuvable dans le DOM',
+                        `Ajoutez <div id="${id}"></div> dans index.html`
+                    );
+                    results.criticalIssues.push({
+                        file: 'index.html',
+                        error: `Element #${id} manquant`,
+                        solution: `Ajoutez <div id="${id}"></div>`
+                    });
+                }
+            }
+
+            document.getElementById('dom-tests').innerHTML = html;
+        }
+
+        // Test 6 : Console
+        function testConsole() {
+            let html = '';
+            
+            const errors = window.consoleErrors || [];
+            
+            if (errors.length === 0) {
+                html += createTest('Aucune erreur console', 'ok');
+            } else {
+                html += createTest(
+                    `${errors.length} erreur(s) console détectée(s)`,
+                    'error',
+                    errors.join('<br>'),
+                    'Consultez la console développeur (F12) pour plus de détails'
+                );
+            }
+
+            document.getElementById('console-tests').innerHTML = html;
+        }
+
+        // Afficher les problèmes critiques
+        function displayCriticalIssues() {
+            if (results.criticalIssues.length === 0) return;
+
+            let html = `
+                <div class="critical-issues">
+                    <h3>🚨 Problèmes Critiques (${results.criticalIssues.length})</h3>
+            `;
+
+            results.criticalIssues.forEach((issue, index) => {
+                html += `
+                    <div class="issue-item">
+                        <strong>${index + 1}. ${issue.file}</strong>
+                        <div style="margin-top: 8px; color: #666;">${issue.error}</div>
+                        <div class="solution">
+                            <strong>💡 Solution:</strong>
+                            ${issue.solution}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            document.getElementById('critical-issues-container').innerHTML = html;
+        }
+
+        // Afficher le résumé
+        function displaySummary() {
+            const successRate = Math.round((results.passed / results.total) * 100);
+            
+            let status = '❌ Application non fonctionnelle';
+            let color = '#fc8181';
+            
+            if (successRate >= 90) {
+                status = '✅ Application fonctionnelle';
+                color = '#68d391';
+            } else if (successRate >= 70) {
+                status = '⚠️ Application partiellement fonctionnelle';
+                color = '#fbd38d';
+            }
+
+            const html = `
+                <h2 style="color: ${color};">${status}</h2>
+                <div class="summary-item">
+                    <span>Tests réussis</span>
+                    <strong>${results.passed} / ${results.total} (${successRate}%)</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Erreurs critiques</span>
+                    <strong style="color: #fc8181;">${results.failed}</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Avertissements</span>
+                    <strong style="color: #fbd38d;">${results.warnings}</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Problèmes bloquants</span>
+                    <strong style="color: #fc8181;">${results.criticalIssues.length}</strong>
+                </div>
+            `;
+
+            document.getElementById('summary').innerHTML = html;
+        }
+
+        // Capturer les erreurs console
+        window.consoleErrors = [];
+        const originalError = console.error;
+        console.error = function(...args) {
+            window.consoleErrors.push(args.join(' '));
+            originalError.apply(console, args);
+        };
+
+        // Lancer tous les tests
+        async function runAllTests() {
+            testEnvironment();
+            await testFileStructure();
+            await testModules();
+            await testProgramData();
+            testDOM();
+            testConsole();
+            displayCriticalIssues();
+            displaySummary();
+        }
+
+        runAllTests();
+    </script>
+</body>
+</html>
