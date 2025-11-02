@@ -1,6 +1,6 @@
 /**
- * LOCAL STORAGE - Gestion du stockage local
- * Module pour gérer la persistance des données
+ * HYBRID MASTER 51 - LOCAL STORAGE
+ * Gère la sauvegarde et le chargement des données
  * 
  * @module storage/local-storage
  * @version 1.0.0
@@ -8,164 +8,234 @@
 
 export class LocalStorage {
   constructor() {
-    this.prefix = 'hybrid_master_';
-    this.checkAvailability();
+    this.storageKey = 'hybrid_master_51';
+    this.init();
   }
 
   /**
-   * Vérifie la disponibilité de localStorage
+   * Initialise le storage
    */
-  checkAvailability() {
+  init() {
+    if (!this.isAvailable()) {
+      console.error('❌ LocalStorage not available');
+      return;
+    }
+
+    // Créer la structure si elle n'existe pas
+    if (!localStorage.getItem(this.storageKey)) {
+      this.createInitialStructure();
+    }
+
+    console.log('✅ LocalStorage initialized');
+  }
+
+  /**
+   * Vérifie si localStorage est disponible
+   */
+  isAvailable() {
     try {
       const test = '__storage_test__';
       localStorage.setItem(test, test);
       localStorage.removeItem(test);
       return true;
     } catch (e) {
-      console.error('localStorage not available:', e);
       return false;
     }
   }
 
   /**
-   * Sauvegarde une valeur
-   * @param {string} key - Clé
-   * @param {any} value - Valeur (sera JSONifiée)
+   * Crée la structure initiale
    */
-  set(key, value) {
-    try {
-      const fullKey = this.prefix + key;
-      const jsonValue = JSON.stringify(value);
-      localStorage.setItem(fullKey, jsonValue);
-      return true;
-    } catch (error) {
-      console.error(`Error saving to localStorage (${key}):`, error);
-      return false;
-    }
+  createInitialStructure() {
+    const initialData = {
+      currentWeek: 1,
+      currentDay: 'dimanche',
+      weekProgress: {},
+      modifiedWeights: {},
+      sessionHistory: [],
+      settings: {
+        soundEnabled: true,
+        vibrationEnabled: true,
+        autoSave: true
+      },
+      lastSave: Date.now()
+    };
+
+    localStorage.setItem(this.storageKey, JSON.stringify(initialData));
   }
 
   /**
-   * Récupère une valeur
-   * @param {string} key - Clé
-   * @param {any} defaultValue - Valeur par défaut
+   * Charge toutes les données
    */
-  get(key, defaultValue = null) {
+  loadAll() {
     try {
-      const fullKey = this.prefix + key;
-      const item = localStorage.getItem(fullKey);
-      
-      if (item === null) {
-        return defaultValue;
-      }
-
-      return JSON.parse(item);
+      const data = localStorage.getItem(this.storageKey);
+      return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error(`Error reading from localStorage (${key}):`, error);
-      return defaultValue;
-    }
-  }
-
-  /**
-   * Supprime une valeur
-   * @param {string} key - Clé
-   */
-  remove(key) {
-    try {
-      const fullKey = this.prefix + key;
-      localStorage.removeItem(fullKey);
-      return true;
-    } catch (error) {
-      console.error(`Error removing from localStorage (${key}):`, error);
-      return false;
-    }
-  }
-
-  /**
-   * Vide tout le stockage de l'app
-   */
-  clear() {
-    try {
-      const keys = Object.keys(localStorage);
-      keys.forEach(key => {
-        if (key.startsWith(this.prefix)) {
-          localStorage.removeItem(key);
-        }
-      });
-      return true;
-    } catch (error) {
-      console.error('Error clearing localStorage:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Obtient toutes les clés de l'app
-   */
-  keys() {
-    try {
-      const keys = Object.keys(localStorage);
-      return keys
-        .filter(key => key.startsWith(this.prefix))
-        .map(key => key.substring(this.prefix.length));
-    } catch (error) {
-      console.error('Error getting keys:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Obtient la taille utilisée (approximatif)
-   */
-  getSize() {
-    let size = 0;
-    try {
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith(this.prefix)) {
-          size += localStorage.getItem(key).length;
-        }
-      });
-      return size;
-    } catch (error) {
-      console.error('Error calculating size:', error);
-      return 0;
-    }
-  }
-
-  /**
-   * Exporte toutes les données
-   */
-  export() {
-    const data = {};
-    
-    try {
-      this.keys().forEach(key => {
-        data[key] = this.get(key);
-      });
-      return data;
-    } catch (error) {
-      console.error('Error exporting data:', error);
+      console.error('Error loading data:', error);
       return null;
     }
   }
 
   /**
-   * Importe des données
-   * @param {Object} data - Données à importer
-   * @param {boolean} overwrite - Écraser les données existantes
+   * Sauvegarde toutes les données
    */
-  import(data, overwrite = false) {
-    if (!data || typeof data !== 'object') {
-      console.error('Invalid data for import');
+  saveAll(data) {
+    try {
+      data.lastSave = Date.now();
+      localStorage.setItem(this.storageKey, JSON.stringify(data));
+      return true;
+    } catch (error) {
+      console.error('Error saving data:', error);
       return false;
     }
+  }
 
+  /**
+   * Charge la progression d'une semaine
+   */
+  getWeekProgress(week, day) {
+    const data = this.loadAll();
+    if (!data) return { completedSets: [], notes: '' };
+
+    const key = `week${week}_${day}`;
+    return data.weekProgress[key] || { completedSets: [], notes: '' };
+  }
+
+  /**
+   * Sauvegarde la progression d'une semaine
+   */
+  saveWeekProgress(week, day, progress) {
+    const data = this.loadAll();
+    if (!data) return false;
+
+    const key = `week${week}_${day}`;
+    data.weekProgress[key] = progress;
+
+    return this.saveAll(data);
+  }
+
+  /**
+   * Charge le poids modifié d'un exercice
+   */
+  getWeight(exerciseId, week) {
+    const data = this.loadAll();
+    if (!data) return null;
+
+    const key = `${exerciseId}_week${week}`;
+    return data.modifiedWeights[key] || null;
+  }
+
+  /**
+   * Sauvegarde un poids modifié
+   */
+  saveWeight(exerciseId, week, weight) {
+    const data = this.loadAll();
+    if (!data) return false;
+
+    const key = `${exerciseId}_week${week}`;
+    data.modifiedWeights[key] = weight;
+
+    return this.saveAll(data);
+  }
+
+  /**
+   * Sauvegarde l'état de navigation
+   */
+  saveNavigation(week, day) {
+    const data = this.loadAll();
+    if (!data) return false;
+
+    data.currentWeek = week;
+    data.currentDay = day;
+
+    return this.saveAll(data);
+  }
+
+  /**
+   * Charge l'état de navigation
+   */
+  getNavigation() {
+    const data = this.loadAll();
+    return data ? {
+      week: data.currentWeek,
+      day: data.currentDay
+    } : { week: 1, day: 'dimanche' };
+  }
+
+  /**
+   * Ajoute une session à l'historique
+   */
+  addSessionHistory(session) {
+    const data = this.loadAll();
+    if (!data) return false;
+
+    data.sessionHistory.push({
+      ...session,
+      timestamp: Date.now()
+    });
+
+    return this.saveAll(data);
+  }
+
+  /**
+   * Charge l'historique des sessions
+   */
+  getSessionHistory() {
+    const data = this.loadAll();
+    return data ? data.sessionHistory : [];
+  }
+
+  /**
+   * Charge les paramètres
+   */
+  getSettings() {
+    const data = this.loadAll();
+    return data ? data.settings : {};
+  }
+
+  /**
+   * Sauvegarde les paramètres
+   */
+  saveSettings(settings) {
+    const data = this.loadAll();
+    if (!data) return false;
+
+    data.settings = { ...data.settings, ...settings };
+
+    return this.saveAll(data);
+  }
+
+  /**
+   * Efface toutes les données
+   */
+  clearAll() {
     try {
-      Object.entries(data).forEach(([key, value]) => {
-        if (overwrite || !this.get(key)) {
-          this.set(key, value);
-        }
-      });
+      localStorage.removeItem(this.storageKey);
+      this.createInitialStructure();
+      console.log('✅ Storage cleared');
       return true;
+    } catch (error) {
+      console.error('Error clearing storage:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Exporte les données en JSON
+   */
+  exportData() {
+    const data = this.loadAll();
+    return data ? JSON.stringify(data, null, 2) : null;
+  }
+
+  /**
+   * Importe des données depuis JSON
+   */
+  importData(jsonString) {
+    try {
+      const data = JSON.parse(jsonString);
+      return this.saveAll(data);
     } catch (error) {
       console.error('Error importing data:', error);
       return false;
@@ -173,54 +243,17 @@ export class LocalStorage {
   }
 
   /**
-   * Sauvegarde la progression d'une semaine
+   * Retourne la taille du storage utilisé
    */
-  saveWeekProgress(week, day, progress) {
-    return this.set(`week_${week}_${day}`, progress);
+  getSize() {
+    const data = localStorage.getItem(this.storageKey);
+    return data ? new Blob([data]).size : 0;
   }
 
   /**
-   * Récupère la progression d'une semaine
+   * Retourne la taille en KB
    */
-  getWeekProgress(week, day) {
-    return this.get(`week_${week}_${day}`, {
-      completed: false,
-      completedSets: [],
-      modifiedWeights: {},
-      notes: ''
-    });
-  }
-
-  /**
-   * Sauvegarde un poids modifié
-   */
-  saveWeight(exerciseId, week, weight) {
-    return this.set(`weight_${exerciseId}_${week}`, weight);
-  }
-
-  /**
-   * Récupère un poids modifié
-   */
-  getWeight(exerciseId, week, defaultWeight) {
-    return this.get(`weight_${exerciseId}_${week}`, defaultWeight);
-  }
-
-  /**
-   * Sauvegarde les préférences utilisateur
-   */
-  savePreferences(prefs) {
-    return this.set('user_preferences', prefs);
-  }
-
-  /**
-   * Récupère les préférences utilisateur
-   */
-  getPreferences() {
-    return this.get('user_preferences', {
-      soundEnabled: true,
-      vibrationEnabled: true,
-      autoTimer: true,
-      theme: 'dark'
-    });
+  getSizeKB() {
+    return Math.round(this.getSize() / 1024 * 10) / 10;
   }
 }
