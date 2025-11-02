@@ -1,83 +1,158 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hybrid Master 51 - Programme d'Entraînement</title>
-  
-  <!-- ✅ CSS FILES - CHEMINS RELATIFS CORRECTS -->
-  <link rel="stylesheet" href="./styles/01-reset.css">
-  <link rel="stylesheet" href="./styles/02-variables.css">
-  <link rel="stylesheet" href="./styles/03-base.css">
-  <link rel="stylesheet" href="./styles/04-layout.css">
-  <link rel="stylesheet" href="./styles/05-components.css">
-  <link rel="stylesheet" href="./styles/08-responsive.css">
-  
-  <meta name="description" content="Programme d'entraînement Hybrid Master 51 sur 26 semaines">
-  <meta name="theme-color" content="#00d4aa">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Programme de musculation Hybrid Master 51 - 26 semaines">
+    <title>Hybrid Master 51 - Programme Musculation</title>
+    
+    <!-- CSS Modulaire (ordre important) -->
+    <link rel="stylesheet" href="css/01-reset.css">
+    <link rel="stylesheet" href="css/02-variables.css">
+    <link rel="stylesheet" href="css/03-base.css">
+    <link rel="stylesheet" href="css/04-layout.css">
+    <link rel="stylesheet" href="css/05-components.css">
+    <link rel="stylesheet" href="css/06-workout-mode.css">
+    <link rel="stylesheet" href="css/07-statistics.css">
+    <link rel="stylesheet" href="css/08-responsive.css">
 </head>
 <body>
-  
-  <!-- HEADER -->
-  <header class="app-header">
-    <div class="container">
-      <h1>HYBRID MASTER 51</h1>
-      <p>Programme d'Entraînement Complet - 26 Semaines</p>
-    </div>
-  </header>
+    <!-- Application Container -->
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>
+                    <span class="brand-icon">💪</span>
+                    Hybrid Master 51
+                </h1>
+                <p class="subtitle">Programme 26 semaines - Force & Hypertrophie</p>
+            </div>
+            <nav class="header-nav">
+                <button id="stats-btn" class="nav-btn" aria-label="Statistiques">
+                    📊 Statistiques
+                </button>
+                <button id="settings-btn" class="nav-btn" aria-label="Paramètres">
+                    ⚙️ Paramètres
+                </button>
+            </nav>
+        </header>
 
-  <!-- MAIN CONTENT -->
-  <main class="container">
-    
-    <!-- Navigation Semaines -->
-    <section class="week-controls">
-      <div class="week-selector">
-        <button class="btn-week-nav" id="prevWeek">← Précédent</button>
-        <div class="week-info">
-          <span class="current-week" id="weekDisplay">Semaine 1</span>
-          <span class="block-badge" id="blockBadge">Bloc 1</span>
+        <!-- Week Selector -->
+        <section id="weekSelector" class="week-selector">
+            <div class="week-selector-header">
+                <h2>Sélectionner une semaine</h2>
+                <div class="week-info">
+                    <span id="current-week-display" class="current-week">Semaine 1</span>
+                    <span id="bloc-display" class="bloc-badge">Bloc 1</span>
+                </div>
+            </div>
+            <div id="week-grid" class="week-grid">
+                <!-- Généré dynamiquement par JavaScript -->
+            </div>
+        </section>
+
+        <!-- Workout Grid -->
+        <section id="workout-section" class="workout-section">
+            <div class="workout-header">
+                <h2>Séances de la semaine</h2>
+                <button id="start-session-btn" class="btn-primary" disabled>
+                    ▶️ Démarrer la séance
+                </button>
+            </div>
+            <div id="workout-grid" class="workout-grid">
+                <!-- Généré dynamiquement -->
+            </div>
+        </section>
+
+        <!-- Workout Details -->
+        <section id="workout-details" class="workout-details hidden">
+            <div class="details-header">
+                <button id="back-to-week-btn" class="btn-secondary">
+                    ← Retour
+                </button>
+                <h2 id="workout-title">Détails de la séance</h2>
+            </div>
+            <div id="exercices-list" class="exercices-list">
+                <!-- Généré dynamiquement -->
+            </div>
+        </section>
+
+        <!-- Session Mode (Timer & Progression) -->
+        <section id="session-mode" class="session-mode hidden">
+            <div class="session-header">
+                <button id="exit-session-btn" class="btn-danger">
+                    ✕ Quitter
+                </button>
+                <h2 id="session-title">Séance en cours</h2>
+                <div id="session-timer" class="session-timer">00:00</div>
+            </div>
+            <div id="session-content" class="session-content">
+                <!-- Exercice actuel + timer + contrôles -->
+            </div>
+        </section>
+
+        <!-- Statistics Modal -->
+        <div id="stats-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>📊 Statistiques</h2>
+                    <button id="close-stats-modal" class="close-modal" aria-label="Fermer">✕</button>
+                </div>
+                <div id="stats-content" class="stats-content">
+                    <!-- Généré dynamiquement -->
+                </div>
+            </div>
         </div>
-        <button class="btn-week-nav" id="nextWeek">Suivant →</button>
-      </div>
-      <div class="week-grid" id="weekGrid"></div>
-    </section>
 
-    <!-- Stats Overview -->
-    <section class="stats-overview" id="statsOverview">
-      <div class="stat-card">
-        <span class="stat-label">Volume Total</span>
-        <span class="stat-value" id="totalVolume">-</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Exercices</span>
-        <span class="stat-value" id="totalExercises">-</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Temps Estimé</span>
-        <span class="stat-value" id="estimatedTime">-</span>
-      </div>
-    </section>
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>⚙️ Paramètres</h2>
+                    <button id="close-settings-modal" class="close-modal" aria-label="Fermer">✕</button>
+                </div>
+                <div class="settings-content">
+                    <div class="setting-item">
+                        <label for="user-name">Nom d'utilisateur</label>
+                        <input type="text" id="user-name" placeholder="Votre nom">
+                    </div>
+                    <div class="setting-item">
+                        <label for="rest-timer-sound">Son timer repos</label>
+                        <input type="checkbox" id="rest-timer-sound" checked>
+                    </div>
+                    <div class="setting-item">
+                        <button id="export-data-btn" class="btn-secondary">
+                            📤 Exporter données
+                        </button>
+                        <button id="import-data-btn" class="btn-secondary">
+                            📥 Importer données
+                        </button>
+                    </div>
+                    <div class="setting-item">
+                        <button id="reset-data-btn" class="btn-danger">
+                            🗑️ Réinitialiser tout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <!-- Séances -->
-    <section class="workouts-section">
-      <h2 class="section-title">Séances de la Semaine</h2>
-      <div class="workout-days" id="workoutDays"></div>
-    </section>
-
-    <!-- Détails Séance -->
-    <section class="workout-details" id="workoutDetails"></section>
-
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="app-footer">
-    <div class="container">
-      <p>&copy; 2024 Hybrid Master 51</p>
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Hybrid Master 51 © 2025 - Programme de musculation professionnel</p>
+            <p class="footer-links">
+                <a href="#" id="about-link">À propos</a> | 
+                <a href="#" id="help-link">Aide</a> | 
+                <a href="#" id="contact-link">Contact</a>
+            </p>
+        </footer>
     </div>
-  </footer>
 
-  <!-- ✅ JAVASCRIPT - TYPE MODULE OBLIGATOIRE -->
-  <script type="module" src="./scripts/app.js"></script>
-  
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- JavaScript Module (defer pour chargement après DOM) -->
+    <script type="module" src="js/app.js" defer></script>
 </body>
 </html>
