@@ -1,0 +1,25 @@
+{
+  "Dimanche": [
+    { "name": "Squat", "type": "Jambes", "sets": 4, "reps": "6-8", "rest": 120 },
+    { "name": "Soulevé de Terre", "type": "Dos/Jambes", "sets": 3, "reps": "5", "rest": 150 },
+    { "name": "Traction pronation", "type": "Dos", "sets": 4, "reps": "6-10", "rest": 90 },
+    { "name": "Curl incliné", "type": "Biceps", "sets": 3, "reps": "10-12", "rest": 60 }
+  ],
+  "Mardi": [
+    { "name": "Développé couché", "type": "Pecs", "sets": 4, "reps": "6-8", "rest": 120 },
+    { "name": "Développé militaire", "type": "Épaules", "sets": 3, "reps": "8-10", "rest": 90 },
+    { "name": "Élévations latérales", "type": "Épaules", "sets": 3, "reps": "12-15", "rest": 45 },
+    { "name": "Dips", "type": "Triceps", "sets": 3, "reps": "max", "rest": 60 }
+  ],
+  "Vendredi": [
+    { "name": "Fentes marchées", "type": "Jambes", "sets": 3, "reps": "12", "rest": 60 },
+    { "name": "Rowing barre", "type": "Dos", "sets": 4, "reps": "8-10", "rest": 90 },
+    { "name": "Curl marteau", "type": "Biceps", "sets": 3, "reps": "10-12", "rest": 45 },
+    { "name": "Face pull", "type": "Épaules", "sets": 3, "reps": "15", "rest": 45 }
+  ],
+  "Maison": [
+    { "name": "Pompes", "type": "Pecs", "sets": 3, "reps": "20", "rest": 45 },
+    { "name": "Squat jump", "type": "Jambes", "sets": 3, "reps": "15", "rest": 45 },
+    { "name": "Gainage", "type": "Abdos", "sets": 3, "reps": "1min", "rest": 30 }
+  ]
+}
