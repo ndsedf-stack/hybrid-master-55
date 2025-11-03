@@ -17,69 +17,67 @@
     <link rel="stylesheet" href="./styles/08-responsive.css">
 </head>
 <body>
-    <!-- App Container -->
+    <!-- ✅ TOUS LES ÉLÉMENTS DOM MANQUANTS AJOUTÉS -->
     <div id="app">
         <!-- Header -->
         <header class="app-header">
-            <h1>💪 HYBRID MASTER 51</h1>
-            <div class="timer-display-container">
-                <div id="timer-display" class="timer-display">0:00</div>
-                <div class="timer-controls">
-                    <button id="timer-start" class="timer-btn" title="Démarrer/Pause (ESPACE)">▶️</button>
-                    <button id="timer-reset" class="timer-btn" title="Réinitialiser">⏹️</button>
-                </div>
-            </div>
+            <h1 class="app-title">💪 HYBRID MASTER 51</h1>
+            <p class="app-subtitle">Programme 26 semaines - Force & Hypertrophie</p>
         </header>
 
         <!-- Navigation Semaines -->
         <section class="week-navigation">
-            <button id="prev-week" class="nav-btn">◀ Précédent</button>
-            <div id="week-display" class="week-display">
+            <button id="prev-week" class="nav-btn" aria-label="Semaine précédente">
+                ◀ Précédent
+            </button>
+            <div id="week-display" class="week-display" aria-live="polite">
                 <div class="week-info">
                     <span class="week-number">Semaine 1</span>
                     <span class="week-total">/ 26</span>
                 </div>
             </div>
-            <button id="next-week" class="nav-btn">Suivant ▶</button>
-        </section>
-
-        <!-- Navigation Jours -->
-        <section class="day-navigation">
-            <button class="day-tab active" data-day="dimanche">
-                <span class="day-name">Dimanche</span>
-                <span class="day-subtitle">Dos + Jambes Lourdes</span>
-            </button>
-            <button class="day-tab" data-day="mardi">
-                <span class="day-name">Mardi</span>
-                <span class="day-subtitle">Pecs + Épaules</span>
-            </button>
-            <button class="day-tab" data-day="vendredi">
-                <span class="day-name">Vendredi</span>
-                <span class="day-subtitle">Dos + Jambes Légères</span>
-            </button>
-            <button class="day-tab" data-day="maison">
-                <span class="day-name">Maison</span>
-                <span class="day-subtitle">Hammer Curl</span>
+            <button id="next-week" class="nav-btn" aria-label="Semaine suivante">
+                Suivant ▶
             </button>
         </section>
 
-        <!-- Workout Container -->
+        <!-- Conteneur Principal des Séances -->
         <main id="workout-container" class="workout-container">
-            <!-- Le contenu sera généré par workout-renderer.js -->
-            <div class="loading">
+            <!-- Les séances seront injectées ici par workout-renderer.js -->
+            <div class="loading-state">
                 <div class="spinner"></div>
                 <p>Chargement du programme...</p>
             </div>
         </main>
 
+        <!-- Section Timer -->
+        <section class="timer-section">
+            <div class="timer-display-container">
+                <div id="timer-display" class="timer-display" aria-live="polite">
+                    00:00:00
+                </div>
+                <div class="timer-controls">
+                    <button id="timer-start" class="timer-btn start-btn" aria-label="Démarrer le timer">
+                        ▶️ Démarrer
+                    </button>
+                    <button id="timer-pause" class="timer-btn pause-btn" aria-label="Mettre en pause">
+                        ⏸️ Pause
+                    </button>
+                    <button id="timer-reset" class="timer-btn reset-btn" aria-label="Réinitialiser">
+                        ⏹️ Reset
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <!-- Statistiques (optionnel) -->
         <aside id="stats-panel" class="stats-panel hidden">
-            <h3>📊 Statistiques de la séance</h3>
+            <h3>📊 Statistiques</h3>
             <div id="stats-content"></div>
         </aside>
     </div>
 
-    <!-- JavaScript Modules (ordre important) -->
+    <!-- JavaScript Module (type="module" pour ES6) -->
     <script type="module" src="./scripts/app.js"></script>
 </body>
 </html>
