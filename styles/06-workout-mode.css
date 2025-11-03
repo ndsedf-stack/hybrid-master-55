@@ -1,0 +1,438 @@
+/**
+ * 06-WORKOUT-MODE.CSS
+ * Styles pour l'affichage des exercices
+ */
+
+/* ============================================================================
+   EXERCISE CARDS
+   ============================================================================ */
+
+.exercise-card {
+    background: var(--card-bg, #ffffff);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color, #e5e7eb);
+}
+
+.exercise-item {
+    background: var(--card-bg, #ffffff);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+/* ============================================================================
+   EXERCISE HEADER
+   ============================================================================ */
+
+.exercise-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 12px;
+}
+
+.exercise-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary, #111827);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.exercise-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-technique {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-compound {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-isolation {
+    background: #fce7f3;
+    color: #9f1239;
+}
+
+/* ============================================================================
+   SUPERSET
+   ============================================================================ */
+
+.superset-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 4px;
+    border-radius: 18px;
+}
+
+.superset-card .exercise-item {
+    background: white;
+    margin: 0 0 4px 0;
+}
+
+.superset-card .exercise-item:last-child {
+    margin-bottom: 0;
+}
+
+.superset-header {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px 20px;
+    border-radius: 14px 14px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.superset-badge {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #764ba2;
+}
+
+.superset-info {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* ============================================================================
+   SERIES CONTAINER
+   ============================================================================ */
+
+.series-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+/* ============================================================================
+   SET CARD
+   ============================================================================ */
+
+.set-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--bg-secondary, #f9fafb);
+    border-radius: 12px;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.set-card:hover {
+    background: var(--bg-hover, #f3f4f6);
+    border-color: var(--primary-color, #6366f1);
+}
+
+.set-card.completed {
+    background: #d1fae5;
+    border-color: #10b981;
+}
+
+.set-card.completed .set-number {
+    color: #065f46;
+}
+
+/* ============================================================================
+   CHECKBOX
+   ============================================================================ */
+
+.set-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    min-width: 120px;
+}
+
+.set-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    background: white;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.set-checkbox:hover .checkmark {
+    border-color: var(--primary-color, #6366f1);
+}
+
+.set-checkbox input[type="checkbox"]:checked ~ .checkmark {
+    background: var(--primary-color, #6366f1);
+    border-color: var(--primary-color, #6366f1);
+}
+
+.set-checkbox input[type="checkbox"]:checked ~ .checkmark::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.set-number {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary, #111827);
+}
+
+/* ============================================================================
+   SET INFO
+   ============================================================================ */
+
+.set-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+    flex-wrap: wrap;
+}
+
+.set-reps {
+    font-size: 0.95rem;
+    color: var(--text-secondary, #6b7280);
+    min-width: 80px;
+}
+
+.set-reps strong {
+    font-size: 1.1rem;
+    color: var(--text-primary, #111827);
+    font-weight: 700;
+}
+
+.set-tempo {
+    font-size: 0.875rem;
+    color: var(--text-muted, #9ca3af);
+    font-family: 'Courier New', monospace;
+}
+
+/* ============================================================================
+   WEIGHT CONTROL
+   ============================================================================ */
+
+.weight-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+}
+
+.weight-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: var(--primary-color, #6366f1);
+    color: white;
+    font-size: 1.25rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.weight-btn:hover {
+    background: var(--primary-hover, #4f46e5);
+    transform: scale(1.1);
+}
+
+.weight-btn:active {
+    transform: scale(0.95);
+}
+
+.weight-input {
+    width: 60px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary, #111827);
+}
+
+.weight-input:focus {
+    outline: none;
+}
+
+/* Remove spinner arrows */
+.weight-input::-webkit-inner-spin-button,
+.weight-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.weight-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.weight-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary, #6b7280);
+}
+
+/* ============================================================================
+   REST INFO
+   ============================================================================ */
+
+.rest-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+    gap: 12px;
+}
+
+.rest-time {
+    font-size: 0.95rem;
+    color: var(--text-secondary, #6b7280);
+}
+
+.rest-time strong {
+    color: var(--text-primary, #111827);
+    font-weight: 700;
+}
+
+.timer-btn-inline {
+    padding: 8px 16px;
+    background: var(--primary-color, #6366f1);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.timer-btn-inline:hover {
+    background: var(--primary-hover, #4f46e5);
+    transform: translateY(-1px);
+}
+
+.timer-btn-inline:active {
+    transform: translateY(0);
+}
+
+/* ============================================================================
+   EMPTY & ERROR STATES
+   ============================================================================ */
+
+.empty-state,
+.error-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon,
+.error-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+}
+
+.empty-state h3,
+.error-state h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary, #111827);
+    margin: 0 0 8px 0;
+}
+
+.empty-state p,
+.error-state p {
+    font-size: 1rem;
+    color: var(--text-secondary, #6b7280);
+    margin: 0;
+}
+
+.error-state {
+    color: #ef4444;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 640px) {
+    .exercise-card {
+        padding: 16px;
+    }
+
+    .exercise-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .set-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .set-checkbox {
+        min-width: auto;
+    }
+
+    .set-info {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .weight-control {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .rest-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .timer-btn-inline {
+        width: 100%;
+    }
+}
