@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Diagnostic - Hybrid Master 51</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .test-section h2 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .test-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .test-item:hover {
+            background: #e8e8e8;
+        }
+        .status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .status.ok { background: #10b981; }
+        .status.error { background: #ef4444; }
+        .status.warning { background: #f59e0b; }
+        .status.loading {
+            background: #6366f1;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .test-label {
+            flex: 1;
+            font-weight: 500;
+            color: #555;
+        }
+        .test-detail {
+            font-size: 0.9rem;
+            color: #777;
+            font-family: 'Courier New', monospace;
+        }
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .summary h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .error-list {
+            background: #fee;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .error-list h3 {
+            color: #ef4444;
+            margin-bottom: 10px;
+        }
+        .error-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        .error-list li {
+            padding: 8px 0;
+            color: #d32f2f;
+        }
+        .solution {
+            background: #e7f5ff;
+            border-left: 4px solid #1976d2;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .solution h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Diagnostic Complet</h1>
+            <p>Hybrid Master 51 - Analyse de tous les modules</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🌐 Environnement</h2>
+            <div id="env-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📄 Fichiers HTML & DOM</h2>
+            <div id="dom-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎨 Fichiers CSS</h2>
+            <div id="css-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>⚙️ Modules JavaScript</h2>
+            <div id="js-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Programme Data</h2>
+            <div id="program-tests"></div>
+        </div>
+
+        <div class="summary" id="summary">
+            <h2>📋 Résumé du diagnostic</h2>
+            <div id="summary-content"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        const results = {
+            passed: 0,
+            failed: 0,
+            warnings: 0,
+            total: 0,
+            errors: [],
+            criticalIssues: []
+        };
+
+        function addTest(containerId, label, status, detail = '') {
+            results.total++;
+            if (status === 'ok') results.passed++;
+            else if (status === 'error') results.failed++;
+            else if (status === 'warning') results.warnings++;
+
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = 'test-item';
+            div.innerHTML = `
+                <div class="status ${status}"></div>
+                <div class="test-label">${label}</div>
+                ${detail ? `<div class="test-detail">${detail}</div>` : ''}
+            `;
+            container.appendChild(div);
+
+            if (status === 'error') {
+                results.errors.push(label);
+            }
+        }
+
+        // TEST 1: Environnement
+        function testEnvironment() {
+            addTest('env-tests', 'Navigateur', 'ok', navigator.userAgent.split('/').pop());
+            addTest('env-tests', 'ES6 Modules', typeof Symbol !== 'undefined' ? 'ok' : 'error');
+            addTest('env-tests', 'LocalStorage', typeof localStorage !== 'undefined' ? 'ok' : 'error');
+            addTest('env-tests', 'Fetch API', typeof fetch !== 'undefined' ? 'ok' : 'error');
+        }
+
+        // TEST 2: DOM Elements
+        function testDOM() {
+            const requiredIds = [
+                'app', 'workout-container', 'week-display', 
+                'prev-week', 'next-week', 'timer-display',
+                'timer-start', 'timer-pause', 'timer-reset'
+            ];
+
+            requiredIds.forEach(id => {
+                const exists = document.getElementById(id) !== null;
+                addTest('dom-tests', `#${id}`, exists ? 'ok' : 'error', exists ? 'Présent' : 'MANQUANT');
+                if (!exists) {
+                    results.criticalIssues.push(`Element DOM manquant: #${id}`);
+                }
+            });
+        }
+
+        // TEST 3: CSS Files
+        async function testCSS() {
+            const cssFiles = [
+                '01-reset.css', '02-variables.css', '03-base.css', '04-layout.css',
+                '05-components.css', '06-workout-mode.css', '07-statistics.css', '08-responsive.css'
+            ];
+
+            for (const file of cssFiles) {
+                try {
+                    const response = await fetch(`./styles/${file}`, { method: 'HEAD' });
+                    addTest('css-tests', file, response.ok ? 'ok' : 'error', response.ok ? 'Chargé' : 'Non trouvé');
+                    if (!response.ok) {
+                        results.criticalIssues.push(`CSS manquant: styles/${file}`);
+                    }
+                } catch (e) {
+                    addTest('css-tests', file, 'error', 'Erreur de chargement');
+                    results.criticalIssues.push(`CSS manquant: styles/${file}`);
+                }
+            }
+        }
+
+        // TEST 4: JS Modules
+        async function testJSModules() {
+            const modules = [
+                { path: './scripts/core/program-data.js', name: 'ProgramData' },
+                { path: './scripts/core/progression-engine.js', name: 'ProgressionEngine' },
+                { path: './scripts/modules/timer-manager.js', name: 'TimerManager' },
+                { path: './scripts/modules/workout-session.js', name: 'WorkoutSession' },
+                { path: './scripts/ui/workout-renderer.js', name: 'WorkoutRenderer' },
+                { path: './scripts/ui/navigation-ui.js', name: 'NavigationUI' },
+                { path: './scripts/storage/local-storage.js', name: 'LocalStorage' }
+            ];
+
+            for (const mod of modules) {
+                try {
+                    await import(mod.path);
+                    addTest('js-tests', mod.name, 'ok', 'Chargé');
+                } catch (e) {
+                    addTest('js-tests', mod.name, 'error', 'MANQUANT');
+                    results.criticalIssues.push(`Module JS manquant: ${mod.path}`);
+                }
+            }
+        }
+
+        // TEST 5: Program Data
+        async function testProgramData() {
+            try {
+                const { ProgramData, PROGRAM } = await import('./scripts/core/program-data.js');
+                addTest('program-tests', 'Import ProgramData', 'ok');
+                
+                const hasAllWeeks = Object.keys(PROGRAM).length === 26;
+                addTest('program-tests', '26 semaines présentes', hasAllWeeks ? 'ok' : 'error', 
+                    `${Object.keys(PROGRAM).length} / 26`);
+                
+                if (PROGRAM.week1) {
+                    const days = ['dimanche', 'mardi', 'vendredi'];
+                    days.forEach(day => {
+                        const hasDay = PROGRAM.week1[day] !== undefined;
+                        addTest('program-tests', `Jour ${day} (S1)`, hasDay ? 'ok' : 'error');
+                    });
+
+                    if (PROGRAM.week1.dimanche?.exercises) {
+                        const exCount = PROGRAM.week1.dimanche.exercises.length;
+                        addTest('program-tests', 'Exercices Dimanche S1', exCount > 0 ? 'ok' : 'error', 
+                            `${exCount} exercices`);
+                    }
+                }
+            } catch (e) {
+                addTest('program-tests', 'Import ProgramData', 'error', e.message);
+                results.criticalIssues.push('Impossible de charger program-data.js');
+            }
+        }
+
+        // Generate Summary
+        function generateSummary() {
+            const isWorking = results.failed === 0 && results.criticalIssues.length === 0;
+            const percentage = Math.round((results.passed / results.total) * 100);
+
+            let html = `
+                <div class="stat-grid">
+                    <div class="stat">
+                        <div class="stat-value">${isWorking ? '✅' : '❌'}</div>
+                        <div class="stat-label">${isWorking ? 'Fonctionnel' : 'Non fonctionnel'}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${percentage}%</div>
+                        <div class="stat-label">Tests réussis</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${results.passed}</div>
+                        <div class="stat-label">Réussis</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${results.failed}</div>
+                        <div class="stat-label">Échecs</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${results.warnings}</div>
+                        <div class="stat-label">Avertissements</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${results.criticalIssues.length}</div>
+                        <div class="stat-label">Problèmes bloquants</div>
+                    </div>
+                </div>
+            `;
+
+            if (results.criticalIssues.length > 0) {
+                html += `
+                    <div class="error-list">
+                        <h3>🚨 Problèmes critiques détectés</h3>
+                        <ul>
+                            ${results.criticalIssues.map(issue => `<li>❌ ${issue}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+
+                html += `
+                    <div class="solution">
+                        <h3>💡 Solution</h3>
+                        <p>Les fichiers suivants manquent et doivent être créés :</p>
+                        <ul>
+                            ${results.criticalIssues.filter(i => i.includes('Module JS')).map(i => {
+                                const path = i.split(': ')[1];
+                                return `<li><code>${path}</code></li>`;
+                            }).join('')}
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>👉 Dis-moi "CRÉE LES FICHIERS MANQUANTS" et je te les génère tous !</strong></p>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div style="background: rgba(16,185,129,0.2); padding: 20px; border-radius: 8px; margin-top: 20px;">
+                        <h3 style="color: #10b981; margin-bottom: 10px;">✅ Tout fonctionne correctement !</h3>
+                        <p>Aucun problème critique détecté. L'application devrait fonctionner normalement.</p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('summary-content').innerHTML = html;
+        }
+
+        // Run all tests
+        async function runDiagnostic() {
+            testEnvironment();
+            testDOM();
+            await testCSS();
+            await testJSModules();
+            await testProgramData();
+            generateSummary();
+        }
+
+        runDiagnostic();
+    </script>
+</body>
+</html>
