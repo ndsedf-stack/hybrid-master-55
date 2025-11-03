@@ -1,265 +1,205 @@
 /**
- * HYBRID MASTER 51 - WORKOUT RENDERER
- * Gère l'affichage des exercices dans le DOM
+ * WorkoutRenderer - Gère l'affichage des séances d'entraînement
+ * @class
  */
-
 export class WorkoutRenderer {
-  constructor() {
-    this.container = document.getElementById('workout-container');
-  }
-
-  /**
-   * Affiche un workout complet
-   */
-  render(workout, weekNumber) {
-    if (!workout || !workout.exercises) {
-      this.container.innerHTML = `
-        <div class="error-message">
-          <h2>❌ Aucun exercice trouvé</h2>
-          <p>Vérifiez que les données sont correctement chargées.</p>
-        </div>
-      `;
-      return;
+    constructor() {
+        this.container = document.getElementById('workout-container');
+        this.weekDisplay = document.getElementById('week-display');
+        this.currentWeek = 1;
+        this.totalWeeks = 26;
     }
 
-    const exercisesHTML = workout.exercises.map((ex, index) => 
-      this.renderExercise(ex, index, weekNumber)
-    ).join('');
+    /**
+     * Initialise le renderer
+     */
+    init() {
+        if (!this.container) {
+            console.error('❌ Workout container not found');
+            return false;
+        }
+        this.updateWeekDisplay();
+        console.log('✅ WorkoutRenderer initialisé');
+        return true;
+    }
 
-    this.container.innerHTML = `
-      <div class="exercises-list">
-        ${exercisesHTML}
-      </div>
-    `;
+    /**
+     * Met à jour l'affichage de la semaine
+     */
+    updateWeekDisplay() {
+        if (this.weekDisplay) {
+            const weekNumber = this.weekDisplay.querySelector('.week-number');
+            if (weekNumber) {
+                weekNumber.textContent = `Semaine ${this.currentWeek}`;
+            } else {
+                this.weekDisplay.innerHTML = `
+                    <div class="week-info">
+                        <span class="week-number">Semaine ${this.currentWeek}</span>
+                        <span class="week-total">/ ${this.totalWeeks}</span>
+                    </div>
+                `;
+            }
+        }
+    }
 
-    // Attacher les event listeners après le rendu
-    this.attachEventListeners();
-  }
+    /**
+     * Affiche une séance d'entraînement
+     * @param {Object} workout - Données de la séance
+     */
+    renderWorkout(workout) {
+        if (!workout || !this.container) return;
 
-  /**
-   * Affiche un exercice individuel
-   */
-  renderExercise(exercise, index, weekNumber) {
-    const isSuperset = exercise.superset || false;
-    const badges = this.renderBadges(exercise);
-    const tempo = exercise.tempo || '2-0-2-0';
-    const rest = exercise.rest || 90;
-
-    return `
-      <div class="exercise-card ${isSuperset ? 'superset' : ''}" data-exercise-id="${index}">
-        ${isSuperset ? '<div class="superset-label">SUPERSET</div>' : ''}
+        const workoutElement = document.createElement('div');
+        workoutElement.className = 'workout-day';
+        workoutElement.innerHTML = this.generateWorkoutHTML(workout);
         
-        <div class="exercise-header">
-          <div class="exercise-title">
-            <span class="exercise-number">${index + 1}.</span>
-            <h3>${exercise.name}</h3>
-          </div>
-          ${badges}
-        </div>
+        this.container.appendChild(workoutElement);
+    }
 
-        <div class="exercise-meta">
-          <div class="meta-item">
-            <span class="meta-label">Séries</span>
-            <span class="meta-value">${exercise.sets}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Reps</span>
-            <span class="meta-value">${exercise.reps}</span>
-          </div>
-          <div class="meta-item weight-control">
-            <span class="meta-label">Poids (kg)</span>
-            <div class="weight-input-group">
-              <button class="weight-btn" data-action="decrease">-</button>
-              <input 
-                type="number" 
-                class="weight-input" 
-                value="${exercise.weight || 0}" 
-                step="2.5"
-                data-exercise-id="${index}"
-              />
-              <button class="weight-btn" data-action="increase">+</button>
+    /**
+     * Génère le HTML pour une séance
+     * @param {Object} workout - Données de la séance
+     * @returns {string} HTML généré
+     */
+    generateWorkoutHTML(workout) {
+        return `
+            <div class="workout-header">
+                <h3 class="workout-day">${workout.name || workout.day}</h3>
+                <p class="workout-focus">${workout.focus || ''}</p>
             </div>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Repos</span>
-            <span class="meta-value">${rest}s</span>
-          </div>
-        </div>
-
-        <div class="exercise-details">
-          <div class="tempo-display">
-            <span class="tempo-label">Tempo:</span>
-            <span class="tempo-value">${tempo}</span>
-            <span class="tempo-help">(desc-pause-mont-pause)</span>
-          </div>
-          
-          ${exercise.technique ? `
-            <div class="technique-badge">
-              🔥 ${exercise.technique}
+            <div class="exercises-list">
+                ${workout.exercises.map((exercise, index) => 
+                    this.generateExerciseHTML(exercise, index)
+                ).join('')}
             </div>
-          ` : ''}
+        `;
+    }
 
-          ${exercise.notes ? `
-            <div class="exercise-notes">
-              📝 ${exercise.notes}
+    /**
+     * Génère le HTML pour un exercice
+     * @param {Object} exercise - Données de l'exercice
+     * @param {number} index - Index de l'exercice
+     * @returns {string} HTML généré
+     */
+    generateExerciseHTML(exercise, index) {
+        return `
+            <div class="exercise-item" data-exercise-id="${index}">
+                <div class="exercise-header">
+                    <span class="exercise-number">${index + 1}</span>
+                    <h4 class="exercise-name">${exercise.name}</h4>
+                </div>
+                <div class="exercise-details">
+                    <div class="exercise-meta">
+                        <span class="sets-reps">
+                            <strong>${exercise.sets}</strong> séries × 
+                            <strong>${exercise.reps}</strong> reps
+                        </span>
+                        <span class="weight">
+                            💪 <strong>${exercise.weight || 0}</strong> kg
+                        </span>
+                        <span class="rest-time">
+                            ⏱️ Repos: <strong>${exercise.rest}</strong>
+                        </span>
+                    </div>
+                    ${exercise.notes ? `
+                        <div class="exercise-notes">
+                            📝 ${exercise.notes}
+                        </div>
+                    ` : ''}
+                </div>
             </div>
-          ` : ''}
-        </div>
-
-        <div class="sets-tracker">
-          ${this.renderSetsCheckboxes(exercise.sets, index)}
-        </div>
-
-        <button class="rest-timer-btn" data-rest="${rest}">
-          ⏱️ Lancer timer repos (${rest}s)
-        </button>
-      </div>
-    `;
-  }
-
-  /**
-   * Affiche les badges (type d'exercice, techniques, etc.)
-   */
-  renderBadges(exercise) {
-    const badges = [];
-
-    // Badge type d'exercice
-    if (exercise.category) {
-      const categoryClass = exercise.category === 'Polyarticulaire' ? 'poly' : 'iso';
-      badges.push(`<span class="badge badge-${categoryClass}">${exercise.category}</span>`);
+        `;
     }
 
-    // Badge superset
-    if (exercise.superset) {
-      badges.push(`<span class="badge badge-superset">Superset</span>`);
-    }
-
-    // Badge technique
-    if (exercise.technique) {
-      badges.push(`<span class="badge badge-technique">${exercise.technique}</span>`);
-    }
-
-    return badges.length > 0 ? `
-      <div class="exercise-badges">
-        ${badges.join('')}
-      </div>
-    ` : '';
-  }
-
-  /**
-   * Affiche les checkboxes pour cocher les séries
-   */
-  renderSetsCheckboxes(totalSets, exerciseIndex) {
-    const checkboxes = [];
-    for (let i = 1; i <= totalSets; i++) {
-      checkboxes.push(`
-        <label class="set-checkbox">
-          <input 
-            type="checkbox" 
-            data-exercise-id="${exerciseIndex}" 
-            data-set="${i}"
-          />
-          <span class="set-label">Série ${i}</span>
-        </label>
-      `);
-    }
-    return checkboxes.join('');
-  }
-
-  /**
-   * Attache les event listeners aux éléments
-   */
-  attachEventListeners() {
-    // Event listeners pour les boutons +/-
-    const weightBtns = this.container.querySelectorAll('.weight-btn');
-    weightBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const action = btn.dataset.action;
-        const input = btn.parentElement.querySelector('.weight-input');
-        let currentValue = parseFloat(input.value) || 0;
+    /**
+     * Affiche toutes les séances d'une semaine
+     * @param {Object} weekData - Données de la semaine
+     */
+    renderWeekWorkouts(weekData) {
+        if (!this.container) return;
         
-        if (action === 'increase') {
-          input.value = currentValue + 2.5;
-        } else if (action === 'decrease' && currentValue >= 2.5) {
-          input.value = currentValue - 2.5;
+        this.container.innerHTML = '';
+        
+        if (!weekData || !weekData.workouts) {
+            this.showError('Aucune donnée de séance disponible');
+            return;
         }
 
-        // Déclencher événement de changement
-        input.dispatchEvent(new Event('change'));
-      });
-    });
-
-    // Event listeners pour les inputs poids
-    const weightInputs = this.container.querySelectorAll('.weight-input');
-    weightInputs.forEach(input => {
-      input.addEventListener('change', (e) => {
-        const exerciseId = input.dataset.exerciseId;
-        const newWeight = parseFloat(input.value) || 0;
+        const workouts = Object.entries(weekData.workouts);
         
-        // Dispatcher un événement personnalisé pour app.js
-        const event = new CustomEvent('weight-changed', {
-          detail: { exerciseId, newWeight }
+        if (workouts.length === 0) {
+            this.container.innerHTML = '<div class="no-workouts">Aucune séance programmée cette semaine</div>';
+            return;
+        }
+
+        workouts.forEach(([day, workout]) => {
+            this.renderWorkout({ ...workout, day });
         });
-        document.dispatchEvent(event);
-      });
-    });
+    }
 
-    // Event listeners pour les checkboxes de séries
-    const setCheckboxes = this.container.querySelectorAll('.set-checkbox input');
-    setCheckboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', (e) => {
-        const exerciseId = checkbox.dataset.exerciseId;
-        const setNumber = checkbox.dataset.set;
-        const isChecked = checkbox.checked;
-
-        // Dispatcher un événement personnalisé
-        const event = new CustomEvent('set-completed', {
-          detail: { exerciseId, setNumber, isChecked }
-        });
-        document.dispatchEvent(event);
-      });
-    });
-
-    // Event listeners pour les boutons timer repos
-    const timerBtns = this.container.querySelectorAll('.rest-timer-btn');
-    timerBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const restDuration = parseInt(btn.dataset.rest);
+    /**
+     * Change la semaine affichée
+     * @param {number} week - Numéro de la semaine
+     * @param {Object} weekData - Données de la semaine
+     */
+    changeWeek(week, weekData) {
+        if (week < 1 || week > this.totalWeeks) return;
         
-        // Dispatcher un événement pour démarrer le timer
-        const event = new CustomEvent('start-rest-timer', {
-          detail: { duration: restDuration }
-        });
-        document.dispatchEvent(event);
-      });
-    });
-  }
+        this.currentWeek = week;
+        this.updateWeekDisplay();
+        this.renderWeekWorkouts(weekData);
+        
+        console.log(`✅ Semaine ${week} affichée`);
+    }
 
-  /**
-   * Affiche un message de chargement
-   */
-  showLoading() {
-    this.container.innerHTML = `
-      <div class="loading">
-        <div class="spinner"></div>
-        <p>Chargement des exercices...</p>
-      </div>
-    `;
-  }
+    /**
+     * Affiche un état de chargement
+     */
+    showLoading() {
+        if (this.container) {
+            this.container.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Chargement des séances...</p>
+                </div>
+            `;
+        }
+    }
 
-  /**
-   * Affiche un message d'erreur
-   */
-  showError(message) {
-    this.container.innerHTML = `
-      <div class="error-message">
-        <h2>❌ Erreur</h2>
-        <p>${message}</p>
-      </div>
-    `;
-  }
+    /**
+     * Affiche une erreur
+     * @param {string} message - Message d'erreur
+     */
+    showError(message) {
+        if (this.container) {
+            this.container.innerHTML = `
+                <div class="error-state">
+                    <span class="error-icon">⚠️</span>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+    }
+
+    /**
+     * Met à jour les boutons de navigation
+     * @param {boolean} hasPrev - Semaine précédente disponible
+     * @param {boolean} hasNext - Semaine suivante disponible
+     */
+    updateNavigation(hasPrev, hasNext) {
+        const prevBtn = document.getElementById('prev-week');
+        const nextBtn = document.getElementById('next-week');
+
+        if (prevBtn) {
+            prevBtn.disabled = !hasPrev;
+            prevBtn.style.opacity = hasPrev ? '1' : '0.5';
+        }
+
+        if (nextBtn) {
+            nextBtn.disabled = !hasNext;
+            nextBtn.style.opacity = hasNext ? '1' : '0.5';
+        }
+    }
 }
 
 export default WorkoutRenderer;
