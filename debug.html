@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Debug - Hybrid Master 51</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .test {
+            background: #16213e;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        .test.error { border-left-color: #ef4444; }
+        .test.success { border-left-color: #10b981; }
+        .test-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .test-result {
+            font-size: 1.1rem;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.95rem;
+            margin-top: 5px;
+            padding: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 6px;
+        }
+        .success-msg {
+            color: #10b981;
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+        .code {
+            background: #0f1419;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #a9b7c6;
+        }
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 30px;
+            font-size: 1.5rem;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Visuel - Hybrid Master 51</h1>
+        
+        <div id="tests-container"></div>
+        
+        <div id="summary" class="summary">
+            ⏳ Tests en cours...
+        </div>
+        
+        <button class="btn" onclick="window.location.href='index.html'">
+            ← Retour à l'application
+        </button>
+    </div>
+
+    <script type="module">
+        const testsContainer = document.getElementById('tests-container');
+        const summary = document.getElementById('summary');
+        const results = {
+            total: 0,
+            passed: 0,
+            failed: 0,
+            errors: []
+        };
+
+        function addTest(title, testFn) {
+            results.total++;
+            const testDiv = document.createElement('div');
+            testDiv.className = 'test';
+            testsContainer.appendChild(testDiv);
+
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'test-title';
+            testDiv.appendChild(titleDiv);
+
+            try {
+                const result = testFn();
+                
+                if (result.success) {
+                    results.passed++;
+                    testDiv.classList.add('success');
+                    titleDiv.innerHTML = `✅ ${title}`;
+                    
+                    if (result.message) {
+                        const msg = document.createElement('div');
+                        msg.className = 'success-msg';
+                        msg.textContent = result.message;
+                        testDiv.appendChild(msg);
+                    }
+                } else {
+                    results.failed++;
+                    results.errors.push(title);
+                    testDiv.classList.add('error');
+                    titleDiv.innerHTML = `❌ ${title}`;
+                    
+                    if (result.error) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'error-msg';
+                        errorDiv.textContent = `Erreur: ${result.error}`;
+                        testDiv.appendChild(errorDiv);
+                    }
+
+                    if (result.details) {
+                        const detailsDiv = document.createElement('div');
+                        detailsDiv.className = 'test-result';
+                        detailsDiv.textContent = result.details;
+                        testDiv.appendChild(detailsDiv);
+                    }
+                }
+
+                if (result.code) {
+                    const codeDiv = document.createElement('div');
+                    codeDiv.className = 'code';
+                    codeDiv.textContent = result.code;
+                    testDiv.appendChild(codeDiv);
+                }
+
+            } catch (error) {
+                results.failed++;
+                results.errors.push(title);
+                testDiv.classList.add('error');
+                titleDiv.innerHTML = `❌ ${title}`;
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-msg';
+                errorDiv.textContent = `Exception: ${error.message}`;
+                testDiv.appendChild(errorDiv);
+            }
+        }
+
+        // TEST 1: Éléments DOM
+        addTest('Éléments DOM requis', () => {
+            const required = ['app', 'workout-container', 'week-display', 'prev-week', 'next-week'];
+            const missing = [];
+            
+            required.forEach(id => {
+                if (!document.getElementById(id)) {
+                    missing.push(`#${id}`);
+                }
+            });
+
+            if (missing.length === 0) {
+                return { success: true, message: 'Tous les éléments DOM sont présents' };
+            } else {
+                return { 
+                    success: false, 
+                    error: `${missing.length} éléments manquants`,
+                    details: `Manquants: ${missing.join(', ')}`,
+                    code: 'Solution: Vérifier que index.html contient tous les IDs requis'
+                };
+            }
+        });
+
+        // TEST 2: Import ProgramData
+        addTest('Import ProgramData', async () => {
+            try {
+                const { ProgramData, PROGRAM } = await import('./scripts/core/program-data.js');
+                
+                if (!PROGRAM) {
+                    return { success: false, error: 'PROGRAM non exporté' };
+                }
+
+                const weekCount = Object.keys(PROGRAM).length;
+                
+                if (weekCount !== 26) {
+                    return { 
+                        success: false, 
+                        error: `${weekCount} semaines au lieu de 26`,
+                        details: `Semaines trouvées: ${Object.keys(PROGRAM).join(', ')}`
+                    };
+                }
+
+                return { 
+                    success: true, 
+                    message: `26 semaines chargées avec succès` 
+                };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    error: error.message,
+                    code: 'Vérifier que scripts/core/program-data.js existe et exporte PROGRAM'
+                };
+            }
+        });
+
+        // TEST 3: Import ProgressionEngine
+        addTest('Import ProgressionEngine', async () => {
+            try {
+                const { ProgressionEngine } = await import('./scripts/core/progression-engine.js');
+                return { success: true, message: 'Module chargé' };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    error: error.message,
+                    code: 'Créer scripts/core/progression-engine.js'
+                };
+            }
+        });
+
+        // TEST 4: Import WorkoutRenderer
+        addTest('Import WorkoutRenderer', async () => {
+            try {
+                const { WorkoutRenderer } = await import('./scripts/ui/workout-renderer.js');
+                return { success: true, message: 'Module chargé' };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    error: error.message,
+                    code: 'Créer scripts/ui/workout-renderer.js'
+                };
+            }
+        });
+
+        // TEST 5: Import NavigationUI
+        addTest('Import NavigationUI', async () => {
+            try {
+                const { NavigationUI } = await import('./scripts/ui/navigation-ui.js');
+                return { success: true, message: 'Module chargé' };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    error: error.message,
+                    code: 'Créer scripts/ui/navigation-ui.js'
+                };
+            }
+        });
+
+        // TEST 6: Import TimerManager
+        addTest('Import TimerManager', async () => {
+            try {
+                const { TimerManager } = await import('./scripts/modules/timer-manager.js');
+                return { success: true, message: 'Module chargé' };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    error: error.message,
+                    code: 'Créer scripts/modules/timer-manager.js'
+                };
+            }
+        });
+
+        // TEST 7: Import LocalStorage
+        addTest('Import LocalStorage', async () => {
+            try {
+                const { LocalStorage } = await import('./scripts/storage/local-storage.js');
+                return { success: true, message: 'Module chargé' };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    error: error.message,
+                    code: 'Créer scripts/storage/local-storage.js'
+                };
+            }
+        });
+
+        // TEST 8: Données Semaine 1
+        addTest('Données Semaine 1 - Dimanche', async () => {
+            try {
+                const { PROGRAM } = await import('./scripts/core/program-data.js');
+                
+                if (!PROGRAM.week1) {
+                    return { success: false, error: 'week1 manquante' };
+                }
+
+                if (!PROGRAM.week1.dimanche) {
+                    return { success: false, error: 'Jour "dimanche" manquant en S1' };
+                }
+
+                const exercises = PROGRAM.week1.dimanche.exercises;
+                if (!exercises || exercises.length === 0) {
+                    return { success: false, error: 'Aucun exercice trouvé' };
+                }
+
+                return { 
+                    success: true, 
+                    message: `${exercises.length} exercices trouvés`,
+                    details: `Exercices: ${exercises.map(e => e.name).join(', ')}`
+                };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        });
+
+        // Attendre que tous les tests soient terminés
+        setTimeout(() => {
+            const percentage = Math.round((results.passed / results.total) * 100);
+            
+            if (results.failed === 0) {
+                summary.innerHTML = `
+                    🎉 TOUS LES TESTS RÉUSSIS !<br>
+                    <div style="font-size: 1.2rem; margin-top: 15px;">
+                        ${results.passed} / ${results.total} tests OK (${percentage}%)
+                    </div>
+                    <div style="font-size: 1rem; margin-top: 10px; opacity: 0.9;">
+                        Ton application devrait fonctionner !
+                    </div>
+                `;
+            } else {
+                summary.innerHTML = `
+                    ❌ ${results.failed} PROBLÈME(S) DÉTECTÉ(S)<br>
+                    <div style="font-size: 1.2rem; margin-top: 15px;">
+                        ${results.passed} / ${results.total} tests OK (${percentage}%)
+                    </div>
+                    <div style="font-size: 1rem; margin-top: 10px;">
+                        Erreurs: ${results.errors.join(', ')}
+                    </div>
+                `;
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
