@@ -1,286 +1,265 @@
 /**
  * HYBRID MASTER 51 - WORKOUT RENDERER
- * Affiche les séances d'entraînement dans le DOM
- * 
- * @module ui/workout-renderer
- * @version 1.0.0
+ * Gère l'affichage des exercices dans le DOM
  */
 
 export class WorkoutRenderer {
   constructor() {
     this.container = document.getElementById('workout-container');
-    
-    if (!this.container) {
-      console.error('❌ Element #workout-container not found');
-    }
   }
 
   /**
    * Affiche un workout complet
-   * @param {Object} workout - Les données du workout
-   * @param {number} weekNumber - Numéro de la semaine
    */
   render(workout, weekNumber) {
-    if (!this.container) {
-      console.error('❌ Cannot render: container not found');
+    if (!workout || !workout.exercises) {
+      this.container.innerHTML = `
+        <div class="error-message">
+          <h2>❌ Aucun exercice trouvé</h2>
+          <p>Vérifiez que les données sont correctement chargées.</p>
+        </div>
+      `;
       return;
     }
 
-    // Vider le container
-    this.container.innerHTML = '';
+    const exercisesHTML = workout.exercises.map((ex, index) => 
+      this.renderExercise(ex, index, weekNumber)
+    ).join('');
 
-    // Créer le header du workout
-    const header = this.createWorkoutHeader(workout, weekNumber);
-    this.container.appendChild(header);
-
-    // Créer la liste des exercices
-    const exercisesList = this.createExercisesList(workout.exercises, weekNumber);
-    this.container.appendChild(exercisesList);
-
-    console.log(`✅ Rendered ${workout.exercises.length} exercises`);
-  }
-
-  /**
-   * Crée le header du workout
-   */
-  createWorkoutHeader(workout, weekNumber) {
-    const header = document.createElement('div');
-    header.className = 'workout-header';
-
-    header.innerHTML = `
-      <h2>${workout.name}</h2>
-      <div class="workout-meta">
-        <span class="meta-item">
-          <strong>Durée :</strong> ${workout.duration} min
-        </span>
-        <span class="meta-item">
-          <strong>Séries :</strong> ${workout.totalSets}
-        </span>
-        ${workout.daysPerWeek ? `
-          <span class="meta-item">
-            <strong>Jours :</strong> ${workout.daysPerWeek.join(', ')}
-          </span>
-        ` : ''}
+    this.container.innerHTML = `
+      <div class="exercises-list">
+        ${exercisesHTML}
       </div>
     `;
 
-    return header;
+    // Attacher les event listeners après le rendu
+    this.attachEventListeners();
   }
 
   /**
-   * Crée la liste des exercices
+   * Affiche un exercice individuel
    */
-  createExercisesList(exercises, weekNumber) {
-    const list = document.createElement('div');
-    list.className = 'exercises-list';
+  renderExercise(exercise, index, weekNumber) {
+    const isSuperset = exercise.superset || false;
+    const badges = this.renderBadges(exercise);
+    const tempo = exercise.tempo || '2-0-2-0';
+    const rest = exercise.rest || 90;
 
-    exercises.forEach((exercise, index) => {
-      const exerciseCard = this.createExerciseCard(exercise, index + 1, weekNumber);
-      list.appendChild(exerciseCard);
-    });
-
-    return list;
-  }
-
-  /**
-   * Crée une carte d'exercice
-   */
-  createExerciseCard(exercise, number, weekNumber) {
-    const card = document.createElement('div');
-    card.className = `exercise-card ${exercise.isSuperset ? 'superset' : ''}`;
-    card.dataset.exerciseId = exercise.id;
-
-    // Header de l'exercice
-    const cardHeader = document.createElement('div');
-    cardHeader.className = 'exercise-header';
-    cardHeader.innerHTML = `
-      <div class="exercise-title">
-        <span class="exercise-number">${number}</span>
-        <h3>${exercise.name}</h3>
-      </div>
-      <div class="exercise-badges">
-        ${this.createBadges(exercise)}
-      </div>
-    `;
-
-    // Métadonnées
-    const cardMeta = document.createElement('div');
-    cardMeta.className = 'exercise-meta';
-    cardMeta.innerHTML = `
-      <div class="meta-row">
-        <span class="meta-label">Séries :</span>
-        <span class="meta-value">${exercise.sets}</span>
-      </div>
-      <div class="meta-row">
-        <span class="meta-label">Reps :</span>
-        <span class="meta-value">${exercise.reps}</span>
-      </div>
-      <div class="meta-row">
-        <span class="meta-label">Poids :</span>
-        <span class="meta-value">
-          <button class="weight-btn weight-decrease" data-exercise-id="${exercise.id}">-</button>
-          <input 
-            type="number" 
-            class="weight-input" 
-            value="${exercise.weight}" 
-            data-exercise-id="${exercise.id}"
-            min="0"
-            step="2.5"
-          />
-          <button class="weight-btn weight-increase" data-exercise-id="${exercise.id}">+</button>
-          <span class="weight-unit">kg</span>
-        </span>
-      </div>
-      <div class="meta-row">
-        <span class="meta-label">Repos :</span>
-        <span class="meta-value">
-          ${exercise.rest}s
-          <button class="timer-start-btn" data-rest="${exercise.rest}">⏱️ Timer</button>
-        </span>
-      </div>
-      ${exercise.tempo ? `
-        <div class="meta-row tempo-row">
-          <span class="meta-label">Tempo :</span>
-          <span class="meta-value tempo-value">${exercise.tempo}</span>
-          <span class="tempo-help" title="Descente-Pause-Montée">ℹ️</span>
+    return `
+      <div class="exercise-card ${isSuperset ? 'superset' : ''}" data-exercise-id="${index}">
+        ${isSuperset ? '<div class="superset-label">SUPERSET</div>' : ''}
+        
+        <div class="exercise-header">
+          <div class="exercise-title">
+            <span class="exercise-number">${index + 1}.</span>
+            <h3>${exercise.name}</h3>
+          </div>
+          ${badges}
         </div>
-      ` : ''}
+
+        <div class="exercise-meta">
+          <div class="meta-item">
+            <span class="meta-label">Séries</span>
+            <span class="meta-value">${exercise.sets}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Reps</span>
+            <span class="meta-value">${exercise.reps}</span>
+          </div>
+          <div class="meta-item weight-control">
+            <span class="meta-label">Poids (kg)</span>
+            <div class="weight-input-group">
+              <button class="weight-btn" data-action="decrease">-</button>
+              <input 
+                type="number" 
+                class="weight-input" 
+                value="${exercise.weight || 0}" 
+                step="2.5"
+                data-exercise-id="${index}"
+              />
+              <button class="weight-btn" data-action="increase">+</button>
+            </div>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Repos</span>
+            <span class="meta-value">${rest}s</span>
+          </div>
+        </div>
+
+        <div class="exercise-details">
+          <div class="tempo-display">
+            <span class="tempo-label">Tempo:</span>
+            <span class="tempo-value">${tempo}</span>
+            <span class="tempo-help">(desc-pause-mont-pause)</span>
+          </div>
+          
+          ${exercise.technique ? `
+            <div class="technique-badge">
+              🔥 ${exercise.technique}
+            </div>
+          ` : ''}
+
+          ${exercise.notes ? `
+            <div class="exercise-notes">
+              📝 ${exercise.notes}
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="sets-tracker">
+          ${this.renderSetsCheckboxes(exercise.sets, index)}
+        </div>
+
+        <button class="rest-timer-btn" data-rest="${rest}">
+          ⏱️ Lancer timer repos (${rest}s)
+        </button>
+      </div>
     `;
-
-    // Checkboxes pour les séries
-    const setsContainer = document.createElement('div');
-    setsContainer.className = 'sets-container';
-    
-    for (let i = 1; i <= exercise.sets; i++) {
-      const setCheckbox = document.createElement('label');
-      setCheckbox.className = 'set-checkbox';
-      setCheckbox.innerHTML = `
-        <input 
-          type="checkbox" 
-          data-exercise-id="${exercise.id}"
-          data-set-number="${i}"
-          class="set-check"
-        />
-        <span>Série ${i}</span>
-      `;
-      setsContainer.appendChild(setCheckbox);
-    }
-
-    // Notes
-    const notes = document.createElement('div');
-    notes.className = 'exercise-notes';
-    notes.innerHTML = `<p>📝 ${exercise.notes}</p>`;
-
-    // Assembler la carte
-    card.appendChild(cardHeader);
-    card.appendChild(cardMeta);
-    card.appendChild(setsContainer);
-    card.appendChild(notes);
-
-    // Attacher les event listeners
-    this.attachExerciseListeners(card, exercise);
-
-    return card;
   }
 
   /**
-   * Crée les badges d'un exercice
+   * Affiche les badges (type d'exercice, techniques, etc.)
    */
-  createBadges(exercise) {
-    let badges = '';
+  renderBadges(exercise) {
+    const badges = [];
 
-    // Badge catégorie
-    badges += `<span class="badge badge-${exercise.category}">${exercise.category === 'compound' ? 'Polyarticulaire' : 'Isolation'}</span>`;
+    // Badge type d'exercice
+    if (exercise.category) {
+      const categoryClass = exercise.category === 'Polyarticulaire' ? 'poly' : 'iso';
+      badges.push(`<span class="badge badge-${categoryClass}">${exercise.category}</span>`);
+    }
 
     // Badge superset
-    if (exercise.isSuperset) {
-      badges += `<span class="badge badge-superset">SUPERSET avec ${exercise.supersetWith}</span>`;
+    if (exercise.superset) {
+      badges.push(`<span class="badge badge-superset">Superset</span>`);
     }
 
-    return badges;
+    // Badge technique
+    if (exercise.technique) {
+      badges.push(`<span class="badge badge-technique">${exercise.technique}</span>`);
+    }
+
+    return badges.length > 0 ? `
+      <div class="exercise-badges">
+        ${badges.join('')}
+      </div>
+    ` : '';
   }
 
   /**
-   * Attache les event listeners d'un exercice
+   * Affiche les checkboxes pour cocher les séries
    */
-  attachExerciseListeners(card, exercise) {
-    // Checkboxes séries
-    const checkboxes = card.querySelectorAll('.set-check');
-    checkboxes.forEach(checkbox => {
+  renderSetsCheckboxes(totalSets, exerciseIndex) {
+    const checkboxes = [];
+    for (let i = 1; i <= totalSets; i++) {
+      checkboxes.push(`
+        <label class="set-checkbox">
+          <input 
+            type="checkbox" 
+            data-exercise-id="${exerciseIndex}" 
+            data-set="${i}"
+          />
+          <span class="set-label">Série ${i}</span>
+        </label>
+      `);
+    }
+    return checkboxes.join('');
+  }
+
+  /**
+   * Attache les event listeners aux éléments
+   */
+  attachEventListeners() {
+    // Event listeners pour les boutons +/-
+    const weightBtns = this.container.querySelectorAll('.weight-btn');
+    weightBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const action = btn.dataset.action;
+        const input = btn.parentElement.querySelector('.weight-input');
+        let currentValue = parseFloat(input.value) || 0;
+        
+        if (action === 'increase') {
+          input.value = currentValue + 2.5;
+        } else if (action === 'decrease' && currentValue >= 2.5) {
+          input.value = currentValue - 2.5;
+        }
+
+        // Déclencher événement de changement
+        input.dispatchEvent(new Event('change'));
+      });
+    });
+
+    // Event listeners pour les inputs poids
+    const weightInputs = this.container.querySelectorAll('.weight-input');
+    weightInputs.forEach(input => {
+      input.addEventListener('change', (e) => {
+        const exerciseId = input.dataset.exerciseId;
+        const newWeight = parseFloat(input.value) || 0;
+        
+        // Dispatcher un événement personnalisé pour app.js
+        const event = new CustomEvent('weight-changed', {
+          detail: { exerciseId, newWeight }
+        });
+        document.dispatchEvent(event);
+      });
+    });
+
+    // Event listeners pour les checkboxes de séries
+    const setCheckboxes = this.container.querySelectorAll('.set-checkbox input');
+    setCheckboxes.forEach(checkbox => {
       checkbox.addEventListener('change', (e) => {
-        const event = new CustomEvent('setCompleted', {
-          detail: {
-            exerciseId: e.target.dataset.exerciseId,
-            setNumber: parseInt(e.target.dataset.setNumber),
-            completed: e.target.checked
-          }
+        const exerciseId = checkbox.dataset.exerciseId;
+        const setNumber = checkbox.dataset.set;
+        const isChecked = checkbox.checked;
+
+        // Dispatcher un événement personnalisé
+        const event = new CustomEvent('set-completed', {
+          detail: { exerciseId, setNumber, isChecked }
         });
-        window.dispatchEvent(event);
+        document.dispatchEvent(event);
       });
     });
 
-    // Boutons poids
-    const decreaseBtn = card.querySelector('.weight-decrease');
-    const increaseBtn = card.querySelector('.weight-increase');
-    const weightInput = card.querySelector('.weight-input');
-
-    if (decreaseBtn) {
-      decreaseBtn.addEventListener('click', () => {
-        const currentWeight = parseFloat(weightInput.value);
-        const newWeight = Math.max(0, currentWeight - 2.5);
-        weightInput.value = newWeight;
-        this.dispatchWeightChange(exercise.id, newWeight);
-      });
-    }
-
-    if (increaseBtn) {
-      increaseBtn.addEventListener('click', () => {
-        const currentWeight = parseFloat(weightInput.value);
-        const newWeight = currentWeight + 2.5;
-        weightInput.value = newWeight;
-        this.dispatchWeightChange(exercise.id, newWeight);
-      });
-    }
-
-    if (weightInput) {
-      weightInput.addEventListener('change', (e) => {
-        const newWeight = parseFloat(e.target.value);
-        this.dispatchWeightChange(exercise.id, newWeight);
-      });
-    }
-
-    // Bouton timer
-    const timerBtn = card.querySelector('.timer-start-btn');
-    if (timerBtn) {
-      timerBtn.addEventListener('click', (e) => {
-        const restTime = parseInt(e.target.dataset.rest);
-        const event = new CustomEvent('startTimer', {
-          detail: { duration: restTime }
+    // Event listeners pour les boutons timer repos
+    const timerBtns = this.container.querySelectorAll('.rest-timer-btn');
+    timerBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const restDuration = parseInt(btn.dataset.rest);
+        
+        // Dispatcher un événement pour démarrer le timer
+        const event = new CustomEvent('start-rest-timer', {
+          detail: { duration: restDuration }
         });
-        window.dispatchEvent(event);
+        document.dispatchEvent(event);
       });
-    }
-  }
-
-  /**
-   * Dispatch un événement de changement de poids
-   */
-  dispatchWeightChange(exerciseId, weight) {
-    const event = new CustomEvent('weightChanged', {
-      detail: {
-        exerciseId: exerciseId,
-        weight: weight
-      }
     });
-    window.dispatchEvent(event);
   }
 
   /**
-   * Vide le container
+   * Affiche un message de chargement
    */
-  clear() {
-    if (this.container) {
-      this.container.innerHTML = '<div class="no-workout"><p>Aucune séance disponible</p></div>';
-    }
+  showLoading() {
+    this.container.innerHTML = `
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Chargement des exercices...</p>
+      </div>
+    `;
+  }
+
+  /**
+   * Affiche un message d'erreur
+   */
+  showError(message) {
+    this.container.innerHTML = `
+      <div class="error-message">
+        <h2>❌ Erreur</h2>
+        <p>${message}</p>
+      </div>
+    `;
   }
 }
+
+export default WorkoutRenderer;
