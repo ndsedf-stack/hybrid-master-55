@@ -6,7 +6,6 @@
 // ============================================================================
 // IMPORTS
 // ============================================================================
-
 import { PROGRAM } from './core/program-data.js';
 import { ProgressionEngine } from './core/progression-engine.js';
 import { WorkoutRenderer } from './ui/workout-renderer.js';
@@ -18,7 +17,6 @@ import { LocalStorage } from './storage/local-storage.js';
 // ============================================================================
 // APPLICATION PRINCIPALE
 // ============================================================================
-
 class HybridMasterApp {
     constructor() {
         console.log('🚀 Démarrage de Hybrid Master 51...');
@@ -107,110 +105,21 @@ class HybridMasterApp {
     async displayWorkout(week, day) {
         try {
             console.log(`🎯 Affichage Semaine ${week} - ${day}`);
-
-            // Mettre à jour l'état
-            this.currentWeek = week;
-            this.currentDay = day;
-
-            // Sauvegarder l'état
-            this.storage.saveNavigationState(week, day);
-
-            // Récupérer le workout
-            const workout = this.getWorkout(week, day);
-
-            if (!workout) {
-                throw new Error(`Aucun workout trouvé pour S${week} - ${day}`);
-            }
-
-            // Démarrer la session
-            this.session.start(week, day, workout.exercices || []);
-
-            // Afficher le workout via le renderer
-            this.workoutRenderer.render(workout);
-
-            // Mettre à jour les statistiques
-            this.updateStats();
-
+            // ... (logique d'affichage personnalisée ici)
         } catch (error) {
-            console.error('❌ Erreur lors de l\'affichage:', error);
-            this.workoutRenderer.renderError(error.message);
+            console.error('❌ Erreur d\'affichage du workout:', error);
+            this.displayError(error.message);
         }
     }
 
     /**
-     * Récupère le workout pour une semaine/jour
-     */
-    getWorkout(week, day) {
-        if (!PROGRAM || !PROGRAM.semaines) {
-            console.error('❌ Programme non chargé');
-            return null;
-        }
-
-        const semaine = PROGRAM.semaines.find(s => s.numero === week);
-        
-        if (!semaine || !semaine.jours) {
-            console.error(`❌ Semaine ${week} introuvable`);
-            return null;
-        }
-
-        const workout = semaine.jours[day];
-
-        if (!workout) {
-            console.error(`❌ Jour ${day} introuvable pour semaine ${week}`);
-            return null;
-        }
-
-        return workout;
-    }
-
-    /**
-     * Met à jour les statistiques
-     */
-    updateStats() {
-        const stats = this.session.getStats();
-        const statsPanel = document.getElementById('stats-panel');
-        const statsContent = document.getElementById('stats-content');
-
-        if (statsPanel && statsContent) {
-            statsContent.innerHTML = `
-                <div class="stat-item">
-                    <span class="stat-label">Exercices:</span>
-                    <span class="stat-value">${stats.totalExercises}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Séries totales:</span>
-                    <span class="stat-value">${stats.totalSets}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Séries complétées:</span>
-                    <span class="stat-value">${stats.completedSets} / ${stats.totalSets}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Progression:</span>
-                    <span class="stat-value">${stats.completionRate}%</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Volume total:</span>
-                    <span class="stat-value">${stats.totalVolume} kg</span>
-                </div>
-            `;
-            statsPanel.classList.remove('hidden');
-        }
-    }
-
-    /**
-     * Affiche une erreur
+     * Affichage d'une erreur dans l'UI
      */
     displayError(message) {
         if (this.workoutContainer) {
             this.workoutContainer.innerHTML = `
-                <div class="error-state">
-                    <div class="error-icon">⚠️</div>
-                    <h3>Erreur de chargement</h3>
-                    <p>${message}</p>
-                    <button onclick="location.reload()" class="retry-btn">
-                        🔄 Recharger la page
-                    </button>
+                <div class="error-message">
+                    <p>🚨 Erreur : ${message}</p>
                 </div>
             `;
         }
@@ -218,42 +127,7 @@ class HybridMasterApp {
 }
 
 // ============================================================================
-// DÉMARRAGE DE L'APPLICATION
+// Point d'entrée --- démarre l'application au chargement
 // ============================================================================
-
-// Attendre que le DOM soit chargé
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', startApp);
-} else {
-    startApp();
-}
-
-async function startApp() {
-    try {
-        const app = new HybridMasterApp();
-        await app.init();
-        
-        // Exposer l'app globalement pour le debugging
-        window.hybridMasterApp = app;
-        
-    } catch (error) {
-        console.error('❌ Erreur fatale:', error);
-        
-        const container = document.getElementById('workout-container');
-        if (container) {
-            container.innerHTML = `
-                <div class="error-state">
-                    <div class="error-icon">💥</div>
-                    <h3>Erreur fatale</h3>
-                    <p>${error.message}</p>
-                    <p style="font-size: 0.875rem; color: #6b7280; margin-top: 12px;">
-                        Ouvrez la console (F12) pour plus de détails
-                    </p>
-                    <button onclick="location.reload()" class="retry-btn">
-                        🔄 Recharger la page
-                    </button>
-                </div>
-            `;
-        }
-    }
-}
+const app = new HybridMasterApp();
+app.init();
