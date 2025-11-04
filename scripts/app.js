@@ -16,6 +16,33 @@ import { WorkoutSession } from './modules/workout-session.js';
 import { LocalStorage } from './storage/local-storage.js';
 
 // ============================================================================
+// EVENT LISTENERS REGISTRATION
+// ============================================================================
+export function registerWorkoutEventListeners(context) {
+  if (!context) return;
+  if (context._workoutEventListenersAdded) return;
+  document.addEventListener('start-rest-timer', (e) => {
+    const duration = Number(e?.detail?.duration) || 0;
+    if (!context.timer) return;
+    if (duration > 0) { context.timer.reset?.(); context.timer.start?.(duration); }
+  });
+  document.addEventListener('set-completed', (e) => {
+    const { exerciseId, setNumber, isChecked } = e?.detail || {};
+    if (!context.session || !exerciseId) return;
+    const idx = Number.parseInt(setNumber, 10) - 1;
+    if (Number.isNaN(idx) || idx < 0) return;
+    if (isChecked) context.session.completeSet(exerciseId, idx); else context.session.uncompleteSet(exerciseId, idx);
+  });
+  document.addEventListener('weight-changed', (e) => {
+    const { exerciseId, newWeight } = e?.detail || {};
+    if (!context.session || !exerciseId) return;
+    const weight = Number(newWeight);
+    if (Number.isFinite(weight)) context.session.updateWeight(exerciseId, undefined, weight);
+  });
+  context._workoutEventListenersAdded = true;
+}
+
+// ============================================================================
 // APPLICATION PRINCIPALE
 // ============================================================================
 class HybridMasterApp {
@@ -41,6 +68,9 @@ class HybridMasterApp {
         // État actuel
         this.currentWeek = 1;
         this.currentDay = 'dimanche';
+        
+        // Register workout event listeners
+        registerWorkoutEventListeners(this);
     }
 
     /**
