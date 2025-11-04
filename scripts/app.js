@@ -41,6 +41,92 @@ class HybridMasterApp {
         // État actuel
         this.currentWeek = 1;
         this.currentDay = 'dimanche';
+
+        // Flag to prevent duplicate event listeners
+        this._workoutEventListenersAdded = false;
+
+        // Setup workout event listeners
+        this.setupWorkoutEventListeners();
+    }
+
+    /**
+     * Configure les écouteurs d'événements pour le workout
+     * Protégé contre les appels multiples
+     */
+    setupWorkoutEventListeners() {
+        if (this._workoutEventListenersAdded) {
+            console.log('⚠️ Event listeners déjà ajoutés, skip');
+            return;
+        }
+
+        // Écouteur pour le démarrage du timer de repos
+        document.addEventListener('start-rest-timer', (event) => {
+            if (!this.timer) {
+                console.warn('⚠️ Timer non disponible');
+                return;
+            }
+            const duration = Number(event.detail?.duration) || 60;
+            console.log(`⏱️ Démarrage timer repos: ${duration}s`);
+            if (typeof this.timer.startRest === 'function') {
+                this.timer.startRest(duration);
+            }
+        });
+
+        // Écouteur pour la complétion d'une série
+        document.addEventListener('set-completed', (event) => {
+            if (!this.session) {
+                console.warn('⚠️ Session non disponible');
+                return;
+            }
+            const { exerciseId, setIndex, completed } = event.detail || {};
+            if (!exerciseId || setIndex === undefined) {
+                console.warn('⚠️ Données de série incomplètes');
+                return;
+            }
+
+            const setNum = parseInt(setIndex, 10);
+            if (isNaN(setNum)) {
+                console.warn('⚠️ Index de série invalide');
+                return;
+            }
+
+            if (completed) {
+                if (typeof this.session.completeSet === 'function') {
+                    this.session.completeSet(exerciseId, setNum);
+                }
+            } else {
+                if (typeof this.session.uncompleteSet === 'function') {
+                    this.session.uncompleteSet(exerciseId, setNum);
+                }
+            }
+        });
+
+        // Écouteur pour le changement de poids
+        document.addEventListener('weight-changed', (event) => {
+            if (!this.session) {
+                console.warn('⚠️ Session non disponible');
+                return;
+            }
+            const { exerciseId, setIndex, weight } = event.detail || {};
+            if (!exerciseId || setIndex === undefined || weight === undefined) {
+                console.warn('⚠️ Données de poids incomplètes');
+                return;
+            }
+
+            const setNum = parseInt(setIndex, 10);
+            const weightNum = Number(weight);
+            if (isNaN(setNum) || isNaN(weightNum)) {
+                console.warn('⚠️ Index ou poids invalide');
+                return;
+            }
+
+            if (typeof this.session.updateWeight === 'function') {
+                this.session.updateWeight(exerciseId, setNum, weightNum);
+            }
+        });
+
+        this._workoutEventListenersAdded = true;
+        console.log('✅ Event listeners configurés');
     }
 
     /**
