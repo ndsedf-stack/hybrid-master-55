@@ -484,6 +484,27 @@ function generateProgram() {
         ]
       }
     };
+
+    // -------------------------
+    // Inject RPE defaults per exercise if missing
+    // Rules:
+    //  - if exercise.category === 'cardio' or exercise.type === 'cardio' => rpe = 'N/A'
+    //  - else if rpe missing => use blockInfo.rpe (week-level target) or fallback '7-8'
+    // -------------------------
+    const days = ['dimanche', 'mardi', 'vendredi', 'maison'];
+    days.forEach(day => {
+      const workout = program[`week${week}`][day];
+      if (!workout || !Array.isArray(workout.exercises)) return;
+      workout.exercises.forEach(ex => {
+        if (ex.rpe !== undefined && ex.rpe !== null) return; // keep existing rpe
+        const isCardio = (ex.category === 'cardio') || (ex.type === 'cardio') || (ex.name && /cardio/i.test(ex.name));
+        if (isCardio) {
+          ex.rpe = 'N/A';
+        } else {
+          ex.rpe = blockInfo.rpe || '7-8';
+        }
+      });
+    });
   }
   
   return program;
