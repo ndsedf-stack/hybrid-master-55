@@ -111,3 +111,68 @@ hybrid-master-51/
 ---
 
 Version 1.0 - 2025
+
+## 🆕 Recent Critical Fixes (Latest Update)
+
+This version includes 6 critical fixes for improved robustness and user experience:
+
+### 1. **Robust Event Listeners** (`app.js`)
+- Added `setupWorkoutEvents()` method with idempotent event listener registration
+- Event listeners for: `start-rest-timer`, `set-completed`, `weight-changed`
+- All handlers use optional chaining, Number/parseInt with radix, and existence checks
+- Prevents duplicate event listeners with `_workoutEventsSetup` flag
+
+### 2. **Enhanced WorkoutSession** (`workout-session.js`)
+- Uses Maps for `completedSets` and `customWeights` (better performance)
+- Serializes `startTime` in ISO format for proper JSON serialization
+- Parameter validation for all methods
+- Checks for storage methods before calling
+- Compatible `start()` method
+
+### 3. **Timer & Rest Button CSS** (`05-components.css`)
+- Timer display states: `.running`, `.paused`, `.finished`
+- Animated states with keyframes: `pulse`, `alert-pulse`
+- Rest button styles with active/disabled states
+
+### 4. **UTF-8 & Unicode Labels** (`index.html`)
+- Explicit UTF-8 encoding guarantee
+- Unicode symbols: ◀ Précédent, Suivant ▶, ▶️ Start, ⏸️ Pause, 🔄 Reset
+
+### 5. **RPE Values** (`program-data.js`)
+- Added default `rpe: "7-8"` to all 30 exercises
+- Consistent RPE tracking across all workouts
+
+### 6. **TimerManager Improvements** (`timer-manager.js`)
+- Finished state handling (add/remove `.finished` class)
+- Automatic Notification permission request on init
+- Visual notification popup and sound alerts on completion
+
+## 🧪 Testing Instructions
+
+### Manual Testing Steps
+
+1. **Open the application**: Simply open `index.html` or use local server
+2. **Test Timer**: Click Start/Pause/Reset, press SPACE, verify animations
+3. **Test Events** (in console):
+   ```javascript
+   document.dispatchEvent(new CustomEvent('start-rest-timer', {detail: {seconds: 5}}));
+   document.dispatchEvent(new CustomEvent('set-completed', {detail: {exerciseId: 'test', setIndex: 0, completed: true}}));
+   ```
+4. **Test Navigation**: Navigate weeks/days, verify workout content changes
+5. **Test RPE**: Check exercises have RPE values in console
+
+### Console Checklist
+```javascript
+console.log('Event listeners:', app._workoutEventsSetup);
+console.log('Timer state:', app.timer.getState());
+console.log('Session Maps:', app.session.completedSets instanceof Map);
+console.log('Exercise RPE:', ProgramData.getWorkout(1, 'dimanche').exercises[0].rpe);
+```
+
+### Expected Results
+✅ All tests pass without console errors  
+✅ Timer animates with visual/audio alerts  
+✅ Events trigger appropriate actions  
+✅ All exercises have RPE values  
+✅ Unicode symbols display correctly
+

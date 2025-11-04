@@ -671,3 +671,98 @@ input[type="number"] {
         max-width: 300px;
     }
 }
+
+/* ================================================================ */
+/* TIMER AND REST BUTTON STYLES */
+/* ================================================================ */
+
+/* Timer Display States */
+.timer-display.running {
+    color: #28a745;
+    border-color: #28a745;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.timer-display.paused {
+    color: #ffc107;
+    border-color: #ffc107;
+}
+
+.timer-display.finished {
+    color: #dc3545;
+    border-color: #dc3545;
+    animation: alert-pulse 0.5s ease-in-out 3;
+}
+
+/* Timer Button States */
+.timer-btn.hidden {
+    display: none !important;
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(40, 167, 69, 0.6);
+    }
+}
+
+@keyframes alert-pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.5);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(220, 53, 69, 0.8);
+    }
+}
+
+@keyframes pulse-finished {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.02);
+    }
+}
+
+/* Rest Button */
+.rest-btn {
+    padding: 10px 20px;
+    border: 2px solid #17a2b8;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.rest-btn:hover {
+    background: linear-gradient(135deg, #138496 0%, #0f6674 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
+}
+
+.rest-btn:active {
+    transform: translateY(0);
+}
+
+.rest-btn.active {
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+    border-color: #28a745;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.rest-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
