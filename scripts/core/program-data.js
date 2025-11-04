@@ -75,6 +75,7 @@ function generateProgram() {
             weight: calculateWeight(75, week, 5, 3), // +5 kg / 3 sem
             rest: 120,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: blockInfo.block === 2 && !isDeload ? "Rest-Pause série 5 : 6-8 reps → 20s → 2-3 reps" : 
                    blockInfo.block === 4 && !isDeload ? "Clusters série 5 : 3 reps → 20s → 2 reps → 20s → 2 reps" : 
                    "Exercice roi, technique parfaite obligatoire"
@@ -89,6 +90,7 @@ function generateProgram() {
             weight: calculateWeight(25, week, 2.5, 2), // +2.5 kg / 2 sem (haltère)
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: blockInfo.block === 3 && !isDeload ? "Drop-set série 4 : 10 reps → -25% → 8-10 reps" :
                    blockInfo.block === 4 && !isDeload ? "Série 4 : 10 reps complètes → 5 demi-reps (partials amplitude haute)" :
                    "Haltère tenu devant poitrine, descente contrôlée"
@@ -103,6 +105,7 @@ function generateProgram() {
             weight: calculateWeight(110, week, 10, 2), // +10 kg / 2 sem
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: blockInfo.block === 3 && !isDeload ? "Drop-set série 4 : 10 reps → -25% → 10-12 reps" :
                    blockInfo.block === 4 && !isDeload ? "Clusters série 4 : 4 reps → 20s → 3 reps → 20s → 3 reps | Puis 10 reps complètes → 8 quarts de reps" :
                    "Pieds largeur épaules, amplitude complète"
@@ -117,6 +120,7 @@ function generateProgram() {
             weight: calculateWeight(60, week, 2.5, 2), // +2.5 kg / 2 sem
             rest: 90,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: "Landmine Press",
             notes: blockInfo.block === 3 && !isDeload ? "Drop-set série 4 : 10 reps → -20% → 8-10 reps" :
@@ -132,6 +136,7 @@ function generateProgram() {
             weight: calculateWeight(35, week, 2.5, 2), // +2.5 kg / 2 sem
             rest: 90,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: "Lat Pulldown",
             notes: "SUPERSET avec Lat Pulldown | Barre calée dans coin ou landmine"
@@ -146,6 +151,7 @@ function generateProgram() {
             weight: calculateWeight(50, week, 2.5, 2), // +2.5 kg / 2 sem
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: blockInfo.block === 3 && !isDeload ? "Myo-reps série 4 : 10 reps → 5s → 4 mini-sets de 4 reps" :
                    blockInfo.block === 4 && !isDeload ? "Myo-reps série 4 : 10 reps → 5s → 4 mini-sets de 4 reps" :
                    "Mains écartées, coudes vers extérieur, tirer vers bas des pecs"
@@ -160,6 +166,7 @@ function generateProgram() {
             weight: calculateWeight(12, week, 2.5, 3), // +2.5 kg / 3 sem (haltère)
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: "Cable Pushdown",
             notes: blockInfo.block === 1 && !isDeload ? "SUPERSET | Pause 2s bras tendus (étirement maximal)" :
@@ -177,6 +184,7 @@ function generateProgram() {
             weight: calculateWeight(20, week, 2.5, 3), // +2.5 kg / 3 sem
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: getBicepExercise(week),
             notes: blockInfo.block === 4 && !isDeload ? "SUPERSET | Myo-reps série 3 : 12 reps → 5s → 4 mini-sets de 4 reps" :
@@ -203,6 +211,7 @@ function generateProgram() {
             weight: calculateWeight(22, week, 2.5, 3), // +2.5 kg / 3 sem (par haltère)
             rest: 105,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: blockInfo.block === 2 && !isDeload ? "Rest-Pause série 5 : 10 reps → 20s → 3-4 reps" :
                    blockInfo.block === 3 && !isDeload ? "Drop-set série 5 : 10 reps → -25% → 8-10 reps" :
                    blockInfo.block === 4 && !isDeload ? "Clusters série 5 : 4 reps → 15s → 3 reps → 15s → 3 reps" :
@@ -218,6 +227,7 @@ function generateProgram() {
             weight: calculateWeight(10, week, 2.5, 3), // +2.5 kg / 3 sem
             rest: 60,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: blockInfo.block === 1 && !isDeload ? "Pause 2s bras écartés (étirement maximal pecs)" :
                    blockInfo.block === 3 && !isDeload ? "Drop-set série 4 : 12 reps → -25% → 10-12 reps | Myo-reps : 12 reps → 5s → 5 mini-sets de 5 reps" :
                    blockInfo.block === 4 && !isDeload ? "Myo-reps série 4 : 12 reps → 5s → 5 mini-sets de 5 reps" :
@@ -233,6 +243,7 @@ function generateProgram() {
             weight: calculateWeight(80, week, 10, 3), // +10 kg / 3 sem
             rest: 60,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: "Activation légère jambes, pas de fatigue excessive"
           },
           {
@@ -245,6 +256,7 @@ function generateProgram() {
             weight: calculateWeight(20, week, 2.5, 3), // +2.5 kg / 3 sem
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: "Lateral Raises",
             notes: blockInfo.block === 3 && !isDeload ? "SUPERSET | Drop-set série 5 : 12 reps → -20% → 10-12 reps" :
@@ -261,6 +273,7 @@ function generateProgram() {
             weight: calculateWeight(8, week, 2.5, 4), // +2.5 kg / 4 sem (haltère)
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: "Extension Triceps Corde",
             notes: blockInfo.block === 1 && !isDeload ? "SUPERSET | Pause 1s bras horizontaux" :
@@ -278,6 +291,7 @@ function generateProgram() {
             weight: calculateWeight(20, week, 2.5, 3), // +2.5 kg / 3 sem
             rest: 60,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: blockInfo.block === 1 && !isDeload ? "Pause 1s contraction arrière" :
                    blockInfo.block === 3 && !isDeload ? "Myo-reps série 5 : 15 reps → 5s → 5 mini-sets de 5 reps" :
                    blockInfo.block === 4 && !isDeload ? "Myo-reps série 5 : 15 reps → 5s → 5 mini-sets de 5 reps" :
@@ -293,6 +307,7 @@ function generateProgram() {
             weight: calculateWeight(50, week, 2.5, 2), // +2.5 kg / 2 sem
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: "Mains largeur épaules, coudes le long du corps, tirer vers nombril"
           },
           {
@@ -305,6 +320,7 @@ function generateProgram() {
             weight: calculateWeight(15, week, 2.5, 3), // +2.5 kg / 3 sem
             rest: 60,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: blockInfo.block === 3 && !isDeload ? "Myo-reps série 4 : 12 reps → 5s → 4 mini-sets de 4 reps" :
                    blockInfo.block === 4 && !isDeload ? "Myo-reps série 4 : 12 reps → 5s → 4 mini-sets de 4 reps" :
                    "Corde poulie haute, assis, étirement triceps maximal"
@@ -330,6 +346,7 @@ function generateProgram() {
             weight: calculateWeight(55, week, 2.5, 2), // +2.5 kg / 2 sem
             rest: 105,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: blockInfo.block === 2 && !isDeload ? "Rest-Pause série 5 : 10 reps → 20s → 3-4 reps" :
                    blockInfo.block === 3 && !isDeload ? "Drop-set série 5 : 10 reps → -20% → 8-10 reps" :
                    blockInfo.block === 4 && !isDeload ? "Clusters série 5 : 4 reps → 15s → 3 reps → 15s → 3 reps" :
@@ -345,6 +362,7 @@ function generateProgram() {
             weight: calculateWeight(40, week, 5, 3), // +5 kg / 3 sem
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: "Leg Extension",
             notes: blockInfo.block === 3 && !isDeload ? "SUPERSET | Drop-set série 5 : 12 reps → -25% → 10-12 reps" :
@@ -361,6 +379,7 @@ function generateProgram() {
             weight: calculateWeight(35, week, 5, 3), // +5 kg / 3 sem
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: "Leg Curl",
             notes: blockInfo.block === 3 && !isDeload ? "SUPERSET | Drop-set série 4 : 15 reps → -25% → 12-15 reps" :
@@ -377,6 +396,7 @@ function generateProgram() {
             weight: calculateWeight(10, week, 2.5, 3), // +2.5 kg / 3 sem
             rest: 60,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: "Dumbbell Fly",
             notes: blockInfo.block === 3 && !isDeload ? "SUPERSET | Myo-reps série 4 : 15 reps → 5s → 5 mini-sets de 5 reps" :
@@ -393,6 +413,7 @@ function generateProgram() {
             weight: calculateWeight(10, week, 2.5, 3), // +2.5 kg / 3 sem (haltère)
             rest: 60,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: "Cable Fly",
             notes: blockInfo.block === 1 && !isDeload ? "SUPERSET | Pause 2s bras écartés (étirement pecs)" :
@@ -410,6 +431,7 @@ function generateProgram() {
             weight: calculateWeight(25, week, 2.5, 3), // +2.5 kg / 3 sem
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: "Overhead Extension",
             notes: blockInfo.block === 1 && !isDeload ? "SUPERSET | Pause 2s bras tendus (étirement biceps)" :
@@ -427,6 +449,7 @@ function generateProgram() {
             weight: calculateWeight(15, week, 2.5, 3), // +2.5 kg / 3 sem
             rest: 75,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             isSuperset: true,
             supersetWith: "EZ Bar Curl",
             notes: blockInfo.block === 4 && !isDeload ? "SUPERSET | Myo-reps série 3 : 12 reps → 5s → 4 mini-sets de 4 reps" :
@@ -442,6 +465,7 @@ function generateProgram() {
             weight: calculateWeight(8, week, 2.5, 4), // +2.5 kg / 4 sem (haltère)
             rest: 60,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: blockInfo.block === 4 && !isDeload ? "Myo-reps série 3 : 15 reps → 5s → 5 mini-sets de 5 reps" :
                    "Coudes légèrement fléchis, monter à l'horizontal"
           },
@@ -455,6 +479,7 @@ function generateProgram() {
             weight: calculateWeight(30, week, 2.5, 4), // +2.5 kg / 4 sem
             rest: 45,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: "Assis, avant-bras sur cuisses, flexion poignets"
           }
         ]
@@ -479,6 +504,7 @@ function generateProgram() {
             weight: calculateWeight(12, week, 2.5, 3), // +2.5 kg / 3 sem (haltère)
             rest: 60,
             tempo: isDeload ? "4-1-2" : (week <= 5 ? "3-1-2" : "2-1-2"),
+            rpe: "7-8",
             notes: "À faire à la maison, Mardi ET Jeudi soir, prise marteau (neutre)"
           }
         ]
