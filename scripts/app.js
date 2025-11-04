@@ -6,9 +6,10 @@
 // ============================================================================
 // IMPORTS
 // ============================================================================
-import { PROGRAM } from './core/program-data.js';
+import ProgramData from './core/program-data.js';
 import { ProgressionEngine } from './core/progression-engine.js';
-import { WorkoutRenderer } from './ui/workout-renderer.js';
+// import { WorkoutRenderer } from './ui/workout-renderer.js'; // <- NE PAS UTILISER ACCOLADE sur un export default !
+import WorkoutRenderer from './ui/workout-renderer.js';
 import { NavigationUI } from './ui/navigation-ui.js';
 import { TimerManager } from './modules/timer-manager.js';
 import { WorkoutSession } from './modules/workout-session.js';
@@ -26,15 +27,17 @@ class HybridMasterApp {
         
         // Initialiser les modules
         this.storage = new LocalStorage();
-        this.progressionEngine = new ProgressionEngine(PROGRAM);
+        this.progressionEngine = new ProgressionEngine(ProgramData.program);
+
+        // session = progression directe
         this.session = new WorkoutSession(this.storage);
+
         this.timer = new TimerManager();
         this.navigation = new NavigationUI();
-        
+
         // Container pour l'affichage
-        this.workoutContainer = document.getElementById('workout-container');
-        this.workoutRenderer = new WorkoutRenderer(this.workoutContainer, this.session);
-        
+        this.workoutRenderer = new WorkoutRenderer();
+
         // État actuel
         this.currentWeek = 1;
         this.currentDay = 'dimanche';
@@ -77,8 +80,8 @@ class HybridMasterApp {
             this.timer.init();
             this.navigation.init();
 
-            // Charger l'état sauvegardé
-            const savedState = this.storage.loadNavigationState();
+            // Charger l'état sauvegardé (par défaut si rien dans le storage)
+            const savedState = this.storage.loadNavigationState() || { week: 1, day: 'dimanche' };
             this.currentWeek = savedState.week;
             this.currentDay = savedState.day;
 
@@ -105,7 +108,9 @@ class HybridMasterApp {
     async displayWorkout(week, day) {
         try {
             console.log(`🎯 Affichage Semaine ${week} - ${day}`);
-            // ... (logique d'affichage personnalisée ici)
+            // RECUPERER le bon workout via ProgramData
+            const workoutDay = ProgramData.getWorkout(week, day);
+            this.workoutRenderer.render(workoutDay, week);
         } catch (error) {
             console.error('❌ Erreur d\'affichage du workout:', error);
             this.displayError(error.message);
@@ -116,8 +121,9 @@ class HybridMasterApp {
      * Affichage d'une erreur dans l'UI
      */
     displayError(message) {
-        if (this.workoutContainer) {
-            this.workoutContainer.innerHTML = `
+        const container = document.getElementById('workout-container');
+        if (container) {
+            container.innerHTML = `
                 <div class="error-message">
                     <p>🚨 Erreur : ${message}</p>
                 </div>
