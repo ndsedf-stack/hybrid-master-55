@@ -1,438 +1,534 @@
 /**
- * 06-WORKOUT-MODE.CSS
- * Styles pour l'affichage des exercices
+ * HYBRID MASTER 51 - WORKOUT MODE STYLES
+ * Design moderne et responsive
  */
 
-/* ============================================================================
-   EXERCISE CARDS
-   ============================================================================ */
+/* ============================================
+   WORKOUT HEADER
+   ============================================ */
+
+.workout-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 25px;
+  border-radius: 16px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.workout-header h2 {
+  font-size: 1.6rem;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.workout-info {
+  display: flex;
+  gap: 20px;
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
+.workout-duration,
+.workout-exercises {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ============================================
+   EXERCISES LIST
+   ============================================ */
+
+.exercises-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ============================================
+   EXERCISE CARD
+   ============================================ */
 
 .exercise-card {
-    background: var(--card-bg, #ffffff);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--border-color, #e5e7eb);
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-.exercise-item {
-    background: var(--card-bg, #ffffff);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
+.exercise-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
-/* ============================================================================
+.exercise-card.superset {
+  border-left: 6px solid #fbbf24;
+  background: linear-gradient(to right, #fffbeb 0%, white 100%);
+}
+
+.superset-label {
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+}
+
+/* ============================================
    EXERCISE HEADER
-   ============================================================================ */
+   ============================================ */
 
 .exercise-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    gap: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  gap: 15px;
 }
 
-.exercise-name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary, #111827);
-    margin: 0;
-    line-height: 1.3;
+.exercise-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.exercise-number {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.exercise-title h3 {
+  font-size: 1.2rem;
+  color: #1a1a1a;
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .exercise-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-poly {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-iso {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-superset {
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .badge-technique {
-    background: #fef3c7;
-    color: #92400e;
+  background: #fee2e2;
+  color: #991b1b;
 }
 
-.badge-compound {
-    background: #dbeafe;
-    color: #1e40af;
+/* ============================================
+   EXERCISE META
+   ============================================ */
+
+.exercise-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 18px;
 }
 
-.badge-isolation {
-    background: #fce7f3;
-    color: #9f1239;
+.meta-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
 }
 
-/* ============================================================================
-   SUPERSET
-   ============================================================================ */
-
-.superset-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    padding: 4px;
-    border-radius: 18px;
+.weight-row {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 12px;
 }
 
-.superset-card .exercise-item {
-    background: white;
-    margin: 0 0 4px 0;
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.superset-card .exercise-item:last-child {
-    margin-bottom: 0;
+.meta-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.superset-header {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 12px 20px;
-    border-radius: 14px 14px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
+.meta-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a1a;
 }
 
-.superset-badge {
-    font-weight: 700;
-    font-size: 0.875rem;
-    color: #764ba2;
-}
-
-.superset-info {
-    font-size: 0.875rem;
-    color: #6b7280;
-}
-
-/* ============================================================================
-   SERIES CONTAINER
-   ============================================================================ */
-
-.series-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-/* ============================================================================
-   SET CARD
-   ============================================================================ */
-
-.set-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background: var(--bg-secondary, #f9fafb);
-    border-radius: 12px;
-    border: 2px solid transparent;
-    transition: all 0.2s ease;
-}
-
-.set-card:hover {
-    background: var(--bg-hover, #f3f4f6);
-    border-color: var(--primary-color, #6366f1);
-}
-
-.set-card.completed {
-    background: #d1fae5;
-    border-color: #10b981;
-}
-
-.set-card.completed .set-number {
-    color: #065f46;
-}
-
-/* ============================================================================
-   CHECKBOX
-   ============================================================================ */
-
-.set-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    user-select: none;
-    min-width: 120px;
-}
-
-.set-checkbox input[type="checkbox"] {
-    display: none;
-}
-
-.checkmark {
-    position: relative;
-    width: 28px;
-    height: 28px;
-    background: white;
-    border: 2px solid #d1d5db;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-}
-
-.set-checkbox:hover .checkmark {
-    border-color: var(--primary-color, #6366f1);
-}
-
-.set-checkbox input[type="checkbox"]:checked ~ .checkmark {
-    background: var(--primary-color, #6366f1);
-    border-color: var(--primary-color, #6366f1);
-}
-
-.set-checkbox input[type="checkbox"]:checked ~ .checkmark::after {
-    content: '✓';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.set-number {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--text-primary, #111827);
-}
-
-/* ============================================================================
-   SET INFO
-   ============================================================================ */
-
-.set-info {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex: 1;
-    flex-wrap: wrap;
-}
-
-.set-reps {
-    font-size: 0.95rem;
-    color: var(--text-secondary, #6b7280);
-    min-width: 80px;
-}
-
-.set-reps strong {
-    font-size: 1.1rem;
-    color: var(--text-primary, #111827);
-    font-weight: 700;
-}
-
-.set-tempo {
-    font-size: 0.875rem;
-    color: var(--text-muted, #9ca3af);
-    font-family: 'Courier New', monospace;
-}
-
-/* ============================================================================
+/* ============================================
    WEIGHT CONTROL
-   ============================================================================ */
+   ============================================ */
 
 .weight-control {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: white;
-    padding: 6px 10px;
-    border-radius: 10px;
-    border: 2px solid #e5e7eb;
+  grid-column: 1 / -1;
+}
+
+.weight-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 4px;
 }
 
 .weight-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    border: none;
-    background: var(--primary-color, #6366f1);
-    color: white;
-    font-size: 1.25rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .weight-btn:hover {
-    background: var(--primary-hover, #4f46e5);
-    transform: scale(1.1);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 .weight-btn:active {
-    transform: scale(0.95);
+  transform: scale(0.95);
 }
 
 .weight-input {
-    width: 60px;
-    height: 32px;
-    border: none;
-    background: transparent;
-    text-align: center;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text-primary, #111827);
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+  color: #1a1a1a;
+  min-width: 0;
 }
 
 .weight-input:focus {
-    outline: none;
+  outline: none;
 }
 
-/* Remove spinner arrows */
-.weight-input::-webkit-inner-spin-button,
-.weight-input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+/* ============================================
+   EXERCISE DETAILS
+   ============================================ */
+
+.exercise-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-bottom: 18px;
 }
 
-.weight-input[type=number] {
-    -moz-appearance: textfield;
+.tempo-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.weight-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-secondary, #6b7280);
+.tempo-label {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 600;
 }
 
-/* ============================================================================
-   REST INFO
-   ============================================================================ */
-
-.rest-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 12px;
-    border-top: 1px solid var(--border-color, #e5e7eb);
-    gap: 12px;
+.tempo-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #667eea;
+  background: white;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 2px solid #e0e7ff;
 }
 
-.rest-time {
-    font-size: 0.95rem;
-    color: var(--text-secondary, #6b7280);
+.tempo-help {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
 }
 
-.rest-time strong {
-    color: var(--text-primary, #111827);
-    font-weight: 700;
+.technique-badge {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
-.timer-btn-inline {
-    padding: 8px 16px;
-    background: var(--primary-color, #6366f1);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
+.exercise-notes {
+  background: #e0f2fe;
+  color: #075985;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  border-left: 4px solid #0ea5e9;
 }
 
-.timer-btn-inline:hover {
-    background: var(--primary-hover, #4f46e5);
-    transform: translateY(-1px);
+.exercise-notes strong {
+  font-weight: 700;
 }
 
-.timer-btn-inline:active {
-    transform: translateY(0);
+/* ============================================
+   SETS TRACKER
+   ============================================ */
+
+.sets-tracker {
+  background: #f1f5f9;
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 15px;
 }
 
-/* ============================================================================
-   EMPTY & ERROR STATES
-   ============================================================================ */
-
-.empty-state,
-.error-state {
-    text-align: center;
-    padding: 60px 20px;
+.sets-tracker-header {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.empty-icon,
+.sets-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.set-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid #e2e8f0;
+  user-select: none;
+}
+
+.set-checkbox:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.set-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+.set-checkbox input[type="checkbox"]:checked + .set-label {
+  font-weight: 700;
+  color: #667eea;
+}
+
+.set-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* ============================================
+   REST TIMER BUTTON
+   ============================================ */
+
+.rest-timer-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.rest-timer-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.rest-timer-btn:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   LOADING & ERROR STATES
+   ============================================ */
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(102, 126, 234, 0.2);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading p {
+  font-size: 1.1rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background: #fef2f2;
+  border-radius: 16px;
+  border: 2px solid #fecaca;
+}
+
 .error-icon {
-    font-size: 4rem;
-    margin-bottom: 16px;
+  font-size: 4rem;
+  margin-bottom: 16px;
 }
 
-.empty-state h3,
-.error-state h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary, #111827);
-    margin: 0 0 8px 0;
+.error-message h2 {
+  color: #991b1b;
+  margin-bottom: 12px;
+  font-size: 1.5rem;
 }
 
-.empty-state p,
-.error-state p {
-    font-size: 1rem;
-    color: var(--text-secondary, #6b7280);
-    margin: 0;
+.error-message p {
+  color: #dc2626;
+  font-size: 1rem;
+  margin-bottom: 20px;
 }
 
-.error-state {
-    color: #ef4444;
+.retry-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* ============================================================================
+.retry-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* ============================================
    RESPONSIVE
-   ============================================================================ */
+   ============================================ */
 
-@media (max-width: 640px) {
-    .exercise-card {
-        padding: 16px;
-    }
+@media (max-width: 768px) {
+  .workout-header {
+    padding: 20px;
+  }
 
-    .exercise-header {
-        flex-direction: column;
-        gap: 12px;
-    }
+  .workout-header h2 {
+    font-size: 1.3rem;
+  }
 
-    .set-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
+  .workout-info {
+    font-size: 0.85rem;
+  }
 
-    .set-checkbox {
-        min-width: auto;
-    }
+  .exercise-card {
+    padding: 16px;
+  }
 
-    .set-info {
-        width: 100%;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
+  .exercise-title h3 {
+    font-size: 1.1rem;
+  }
 
-    .weight-control {
-        width: 100%;
-        justify-content: space-between;
-    }
+  .meta-row {
+    grid-template-columns: 1fr 1fr;
+  }
 
-    .rest-info {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+  .weight-control {
+    grid-column: 1 / -1;
+  }
 
-    .timer-btn-inline {
-        width: 100%;
-    }
+  .sets-checkboxes {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
 }
