@@ -33,6 +33,11 @@ export class WorkoutSession {
      * Charge la progression sauvegardée
      */
     loadProgress() {
+        if (!this.storage || typeof this.storage.loadCompletedSets !== 'function') {
+            console.warn('⚠️ Storage manager non disponible pour loadProgress');
+            return;
+        }
+
         this.exercises.forEach(exercise => {
             const exerciseId = exercise.id || exercise.nom;
             
@@ -120,6 +125,11 @@ export class WorkoutSession {
      * Sauvegarde la progression d'un exercice
      */
     saveProgress(exerciseId) {
+        if (!this.storage || typeof this.storage.saveCompletedSets !== 'function') {
+            console.warn('⚠️ Storage manager non disponible pour saveProgress');
+            return;
+        }
+
         const completed = this.completedSets.has(exerciseId)
             ? Array.from(this.completedSets.get(exerciseId))
             : [];
@@ -230,6 +240,27 @@ export class WorkoutSession {
         });
         
         console.log('🔄 Séance réinitialisée');
+    }
+
+    /**
+     * Récupère la progression de la session au format sérialisable
+     * Utilise la sérialisation ISO pour startTime
+     */
+    getSessionProgress() {
+        return {
+            week: this.currentWeek,
+            day: this.currentDay,
+            startTime: this.startTime ? this.startTime.toISOString() : null,
+            completedSets: Array.from(this.completedSets.entries()).map(([id, sets]) => ({
+                exerciseId: id,
+                sets: Array.from(sets)
+            })),
+            customWeights: Array.from(this.customWeights.entries()).map(([id, weights]) => ({
+                exerciseId: id,
+                weights
+            })),
+            stats: this.getStats()
+        };
     }
 
     /**
