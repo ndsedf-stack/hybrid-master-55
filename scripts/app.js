@@ -92,6 +92,9 @@ class HybridMasterApp {
             // Restaurer l'état de navigation
             this.navigation.setState(this.currentWeek, this.currentDay);
 
+            // Configurer les event listeners robustes
+            this.setupWorkoutEventListeners();
+
             // Afficher le workout initial
             await this.displayWorkout(this.currentWeek, this.currentDay);
 
@@ -99,6 +102,39 @@ class HybridMasterApp {
         } catch (error) {
             console.error('❌ Erreur lors de l\'initialisation:', error);
             this.displayError(error.message);
+        }
+    }
+
+    /**
+     * Configure les event listeners pour les événements de workout
+     */
+    setupWorkoutEventListeners() {
+        if (!this._workoutEventListenersAdded) {
+            document.addEventListener('start-rest-timer', (e) => {
+                console.log('🕒 Timer démarré via événement:', e?.detail);
+                const duration = Number(e?.detail?.duration) || 0;
+                if (!this.timer) { console.warn('Timer non initialisé'); return; }
+                if (duration > 0) { this.timer.reset?.(); this.timer.start?.(duration); }
+            });
+
+            document.addEventListener('set-completed', (e) => {
+                const { exerciseId, setNumber, isChecked } = e?.detail || {};
+                console.log(`✅ Série ${setNumber} ${isChecked ? 'cochée' : 'décochée'} pour ${exerciseId}`);
+                if (!this.session || !exerciseId) return;
+                const idx = Number.parseInt(setNumber, 10) - 1;
+                if (Number.isNaN(idx) || idx < 0) return;
+                if (isChecked) { this.session.completeSet(exerciseId, idx); } else { this.session.uncompleteSet(exerciseId, idx); }
+            });
+
+            document.addEventListener('weight-changed', (e) => {
+                const { exerciseId, newWeight } = e?.detail || {};
+                console.log(`⚖️ Poids changé: ${exerciseId} -> ${newWeight}kg`);
+                if (!this.session || !exerciseId) return;
+                const weight = Number(newWeight);
+                if (Number.isFinite(weight)) { this.session.updateWeight(exerciseId, undefined, weight); }
+            });
+
+            this._workoutEventListenersAdded = true;
         }
     }
 
