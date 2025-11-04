@@ -41,6 +41,44 @@ class HybridMasterApp {
         // État actuel
         this.currentWeek = 1;
         this.currentDay = 'dimanche';
+
+        // ✅ CORRECTION TIMER - Écouter les événements de repos
+        this._setupWorkoutEventListeners();
+    }
+
+    /**
+     * Configure les écouteurs d'événements pour le workout
+     */
+    _setupWorkoutEventListeners() {
+        // ✅ CORRECTION TIMER - Écouter les événements de repos
+        document.addEventListener('start-rest-timer', (e) => {
+            console.log('🕒 Timer démarré via événement:', e?.detail);
+            const duration = Number(e?.detail?.duration) || 0;
+            if (!this.timer) { console.warn('Timer non initialisé'); return; }
+            if (duration > 0) { this.timer.reset?.(); this.timer.start?.(duration); }
+        });
+
+        document.addEventListener('set-completed', (e) => {
+            const { exerciseId, setNumber, isChecked } = e?.detail || {};
+            console.log(`✅ Série ${setNumber} ${isChecked ? 'cochée' : 'décochée'} pour ${exerciseId}`);
+            if (!this.session || !exerciseId) return;
+            const idx = Number.parseInt(setNumber, 10) - 1;
+            if (Number.isNaN(idx) || idx < 0) return;
+            if (isChecked) { this.session.completeSet(exerciseId, idx); } else { this.session.uncompleteSet(exerciseId, idx); }
+        });
+
+        document.addEventListener('weight-changed', (e) => {
+            const { exerciseId, newWeight } = e?.detail || {};
+            console.log(`⚖️ Poids changé: ${exerciseId} -> ${newWeight}kg`);
+            if (!this.session || !exerciseId) return;
+            const weight = Number(newWeight);
+            if (Number.isFinite(weight)) { 
+                // Update weight for set index 0 (all sets share the same weight)
+                this.session.updateWeight(exerciseId, 0, weight); 
+            }
+        });
+
+        console.log('✅ Événements de workout configurés');
     }
 
     /**
