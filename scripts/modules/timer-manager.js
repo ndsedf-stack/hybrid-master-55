@@ -1,275 +1,349 @@
-/**
- * TIMER MANAGER - Gestion du chronomètre (corrigé)
- */
+// ============================================================================
+// ⏱️ scripts/modules/timer-manager.js
+// Gestion des timers de repos entre séries
+// ============================================================================
 
-export class TimerManager {
-    constructor() {
-        this.seconds = 0;
-        this.isRunning = false;
-        this.interval = null;
-        this.targetSeconds = null;
-        this.onTick = null;
-        this.onComplete = null;
-
-        // Éléments DOM
-        this.display = document.getElementById('timer-display');
-        this.startBtn = document.getElementById('timer-start');
-        this.pauseBtn = document.getElementById('timer-pause');
-        this.resetBtn = document.getElementById('timer-reset');
-
-        // Protection pour init
-        this._listenersAdded = false;
+class TimerManager {
+  constructor(callbacks = {}) {
+    this.timeRemaining = 0;
+    this.totalTime = 0;
+    this.isRunning = false;
+    this.isPaused = false;
+    this.intervalId = null;
+    this.startTime = null;
+    
+    // Callbacks
+    this.onTick = callbacks.onTick || (() => {});
+    this.onComplete = callbacks.onComplete || (() => {});
+    this.onPause = callbacks.onPause || (() => {});
+    this.onResume = callbacks.onResume || (() => {});
+  }
+  
+  // ==================== CONTRÔLES PRINCIPAUX ====================
+  
+  start(seconds) {
+    if (seconds <= 0) {
+      return { success: false, message: 'Durée invalide' };
     }
-
-    /**
-     * Initialise le timer
-     */
-    init() {
-        if (this._listenersAdded) return;
-        this._listenersAdded = true;
-
-        if (this.startBtn) {
-            this.startBtn.addEventListener('click', () => this.start());
-        }
-        if (this.pauseBtn) {
-            this.pauseBtn.addEventListener('click', () => this.pause());
-        }
-        if (this.resetBtn) {
-            this.resetBtn.addEventListener('click', () => this.reset());
-        }
-
-        // Raccourci clavier ESPACE — ignore INPUT, TEXTAREA et contentEditable
-        document.addEventListener('keydown', (e) => {
-            try {
-                const tag = e.target?.tagName?.toUpperCase();
-                const isEditable = e.target?.isContentEditable;
-                if (e.code === 'Space' && tag !== 'INPUT' && tag !== 'TEXTAREA' && !isEditable) {
-                    e.preventDefault();
-                    this.toggle();
-                }
-            } catch (err) {
-                // defensive: ne pas planter si e.target inattendu
-            }
+    
+    this.reset(); // Nettoyer timer précédent
+    
+    this.timeRemaining = seconds;
+    this.totalTime = seconds;
+    this.isRunning = true;
+    this.isPaused = false;
+    this.startTime = Date.now();
+    
+    this.intervalId = setInterval(() => {
+      if (!this.isPaused) {
+        this.timeRemaining--;
+        this.onTick({
+          timeRemaining: this.timeRemaining,
+          progress: this.getProgress(),
+          formatted: this.formatTime(this.timeRemaining)
         });
-
-        this.updateDisplay();
-        this.updateButtons();
-        console.log('✅ TimerManager initialisé');
-    }
-
-    /**
-     * Démarre le timer
-     */
-    start(targetSeconds = null) {
-        if (this.isRunning) return;
-
-        this.isRunning = true;
-        this.targetSeconds = targetSeconds;
-
-        // Retirer état "finished" si présent
-        if (this.display) this.display.classList.remove('finished');
-
-        this.interval = setInterval(() => {
-            this.seconds++;
-            this.updateDisplay();
-
-            if (typeof this.onTick === 'function') {
-                try { this.onTick(this.seconds); } catch (e) { console.warn('onTick error', e); }
-            }
-
-            // Vérifier si l'objectif est atteint
-            if (this.targetSeconds && this.seconds >= this.targetSeconds) {
-                this.complete();
-            }
-        }, 1000);
-
-        this.updateButtons();
-        console.log(`▶️ Timer démarré ${targetSeconds ? `(${targetSeconds}s)` : ''}`);
-    }
-
-    /**
-     * Met en pause
-     */
-    pause() {
-        if (!this.isRunning) return;
-
-        this.isRunning = false;
-        if (this.interval) {
-            clearInterval(this.interval);
-            this.interval = null;
+        
+        // Alertes sonores
+        if (this.timeRemaining === 10 || this.timeRemaining === 5 || this.timeRemaining === 3) {
+          this.playBeep('warning');
         }
-
-        this.updateButtons();
-        console.log('⏸️ Timer en pause');
-    }
-
-    /**
-     * Toggle start/pause
-     */
-    toggle() {
-        if (this.isRunning) {
-            this.pause();
-        } else {
-            this.start();
+        
+        if (this.timeRemaining <= 0) {
+          this.complete();
         }
+      }
+    }, 1000);
+    
+    return {
+      success: true,
+      totalTime: this.totalTime,
+      formatted: this.formatTime(this.totalTime)
+    };
+  }
+  
+  pause() {
+    if (!this.isRunning || this.isPaused) {
+      return { success: false, message: 'Timer non actif' };
     }
-
-    /**
-     * Réinitialise
-     */
-    reset() {
-        this.pause();
-        this.seconds = 0;
-        this.targetSeconds = null;
-
-        // Retirer classe finished si présente
-        if (this.display) this.display.classList.remove('finished');
-
-        this.updateDisplay();
-        this.updateButtons();
-        console.log('🔄 Timer réinitialisé');
+    
+    this.isPaused = true;
+    this.onPause({
+      timeRemaining: this.timeRemaining,
+      formatted: this.formatTime(this.timeRemaining)
+    });
+    
+    return { success: true, timeRemaining: this.timeRemaining };
+  }
+  
+  resume() {
+    if (!this.isRunning || !this.isPaused) {
+      return { success: false, message: 'Rien à reprendre' };
     }
-
-    /**
-     * Timer terminé
-     */
-    complete() {
-        this.pause();
-
-        // Marquer comme terminé (classe .finished)
-        if (this.display) {
-            this.display.classList.remove('running', 'paused');
-            this.display.classList.add('finished');
-        }
-
-        this.playSound();
-
-        if (typeof this.onComplete === 'function') {
-            try { this.onComplete(this.seconds); } catch (e) { console.warn('onComplete error', e); }
-        }
-
-        // Demander la permission si nécessaire et envoyer notification
-        if ('Notification' in window) {
-            if (Notification.permission === 'granted') {
-                try {
-                    new Notification('⏱️ Timer terminé !', {
-                        body: `Temps écoulé : ${this.formatTime(this.seconds)}`,
-                        icon: '/icon.png'
-                    });
-                } catch (e) { /* ignore */ }
-            } else if (Notification.permission === 'default') {
-                Notification.requestPermission().then((result) => {
-                    console.log('📬 Permission notification:', result);
-                    if (result === 'granted') {
-                        try {
-                            new Notification('⏱️ Timer terminé !', {
-                                body: `Temps écoulé : ${this.formatTime(this.seconds)}`
-                            });
-                        } catch (e) { /* ignore */ }
-                    }
-                }).catch(() => {/* ignore */});
-            }
-        }
-
-        // Notification visuelle dans l'UI
-        this.showNotification('✅ Timer terminé !');
-        console.log('✅ Timer terminé');
+    
+    this.isPaused = false;
+    this.onResume({
+      timeRemaining: this.timeRemaining,
+      formatted: this.formatTime(this.timeRemaining)
+    });
+    
+    return { success: true, timeRemaining: this.timeRemaining };
+  }
+  
+  stop() {
+    this.reset();
+    return { success: true, message: 'Timer arrêté' };
+  }
+  
+  reset() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
     }
-
-    /**
-     * Affiche une notification visuelle (petit toast)
-     */
-    showNotification(message) {
-        try {
-            const notification = document.createElement('div');
-            notification.className = 'success-notification';
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        } catch (e) {
-            // ignore DOM errors
-        }
+    
+    this.timeRemaining = 0;
+    this.totalTime = 0;
+    this.isRunning = false;
+    this.isPaused = false;
+    this.startTime = null;
+    
+    this.onTick({
+      timeRemaining: 0,
+      progress: 0,
+      formatted: '0:00'
+    });
+  }
+  
+  complete() {
+    clearInterval(this.intervalId);
+    this.intervalId = null;
+    this.isRunning = false;
+    this.isPaused = false;
+    this.timeRemaining = 0;
+    
+    this.playBeep('complete');
+    this.triggerNotification();
+    this.triggerVibration();
+    
+    this.onComplete({
+      totalTime: this.totalTime,
+      message: 'Repos terminé !'
+    });
+  }
+  
+  // ==================== AJUSTEMENTS ====================
+  
+  addTime(seconds) {
+    if (!this.isRunning) {
+      return { success: false, message: 'Timer non actif' };
     }
-
-    /**
-     * Joue un son
-     */
-    playSound() {
-        try {
-            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvPaiTcIG2m98OScTgwOUKru97RgGgU7k9n0x3QoBS1+zPLaizsJHGu+8eadUQ0PWKvm9LFeFQU=');
-            audio.play().catch(() => {});
-        } catch (e) {
-            // ignore audio errors
-        }
+    
+    this.timeRemaining += seconds;
+    this.totalTime += seconds;
+    
+    this.onTick({
+      timeRemaining: this.timeRemaining,
+      progress: this.getProgress(),
+      formatted: this.formatTime(this.timeRemaining)
+    });
+    
+    return {
+      success: true,
+      timeRemaining: this.timeRemaining,
+      formatted: this.formatTime(this.timeRemaining)
+    };
+  }
+  
+  removeTime(seconds) {
+    if (!this.isRunning) {
+      return { success: false, message: 'Timer non actif' };
     }
-
-    /**
-     * Formate le temps
-     */
-    formatTime(totalSeconds) {
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-
-        if (hours > 0) {
-            return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    this.timeRemaining = Math.max(0, this.timeRemaining - seconds);
+    
+    if (this.timeRemaining === 0) {
+      this.complete();
+    } else {
+      this.onTick({
+        timeRemaining: this.timeRemaining,
+        progress: this.getProgress(),
+        formatted: this.formatTime(this.timeRemaining)
+      });
     }
-
-    /**
-     * Met à jour l'affichage
-     */
-    updateDisplay() {
-        if (this.display) {
-            this.display.textContent = this.formatTime(this.seconds);
-
-            // Classes CSS selon l'état
-            this.display.classList.toggle('running', this.isRunning);
-            this.display.classList.toggle('paused', !this.isRunning && this.seconds > 0);
-        }
+    
+    return {
+      success: true,
+      timeRemaining: this.timeRemaining,
+      formatted: this.formatTime(this.timeRemaining)
+    };
+  }
+  
+  // ==================== GETTERS ====================
+  
+  getTimeRemaining() {
+    return this.timeRemaining;
+  }
+  
+  getTotalTime() {
+    return this.totalTime;
+  }
+  
+  getProgress() {
+    if (this.totalTime === 0) return 0;
+    return Math.round(((this.totalTime - this.timeRemaining) / this.totalTime) * 100);
+  }
+  
+  getState() {
+    return {
+      isRunning: this.isRunning,
+      isPaused: this.isPaused,
+      timeRemaining: this.timeRemaining,
+      totalTime: this.totalTime,
+      progress: this.getProgress(),
+      formatted: this.formatTime(this.timeRemaining)
+    };
+  }
+  
+  // ==================== FORMATAGE ====================
+  
+  formatTime(seconds) {
+    if (seconds < 0) seconds = 0;
+    
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+  
+  formatTimeVerbose(seconds) {
+    if (seconds < 60) {
+      return `${seconds}s`;
     }
-
-    /**
-     * ✅ Utilise la classe .hidden pour masquer/afficher les boutons (préférer CSS)
-     */
-    updateButtons() {
-        if (this.startBtn && this.pauseBtn) {
-            if (this.isRunning) {
-                this.startBtn.classList.add('hidden');
-                this.pauseBtn.classList.remove('hidden');
-            } else {
-                this.startBtn.classList.remove('hidden');
-                this.pauseBtn.classList.add('hidden');
-            }
-        } else {
-            // Fallback si pas de classes disponibles : tenter style
-            if (this.startBtn) this.startBtn.style.display = this.isRunning ? 'none' : 'inline-flex';
-            if (this.pauseBtn) this.pauseBtn.style.display = this.isRunning ? 'inline-flex' : 'none';
-        }
+    
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    
+    if (secs === 0) {
+      return `${mins}min`;
     }
-
-    /**
-     * Récupère l'état actuel
-     */
-    getState() {
-        return {
-            seconds: this.seconds,
-            isRunning: this.isRunning,
-            targetSeconds: this.targetSeconds
-        };
+    
+    return `${mins}min ${secs}s`;
+  }
+  
+  // ==================== ALERTES ====================
+  
+  playBeep(type = 'warning') {
+    // Créer un contexte audio si disponible
+    if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioCtx();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      if (type === 'complete') {
+        // Son de fin : double beep
+        oscillator.frequency.value = 800;
+        gainNode.gain.value = 0.3;
+        oscillator.start(audioCtx.currentTime);
+        oscillator.stop(audioCtx.currentTime + 0.1);
+        
+        setTimeout(() => {
+          const osc2 = audioCtx.createOscillator();
+          const gain2 = audioCtx.createGain();
+          osc2.connect(gain2);
+          gain2.connect(audioCtx.destination);
+          osc2.frequency.value = 1000;
+          gain2.gain.value = 0.3;
+          osc2.start(audioCtx.currentTime);
+          osc2.stop(audioCtx.currentTime + 0.2);
+        }, 150);
+      } else {
+        // Son d'avertissement : beep simple
+        oscillator.frequency.value = 600;
+        gainNode.gain.value = 0.2;
+        oscillator.start(audioCtx.currentTime);
+        oscillator.stop(audioCtx.currentTime + 0.1);
+      }
     }
-
-    /**
-     * Restaure un état
-     */
-    setState(seconds, isRunning = false) {
-        this.reset();
-        this.seconds = Number(seconds) || 0;
-        if (isRunning) this.start();
-        this.updateDisplay();
+  }
+  
+  triggerNotification() {
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted') {
+        new Notification('Repos terminé ! 💪', {
+          body: 'C\'est parti pour la prochaine série',
+          icon: '/icon-192.png',
+          badge: '/badge-72.png',
+          tag: 'timer-complete',
+          requireInteraction: false
+        });
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            this.triggerNotification();
+          }
+        });
+      }
     }
+  }
+  
+  triggerVibration() {
+    if ('vibrate' in navigator) {
+      // Pattern : court-pause-court-pause-long
+      navigator.vibrate([200, 100, 200, 100, 400]);
+    }
+  }
+  
+  // ==================== PRESETS ====================
+  
+  static getCommonDurations() {
+    return [
+      { label: '30s', value: 30 },
+      { label: '45s', value: 45 },
+      { label: '1min', value: 60 },
+      { label: '1min 15s', value: 75 },
+      { label: '1min 30s', value: 90 },
+      { label: '1min 45s', value: 105 },
+      { label: '2min', value: 120 },
+      { label: '2min 30s', value: 150 },
+      { label: '3min', value: 180 }
+    ];
+  }
+  
+  // ==================== SAUVEGARDE ====================
+  
+  saveState() {
+    const state = {
+      timeRemaining: this.timeRemaining,
+      totalTime: this.totalTime,
+      isRunning: this.isRunning,
+      isPaused: this.isPaused,
+      timestamp: Date.now()
+    };
+    
+    localStorage.setItem('hybrid_master_timer', JSON.stringify(state));
+  }
+  
+  loadState() {
+    const saved = localStorage.getItem('hybrid_master_timer');
+    if (!saved) return null;
+    
+    try {
+      const state = JSON.parse(saved);
+      
+      // Vérifier si le timer n'est pas trop ancien (> 10 minutes)
+      if (Date.now() - state.timestamp > 600000) {
+        return null;
+      }
+      
+      return state;
+    } catch (error) {
+      console.error('Erreur chargement timer:', error);
+      return null;
+    }
+  }
 }
+
+// Export pour utilisation dans app.js
+export { TimerManager };
