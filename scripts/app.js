@@ -41,6 +41,9 @@ class HybridMasterApp {
         // État actuel
         this.currentWeek = 1;
         this.currentDay = 'dimanche';
+        
+        // Flag to prevent duplicate event listeners
+        this._workoutEventsSetup = false;
     }
 
     /**
@@ -91,6 +94,9 @@ class HybridMasterApp {
 
             // Restaurer l'état de navigation
             this.navigation.setState(this.currentWeek, this.currentDay);
+            
+            // Setup workout event listeners
+            this.setupWorkoutEvents();
 
             // Afficher le workout initial
             await this.displayWorkout(this.currentWeek, this.currentDay);
@@ -103,6 +109,57 @@ class HybridMasterApp {
     }
 
     /**
+     * Setup workout event listeners (idempotent)
+     */
+    setupWorkoutEvents() {
+        if (this._workoutEventsSetup) {
+            return; // Already setup, avoid duplicates
+        }
+        
+        // Listen for rest timer start event
+        document.addEventListener('start-rest-timer', (e) => {
+            const seconds = e.detail?.seconds;
+            if (seconds && this.timer) {
+                const parsedSeconds = Number(seconds);
+                if (!isNaN(parsedSeconds) && parsedSeconds > 0) {
+                    this.timer.reset();
+                    this.timer.start(parsedSeconds);
+                }
+            }
+        });
+        
+        // Listen for set completion event
+        document.addEventListener('set-completed', (e) => {
+            const { exerciseId, setIndex, completed } = e.detail || {};
+            if (exerciseId != null && setIndex != null && this.session) {
+                const parsedSetIndex = parseInt(setIndex, 10);
+                if (!isNaN(parsedSetIndex)) {
+                    if (completed) {
+                        this.session.completeSet(exerciseId, parsedSetIndex);
+                    } else {
+                        this.session.uncompleteSet(exerciseId, parsedSetIndex);
+                    }
+                }
+            }
+        });
+        
+        // Listen for weight change event
+        document.addEventListener('weight-changed', (e) => {
+            const { exerciseId, setIndex, newWeight } = e.detail || {};
+            if (exerciseId != null && setIndex != null && newWeight != null && this.session) {
+                const parsedSetIndex = parseInt(setIndex, 10);
+                const parsedWeight = Number(newWeight);
+                if (!isNaN(parsedSetIndex) && !isNaN(parsedWeight)) {
+                    this.session.updateWeight(exerciseId, parsedSetIndex, parsedWeight);
+                }
+            }
+        });
+        
+        this._workoutEventsSetup = true;
+        console.log('✅ Workout event listeners configured');
+    }
+
+    /**
      * Affiche le workout pour une semaine et un jour donnés
      */
     async displayWorkout(week, day) {
@@ -111,6 +168,18 @@ class HybridMasterApp {
             // RECUPERER le bon workout via ProgramData
             const workoutDay = ProgramData.getWorkout(week, day);
             this.workoutRenderer.render(workoutDay, week);
+            
+            // Start session with compatibility for both start() and startSession()
+            if (this.session) {
+                const exercises = workoutDay?.exercises || [];
+                // Use start() method which is the standard method name
+                if (typeof this.session.start === 'function') {
+                    this.session.start(week, day, exercises);
+                } else if (typeof this.session.startSession === 'function') {
+                    // Fallback for compatibility
+                    this.session.startSession(week, day, exercises);
+                }
+            }
         } catch (error) {
             console.error('❌ Erreur d\'affichage du workout:', error);
             this.displayError(error.message);
