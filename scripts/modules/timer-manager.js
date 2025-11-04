@@ -1,5 +1,5 @@
 /**
- * TIMER MANAGER - Gestion du chronomètre
+ * TIMER MANAGER - Gestion du chronomètre (corrigé)
  */
 
 export class TimerManager {
@@ -16,12 +16,18 @@ export class TimerManager {
         this.startBtn = document.getElementById('timer-start');
         this.pauseBtn = document.getElementById('timer-pause');
         this.resetBtn = document.getElementById('timer-reset');
+
+        // Protection pour init
+        this._listenersAdded = false;
     }
 
     /**
      * Initialise le timer
      */
     init() {
+        if (this._listenersAdded) return;
+        this._listenersAdded = true;
+
         if (this.startBtn) {
             this.startBtn.addEventListener('click', () => this.start());
         }
@@ -32,11 +38,17 @@ export class TimerManager {
             this.resetBtn.addEventListener('click', () => this.reset());
         }
 
-        // Raccourci clavier ESPACE
+        // Raccourci clavier ESPACE — ignore INPUT, TEXTAREA et contentEditable
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
-                e.preventDefault();
-                this.toggle();
+            try {
+                const tag = e.target?.tagName?.toUpperCase();
+                const isEditable = e.target?.isContentEditable;
+                if (e.code === 'Space' && tag !== 'INPUT' && tag !== 'TEXTAREA' && !isEditable) {
+                    e.preventDefault();
+                    this.toggle();
+                }
+            } catch (err) {
+                // defensive: ne pas planter si e.target inattendu
             }
         });
 
@@ -54,12 +66,15 @@ export class TimerManager {
         this.isRunning = true;
         this.targetSeconds = targetSeconds;
 
+        // Retirer état "finished" si présent
+        if (this.display) this.display.classList.remove('finished');
+
         this.interval = setInterval(() => {
             this.seconds++;
             this.updateDisplay();
 
-            if (this.onTick) {
-                this.onTick(this.seconds);
+            if (typeof this.onTick === 'function') {
+                try { this.onTick(this.seconds); } catch (e) { console.warn('onTick error', e); }
             }
 
             // Vérifier si l'objectif est atteint
@@ -69,6 +84,7 @@ export class TimerManager {
         }, 1000);
 
         this.updateButtons();
+        console.log(`▶️ Timer démarré ${targetSeconds ? `(${targetSeconds}s)` : ''}`);
     }
 
     /**
@@ -84,6 +100,7 @@ export class TimerManager {
         }
 
         this.updateButtons();
+        console.log('⏸️ Timer en pause');
     }
 
     /**
@@ -104,8 +121,13 @@ export class TimerManager {
         this.pause();
         this.seconds = 0;
         this.targetSeconds = null;
+
+        // Retirer classe finished si présente
+        if (this.display) this.display.classList.remove('finished');
+
         this.updateDisplay();
         this.updateButtons();
+        console.log('🔄 Timer réinitialisé');
     }
 
     /**
@@ -113,18 +135,62 @@ export class TimerManager {
      */
     complete() {
         this.pause();
-        this.playSound();
-        
-        if (this.onComplete) {
-            this.onComplete(this.seconds);
+
+        // Marquer comme terminé (classe .finished)
+        if (this.display) {
+            this.display.classList.remove('running', 'paused');
+            this.display.classList.add('finished');
         }
 
-        // Notification
-        if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('⏱️ Timer terminé !', {
-                body: `Temps écoulé : ${this.formatTime(this.seconds)}`,
-                icon: '/icon.png'
-            });
+        this.playSound();
+
+        if (typeof this.onComplete === 'function') {
+            try { this.onComplete(this.seconds); } catch (e) { console.warn('onComplete error', e); }
+        }
+
+        // Demander la permission si nécessaire et envoyer notification
+        if ('Notification' in window) {
+            if (Notification.permission === 'granted') {
+                try {
+                    new Notification('⏱️ Timer terminé !', {
+                        body: `Temps écoulé : ${this.formatTime(this.seconds)}`,
+                        icon: '/icon.png'
+                    });
+                } catch (e) { /* ignore */ }
+            } else if (Notification.permission === 'default') {
+                Notification.requestPermission().then((result) => {
+                    console.log('📬 Permission notification:', result);
+                    if (result === 'granted') {
+                        try {
+                            new Notification('⏱️ Timer terminé !', {
+                                body: `Temps écoulé : ${this.formatTime(this.seconds)}`
+                            });
+                        } catch (e) { /* ignore */ }
+                    }
+                }).catch(() => {/* ignore */});
+            }
+        }
+
+        // Notification visuelle dans l'UI
+        this.showNotification('✅ Timer terminé !');
+        console.log('✅ Timer terminé');
+    }
+
+    /**
+     * Affiche une notification visuelle (petit toast)
+     */
+    showNotification(message) {
+        try {
+            const notification = document.createElement('div');
+            notification.className = 'success-notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        } catch (e) {
+            // ignore DOM errors
         }
     }
 
@@ -132,8 +198,12 @@ export class TimerManager {
      * Joue un son
      */
     playSound() {
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvPaiTcIG2m98OScTgwOUKru97RgGgU7k9n0x3QoBS1+zPLaizsJHGu+8eadUQ0PWKvm9LFeFQU=');
-        audio.play().catch(() => {});
+        try {
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvPaiTcIG2m98OScTgwOUKru97RgGgU7k9n0x3QoBS1+zPLaizsJHGu+8eadUQ0PWKvm9LFeFQU=');
+            audio.play().catch(() => {});
+        } catch (e) {
+            // ignore audio errors
+        }
     }
 
     /**
@@ -157,21 +227,28 @@ export class TimerManager {
         if (this.display) {
             this.display.textContent = this.formatTime(this.seconds);
 
-            // Classe CSS selon l'état
+            // Classes CSS selon l'état
             this.display.classList.toggle('running', this.isRunning);
             this.display.classList.toggle('paused', !this.isRunning && this.seconds > 0);
         }
     }
 
     /**
-     * Met à jour les boutons
+     * ✅ Utilise la classe .hidden pour masquer/afficher les boutons (préférer CSS)
      */
     updateButtons() {
-        if (this.startBtn) {
-            this.startBtn.style.display = this.isRunning ? 'none' : 'inline-flex';
-        }
-        if (this.pauseBtn) {
-            this.pauseBtn.style.display = this.isRunning ? 'inline-flex' : 'none';
+        if (this.startBtn && this.pauseBtn) {
+            if (this.isRunning) {
+                this.startBtn.classList.add('hidden');
+                this.pauseBtn.classList.remove('hidden');
+            } else {
+                this.startBtn.classList.remove('hidden');
+                this.pauseBtn.classList.add('hidden');
+            }
+        } else {
+            // Fallback si pas de classes disponibles : tenter style
+            if (this.startBtn) this.startBtn.style.display = this.isRunning ? 'none' : 'inline-flex';
+            if (this.pauseBtn) this.pauseBtn.style.display = this.isRunning ? 'inline-flex' : 'none';
         }
     }
 
@@ -191,10 +268,8 @@ export class TimerManager {
      */
     setState(seconds, isRunning = false) {
         this.reset();
-        this.seconds = seconds;
-        if (isRunning) {
-            this.start();
-        }
+        this.seconds = Number(seconds) || 0;
+        if (isRunning) this.start();
         this.updateDisplay();
     }
 }
