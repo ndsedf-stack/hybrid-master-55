@@ -46,6 +46,97 @@ hybrid-master-51/
 - Les modules principaux sont instanciés dans `app.js` (voir plus bas pour le lien entre eux).
 - Toute la logique d’UI, de rendering et de navigation est codée en JavaScript natif ES6+.
 
+## �� Changements Récents (v1.1)
+
+### Corrections Critiques Appliquées
+
+1. **Écouteurs d'Événements Robustes** (`scripts/app.js`)
+   - Ajout de la fonction `registerWorkoutEventListeners()` pour gérer les événements workout
+   - Protection contre les écouteurs en double avec `_workoutEventListenersAdded`
+   - Gestion des événements : `start-rest-timer`, `set-completed`, `weight-changed`
+   - Validation et conversions de type avec `Number()` et `parseInt()`
+
+2. **Session d'Entraînement Renforcée** (`scripts/modules/workout-session.js`)
+   - Utilisation de `Map` pour `completedSets` et `customWeights`
+   - Sérialisation ISO pour `startTime` et `endTime`
+   - Validation complète de tous les paramètres
+   - Gestion d'erreurs robuste avec try-catch sur les opérations storage
+   - Protection contre les valeurs null/undefined/invalides
+
+3. **Styles Timer et Repos** (`styles/05-components.css`)
+   - États du timer : `.timer-display.running`, `.paused`, `.finished`
+   - État caché : `.timer-btn.hidden`
+   - Animations : `@keyframes pulse` et `alert-pulse`
+   - Styles de bouton repos : `.rest-btn` avec états hover/active
+
+4. **UTF-8 et Interface** (`index.html`)
+   - Charset UTF-8 vérifié
+   - Titre et en-tête : "💪 HYBRID MASTER 51"
+   - Boutons navigation : "◀ Précédent" / "Suivant ▶"
+   - Boutons timer : "▶️ Start" / "⏸️ Pause" / "🔄 Reset"
+
+5. **Valeurs RPE** (`scripts/core/program-data.js`)
+   - Ajout de `rpe: "7-8"` pour tous les exercices
+   - 27 exercices mis à jour avec valeurs RPE par défaut
+
+### 🧪 Tests et Validation
+
+**Tests Fonctionnels :**
+
+1. **Test des Écouteurs d'Événements**
+   ```javascript
+   // Ouvrir la console (F12) et exécuter :
+   
+   // Test timer
+   document.dispatchEvent(new CustomEvent('start-rest-timer', { 
+     detail: { duration: 90 } 
+   }));
+   
+   // Test série complétée
+   document.dispatchEvent(new CustomEvent('set-completed', { 
+     detail: { exerciseId: 'w1_dim_1', setNumber: '1', isChecked: true } 
+   }));
+   
+   // Test changement de poids
+   document.dispatchEvent(new CustomEvent('weight-changed', { 
+     detail: { exerciseId: 'w1_dim_1', newWeight: 80 } 
+   }));
+   ```
+
+2. **Test Session Storage**
+   ```javascript
+   // Vérifier la sérialisation ISO
+   console.log(app.session.startTime); // Devrait être une chaîne ISO
+   console.log(app.session.getState()); // Vérifier l'état complet
+   ```
+
+3. **Test RPE**
+   ```javascript
+   // Vérifier que tous les exercices ont un RPE
+   const workout = ProgramData.getWorkout(1, 'dimanche');
+   console.log(workout.exercises.every(ex => ex.rpe)); // Devrait être true
+   ```
+
+4. **Test Styles Timer**
+   - Ouvrir la page et démarrer le timer
+   - Vérifier l'animation de pulsation pendant l'exécution
+   - Mettre en pause et vérifier le changement de couleur orange
+   - Laisser terminer et vérifier l'animation d'alerte rouge
+
+5. **Test Protection Écouteurs Doublons**
+   ```javascript
+   // Appeler displayWorkout plusieurs fois
+   app.displayWorkout(1, 'dimanche');
+   app.displayWorkout(2, 'mardi');
+   app.displayWorkout(1, 'dimanche');
+   // Vérifier dans la console qu'il n'y a pas de multiples handlers
+   ```
+
+**Validation Continue :**
+- ✅ Syntaxe JavaScript validée avec `node --check`
+- ✅ 5 commits séparés créés avec messages conventionnels
+- ✅ Tous les fichiers modifiés testés et vérifiés
+
 ## ✅ Points-clés du code (modifications récentes)
 
 - **Méthode `displayWorkout(week, day)` dans `app.js`** :
