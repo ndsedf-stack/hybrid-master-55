@@ -1,13 +1,28 @@
 /**
- * WORKOUT SESSION - Gestion de la séance en cours
+ * WORKOUT SESSION - Gestion robuste de la séance en cours
+ * Version améliorée avec validation et Maps
  */
 
 export class WorkoutSession {
     constructor(storage) {
+        // Validation du storage
+        if (!storage) {
+            throw new Error('Storage is required for WorkoutSession');
+        }
+        
+        // Vérification des méthodes storage requises
+        const requiredMethods = ['saveCompletedSets', 'loadCompletedSets', 'saveCustomWeights', 'loadCustomWeights'];
+        requiredMethods.forEach(method => {
+            if (typeof storage[method] !== 'function') {
+                console.warn(`⚠️ Storage manque la méthode: ${method}`);
+            }
+        });
+        
         this.storage = storage;
         this.currentWeek = 1;
         this.currentDay = 'dimanche';
         this.exercises = [];
+        // Utilisation de Maps pour une meilleure performance
         this.completedSets = new Map();
         this.customWeights = new Map();
         this.startTime = null;
@@ -15,13 +30,30 @@ export class WorkoutSession {
     }
 
     /**
-     * Démarre une nouvelle séance
+     * Démarre une nouvelle séance avec validation des paramètres
      */
     start(week, day, exercises) {
+        // Validation des paramètres
+        if (!Number.isInteger(week) || week < 1 || week > 26) {
+            console.error('❌ Semaine invalide:', week);
+            return;
+        }
+        
+        if (typeof day !== 'string' || !day) {
+            console.error('❌ Jour invalide:', day);
+            return;
+        }
+        
+        if (!Array.isArray(exercises)) {
+            console.error('❌ Exercises doit être un tableau:', exercises);
+            return;
+        }
+        
         this.currentWeek = week;
         this.currentDay = day;
         this.exercises = exercises;
-        this.startTime = new Date();
+        // Sérialisation ISO 8601 pour startTime
+        this.startTime = new Date().toISOString();
         
         // Charger les données sauvegardées
         this.loadProgress();
@@ -30,11 +62,21 @@ export class WorkoutSession {
     }
 
     /**
-     * Charge la progression sauvegardée
+     * Charge la progression sauvegardée avec vérification storage
      */
     loadProgress() {
+        if (!this.storage?.loadCompletedSets || !this.storage?.loadCustomWeights) {
+            console.warn('⚠️ Méthodes de chargement storage non disponibles');
+            return;
+        }
+        
         this.exercises.forEach(exercise => {
             const exerciseId = exercise.id || exercise.nom;
+            
+            if (!exerciseId) {
+                console.warn('⚠️ Exercice sans ID ou nom:', exercise);
+                return;
+            }
             
             // Charger les séries cochées
             const completed = this.storage.loadCompletedSets(
@@ -42,7 +84,7 @@ export class WorkoutSession {
                 this.currentDay,
                 exerciseId
             );
-            if (completed && completed.length > 0) {
+            if (completed && Array.isArray(completed) && completed.length > 0) {
                 this.completedSets.set(exerciseId, new Set(completed));
             }
 
@@ -52,16 +94,27 @@ export class WorkoutSession {
                 this.currentDay,
                 exerciseId
             );
-            if (weights) {
+            if (weights && typeof weights === 'object') {
                 this.customWeights.set(exerciseId, weights);
             }
         });
     }
 
     /**
-     * Marque une série comme complétée
+     * Marque une série comme complétée avec validation
      */
     completeSet(exerciseId, setIndex) {
+        // Validation des paramètres
+        if (!exerciseId || typeof exerciseId !== 'string') {
+            console.error('❌ exerciseId invalide:', exerciseId);
+            return;
+        }
+        
+        if (!Number.isInteger(setIndex) || setIndex < 0) {
+            console.error('❌ setIndex invalide:', setIndex);
+            return;
+        }
+        
         if (!this.completedSets.has(exerciseId)) {
             this.completedSets.set(exerciseId, new Set());
         }
@@ -73,9 +126,19 @@ export class WorkoutSession {
     }
 
     /**
-     * Décoche une série
+     * Décoche une série avec validation
      */
     uncompleteSet(exerciseId, setIndex) {
+        if (!exerciseId || typeof exerciseId !== 'string') {
+            console.error('❌ exerciseId invalide:', exerciseId);
+            return;
+        }
+        
+        if (!Number.isInteger(setIndex) || setIndex < 0) {
+            console.error('❌ setIndex invalide:', setIndex);
+            return;
+        }
+        
         if (this.completedSets.has(exerciseId)) {
             this.completedSets.get(exerciseId).delete(setIndex);
             this.saveProgress(exerciseId);
@@ -91,17 +154,43 @@ export class WorkoutSession {
     }
 
     /**
-     * Modifie le poids d'une série
+     * Modifie le poids d'une série avec validation
      */
     updateWeight(exerciseId, setIndex, newWeight) {
+        // Validation des paramètres
+        if (!exerciseId || typeof exerciseId !== 'string') {
+            console.error('❌ exerciseId invalide:', exerciseId);
+            return;
+        }
+        
+        const weight = Number(newWeight);
+        if (!Number.isFinite(weight) || weight < 0) {
+            console.error('❌ newWeight invalide:', newWeight);
+            return;
+        }
+        
         if (!this.customWeights.has(exerciseId)) {
             this.customWeights.set(exerciseId, {});
         }
         
-        this.customWeights.get(exerciseId)[setIndex] = newWeight;
+        // Si setIndex est undefined, appliquer à tous les sets
+        if (setIndex === undefined) {
+            const weights = this.customWeights.get(exerciseId);
+            // Obtenir le nombre de séries pour cet exercice
+            const exercise = this.exercises.find(ex => (ex.id || ex.nom) === exerciseId);
+            if (exercise && exercise.series) {
+                const numSets = Array.isArray(exercise.series) ? exercise.series.length : exercise.sets || 0;
+                for (let i = 0; i < numSets; i++) {
+                    weights[i] = weight;
+                }
+            }
+        } else {
+            this.customWeights.get(exerciseId)[setIndex] = weight;
+        }
+        
         this.saveWeights(exerciseId);
         
-        console.log(`💪 Poids modifié: ${exerciseId} série ${setIndex + 1} → ${newWeight}kg`);
+        console.log(`💪 Poids modifié: ${exerciseId}${setIndex !== undefined ? ` série ${setIndex + 1}` : ''} → ${weight}kg`);
     }
 
     /**
@@ -117,9 +206,14 @@ export class WorkoutSession {
     }
 
     /**
-     * Sauvegarde la progression d'un exercice
+     * Sauvegarde la progression d'un exercice avec vérification storage
      */
     saveProgress(exerciseId) {
+        if (!this.storage?.saveCompletedSets) {
+            console.warn('⚠️ saveCompletedSets non disponible');
+            return;
+        }
+        
         const completed = this.completedSets.has(exerciseId)
             ? Array.from(this.completedSets.get(exerciseId))
             : [];
@@ -133,9 +227,14 @@ export class WorkoutSession {
     }
 
     /**
-     * Sauvegarde les poids personnalisés
+     * Sauvegarde les poids personnalisés avec vérification storage
      */
     saveWeights(exerciseId) {
+        if (!this.storage?.saveCustomWeights) {
+            console.warn('⚠️ saveCustomWeights non disponible');
+            return;
+        }
+        
         const weights = this.customWeights.get(exerciseId);
         
         this.storage.saveCustomWeights(
@@ -147,11 +246,13 @@ export class WorkoutSession {
     }
 
     /**
-     * Termine la séance
+     * Termine la séance avec timestamps ISO
      */
     end() {
-        this.endTime = new Date();
-        const duration = Math.floor((this.endTime - this.startTime) / 1000);
+        this.endTime = new Date().toISOString();
+        const startDate = new Date(this.startTime);
+        const endDate = new Date(this.endTime);
+        const duration = Math.floor((endDate - startDate) / 1000);
         
         const stats = this.getStats();
         console.log(`🏁 Séance terminée en ${this.formatDuration(duration)}`);
@@ -186,7 +287,7 @@ export class WorkoutSession {
                     
                     // Calculer le volume (poids × reps)
                     const weight = this.getWeight(exerciseId, index, set.poids || 0);
-                    const reps = parseInt(set.reps) || 0;
+                    const reps = Number.parseInt(set.reps, 10) || 0;
                     totalVolume += weight * reps;
                 }
             });
@@ -223,17 +324,21 @@ export class WorkoutSession {
         this.customWeights.clear();
         
         // Effacer les données sauvegardées
-        this.exercises.forEach(exercise => {
-            const exerciseId = exercise.id || exercise.nom;
-            this.storage.saveCompletedSets(this.currentWeek, this.currentDay, exerciseId, []);
-            this.storage.saveCustomWeights(this.currentWeek, this.currentDay, exerciseId, {});
-        });
+        if (this.storage?.saveCompletedSets && this.storage?.saveCustomWeights) {
+            this.exercises.forEach(exercise => {
+                const exerciseId = exercise.id || exercise.nom;
+                if (exerciseId) {
+                    this.storage.saveCompletedSets(this.currentWeek, this.currentDay, exerciseId, []);
+                    this.storage.saveCustomWeights(this.currentWeek, this.currentDay, exerciseId, {});
+                }
+            });
+        }
         
         console.log('🔄 Séance réinitialisée');
     }
 
     /**
-     * Récupère l'état actuel
+     * Récupère l'état actuel avec Maps sérialisées
      */
     getState() {
         return {
