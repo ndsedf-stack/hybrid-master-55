@@ -637,6 +637,127 @@ input[type="number"] {
     margin-bottom: 10px;
 }
 
+/* ================================================================ */
+/* TIMER DISPLAY STATES */
+/* ================================================================ */
+
+.timer-display {
+    font-family: 'Courier New', monospace;
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--color-text-primary, #2d3748);
+    transition: all 0.3s ease;
+}
+
+.timer-display.running {
+    color: var(--color-success, #00c896);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.timer-display.paused {
+    color: var(--color-warning, #f59e0b);
+}
+
+.timer-display.alert {
+    color: var(--color-danger, #dc2626);
+    animation: alert-pulse 0.5s ease-in-out infinite;
+}
+
+/* ================================================================ */
+/* TIMER BUTTON STATES */
+/* ================================================================ */
+
+.timer-btn {
+    padding: 12px 24px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: linear-gradient(135deg, var(--color-primary, #667eea) 0%, var(--color-primary-dark, #5a67d8) 100%);
+    color: white;
+}
+
+.timer-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.timer-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.timer-btn.hidden {
+    display: none;
+}
+
+.timer-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ================================================================ */
+/* REST BUTTON STYLES */
+/* ================================================================ */
+
+.rest-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #00c896 0%, #00a87a 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rest-btn:hover {
+    background: linear-gradient(135deg, #00a87a 0%, #008c65 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 200, 150, 0.3);
+}
+
+.rest-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 200, 150, 0.2);
+}
+
+.rest-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #ccc;
+}
+
+/* ================================================================ */
+/* ANIMATIONS */
+/* ================================================================ */
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+@keyframes alert-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     #app {
