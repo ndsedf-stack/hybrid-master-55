@@ -1,367 +1,322 @@
-/**
- * WORKOUT SESSION - Gestion de la séance en cours (corrigé)
- *
- * - Utilise Map pour completedSets et customWeights
- * - Sérialise startTime en ISO dans saveProgress
- * - Méthodes saveProgress/loadProgress robustes : supporte storage.saveProgress/loadProgress
- *   mais garde la compatibilité avec storage.saveCompletedSets / saveCustomWeights / loadCompletedSets / loadCustomWeights
- * - Validation des paramètres et protections null-safe
- */
+// ============================================================================
+// 💪 scripts/modules/workout-session.js
+// Gestion complète des séances d'entraînement
+// ============================================================================
 
-export class WorkoutSession {
-    constructor(storage) {
-        this.storage = storage;
-        this.currentWeek = 1;
-        this.currentDay = 'dimanche';
-        this.exercises = [];
-        this.completedSets = new Map(); // exerciseId -> Set(setIndex)
-        this.customWeights = new Map(); // exerciseId -> { setIndex: weight, ... }
-        this.startTime = null;
-        this.endTime = null;
+class WorkoutSession {
+  constructor(weekNumber, dayName, workoutData) {
+    this.week = weekNumber;
+    this.day = dayName;
+    this.workout = workoutData;
+    this.currentExerciseIndex = 0;
+    this.currentSet = 1;
+    this.isActive = false;
+    this.isPaused = false;
+    this.completedExercises = [];
+    this.sessionStartTime = null;
+    this.sessionData = [];
+    this.notes = {};
+  }
+  
+  // ==================== GESTION SESSION ====================
+  
+  startSession() {
+    this.isActive = true;
+    this.sessionStartTime = Date.now();
+    this.saveProgress();
+    
+    return {
+      success: true,
+      message: 'Séance démarrée',
+      startTime: this.sessionStartTime
+    };
+  }
+  
+  pauseSession() {
+    this.isPaused = true;
+    this.saveProgress();
+    return { success: true, message: 'Séance mise en pause' };
+  }
+  
+  resumeSession() {
+    this.isPaused = false;
+    this.saveProgress();
+    return { success: true, message: 'Séance reprise' };
+  }
+  
+  endSession() {
+    const duration = Math.round((Date.now() - this.sessionStartTime) / 60000); // minutes
+    const totalVolume = this.calculateSessionVolume();
+    const exercisesSummary = this.processSessionData();
+    
+    // Sauvegarder dans l'historique
+    this.saveToHistory({
+      completed: true,
+      duration,
+      volume: totalVolume,
+      exercises: exercisesSummary,
+      date: new Date().toISOString(),
+      notes: this.notes
+    });
+    
+    this.isActive = false;
+    this.clearProgress();
+    
+    return {
+      success: true,
+      duration,
+      volume: totalVolume,
+      exercisesCompleted: this.completedExercises.length,
+      totalExercises: this.workout.exercises.length
+    };
+  }
+  
+  // ==================== GESTION EXERCICES ====================
+  
+  startExercise(exerciseIndex) {
+    if (exerciseIndex < 0 || exerciseIndex >= this.workout.exercises.length) {
+      return { success: false, message: 'Exercice invalide' };
     }
-
-    /**
-     * Alias start() existant - conserve l'API actuelle
-     * start(week, day, exercises)
-     */
-    start(week, day, exercises) {
-        // Validation légère
-        this.currentWeek = Number.isFinite(Number(week)) ? Number(week) : this.currentWeek;
-        this.currentDay = day || this.currentDay;
-        this.exercises = Array.isArray(exercises) ? exercises : [];
-        this.startTime = new Date();
-
-        // Charger les données sauvegardées (si présentes)
-        this.loadProgress();
-
-        console.log(`🏋️ Séance démarrée: S${this.currentWeek} - ${this.currentDay} (${this.exercises.length} exercices)`);
+    
+    this.currentExerciseIndex = exerciseIndex;
+    this.currentSet = 1;
+    this.saveProgress();
+    
+    const exercise = this.workout.exercises[exerciseIndex];
+    return {
+      success: true,
+      exercise,
+      currentSet: this.currentSet,
+      totalSets: exercise.sets
+    };
+  }
+  
+  completeSet(weight, reps, rpe = 7, notes = '') {
+    const exercise = this.workout.exercises[this.currentExerciseIndex];
+    
+    // Validation
+    if (!weight || !reps) {
+      return { success: false, message: 'Poids et reps requis' };
     }
-
-    /**
-     * Alias compat : startSession -> délègue à start
-     */
-    startSession(week, day, exercises) {
-        return this.start(week, day, exercises);
+    
+    // Enregistrer la série
+    const setData = {
+      exerciseId: exercise.id,
+      exerciseName: exercise.name,
+      muscleGroup: exercise.muscleGroup,
+      set: this.currentSet,
+      weight: parseFloat(weight),
+      reps: parseInt(reps),
+      rpe: parseInt(rpe),
+      volume: parseFloat(weight) * parseInt(reps),
+      timestamp: Date.now(),
+      notes
+    };
+    
+    this.sessionData.push(setData);
+    
+    // Progression
+    const isLastSet = this.currentSet >= exercise.sets;
+    
+    if (isLastSet) {
+      this.completeExercise();
+      return {
+        success: true,
+        exerciseCompleted: true,
+        restTime: 0,
+        nextExercise: this.getNextExercise()
+      };
+    } else {
+      this.currentSet++;
+      this.saveProgress();
+      return {
+        success: true,
+        exerciseCompleted: false,
+        restTime: exercise.rest || 60,
+        currentSet: this.currentSet,
+        totalSets: exercise.sets
+      };
     }
-
-    /**
-     * Charge la progression sauvegardée.
-     * - Si storage.loadProgress() existe, on l'utilise.
-     * - Sinon, on tente de lire par-exercice avec loadCompletedSets/loadCustomWeights (ancienne API).
-     */
-    loadProgress() {
-        try {
-            if (!this.storage) return null;
-
-            // Prefer unified loadProgress if available
-            if (typeof this.storage.loadProgress === 'function') {
-                const progress = this.storage.loadProgress() || {};
-                // completedSets: { exerciseId: [indices...] }
-                if (progress.completedSets && typeof progress.completedSets === 'object') {
-                    this.completedSets = new Map(
-                        Object.entries(progress.completedSets).map(([id, arr]) => [id, new Set(Array.isArray(arr) ? arr.map(n => Number(n)) : [])])
-                    );
-                }
-
-                // customWeights: { exerciseId: { setIndex: weight, ... } }
-                if (progress.customWeights && typeof progress.customWeights === 'object') {
-                    this.customWeights = new Map(
-                        Object.entries(progress.customWeights).map(([id, obj]) => [id, typeof obj === 'object' ? obj : {}])
-                    );
-                }
-
-                if (progress.startTime) {
-                    this.startTime = new Date(progress.startTime);
-                }
-
-                return progress;
-            }
-
-            // Fallback: per-exercise storages (older API)
-            if (Array.isArray(this.exercises)) {
-                this.exercises.forEach(exercise => {
-                    const exerciseId = exercise.id ?? exercise.nom ?? null;
-                    if (!exerciseId) return;
-
-                    // loadCompletedSets(week, day, exerciseId) -> array of indices
-                    if (typeof this.storage.loadCompletedSets === 'function') {
-                        const completed = this.storage.loadCompletedSets(this.currentWeek, this.currentDay, exerciseId) || [];
-                        this.completedSets.set(exerciseId, new Set(Array.isArray(completed) ? completed.map(n => Number(n)) : []));
-                    }
-
-                    // loadCustomWeights -> object or array
-                    if (typeof this.storage.loadCustomWeights === 'function') {
-                        const weights = this.storage.loadCustomWeights(this.currentWeek, this.currentDay, exerciseId) || {};
-                        this.customWeights.set(exerciseId, weights);
-                    }
-                });
-            }
-
-            return null;
-        } catch (err) {
-            console.warn('loadProgress error', err);
-            return null;
-        }
+  }
+  
+  completeExercise() {
+    const exercise = this.workout.exercises[this.currentExerciseIndex];
+    this.completedExercises.push(exercise.id);
+    this.currentSet = 1;
+    this.saveProgress();
+  }
+  
+  skipExercise() {
+    this.currentExerciseIndex++;
+    this.currentSet = 1;
+    this.saveProgress();
+    
+    return {
+      success: true,
+      nextExercise: this.getCurrentExercise()
+    };
+  }
+  
+  skipSet() {
+    const exercise = this.workout.exercises[this.currentExerciseIndex];
+    
+    if (this.currentSet >= exercise.sets) {
+      this.completeExercise();
+      return {
+        success: true,
+        exerciseCompleted: true,
+        nextExercise: this.getNextExercise()
+      };
+    } else {
+      this.currentSet++;
+      this.saveProgress();
+      return {
+        success: true,
+        exerciseCompleted: false,
+        currentSet: this.currentSet
+      };
     }
-
-    /**
-     * Sauvegarde la progression complète (fallback ou méthode unifiée)
-     * - Si storage.saveProgress exists, stocke l'objet complet.
-     * - Sinon, tombe back sur saveCompletedSets / saveCustomWeights par exercice.
-     */
-    saveProgress() {
-        try {
-            if (!this.storage) return;
-
-            // Préparer structure sérialisable
-            const completedSetsObj = {};
-            for (const [exerciseId, set] of this.completedSets.entries()) {
-                completedSetsObj[exerciseId] = Array.from(set).map(n => Number(n));
-            }
-
-            const customWeightsObj = {};
-            for (const [exerciseId, weights] of this.customWeights.entries()) {
-                // weights peut être objet (setIndex->value) ou Map-like ; on suppose objet ici
-                customWeightsObj[exerciseId] = weights;
-            }
-
-            const progress = {
-                week: this.currentWeek,
-                day: this.currentDay,
-                completedSets: completedSetsObj,
-                customWeights: customWeightsObj,
-                startTime: this.startTime ? this.startTime.toISOString() : null,
-                lastUpdated: new Date().toISOString()
-            };
-
-            if (typeof this.storage.saveProgress === 'function') {
-                this.storage.saveProgress(progress);
-                return;
-            }
-
-            // Fallback per-exercise
-            for (const exercise of this.exercises) {
-                const exerciseId = exercise.id ?? exercise.nom ?? null;
-                if (!exerciseId) continue;
-
-                const completed = Array.from(this.completedSets.get(exerciseId) ?? []);
-                if (typeof this.storage.saveCompletedSets === 'function') {
-                    this.storage.saveCompletedSets(this.currentWeek, this.currentDay, exerciseId, completed);
-                }
-
-                const weights = this.customWeights.get(exerciseId) ?? {};
-                if (typeof this.storage.saveCustomWeights === 'function') {
-                    this.storage.saveCustomWeights(this.currentWeek, this.currentDay, exerciseId, weights);
-                }
-            }
-        } catch (err) {
-            console.warn('saveProgress error', err);
-        }
+  }
+  
+  // ==================== GESTION NOTES ====================
+  
+  addExerciseNote(exerciseId, note) {
+    this.notes[exerciseId] = note;
+    this.saveProgress();
+  }
+  
+  getExerciseNote(exerciseId) {
+    return this.notes[exerciseId] || '';
+  }
+  
+  // ==================== CALCULS ====================
+  
+  calculateSessionVolume() {
+    let volume = 0;
+    this.sessionData.forEach(set => {
+      volume += set.volume;
+    });
+    return Math.round(volume);
+  }
+  
+  processSessionData() {
+    const exercisesSummary = [];
+    const exerciseIds = [...new Set(this.sessionData.map(s => s.exerciseId))];
+    
+    exerciseIds.forEach(id => {
+      const sets = this.sessionData.filter(s => s.exerciseId === id);
+      const exercise = this.workout.exercises.find(ex => ex.id === id);
+      
+      exercisesSummary.push({
+        id,
+        name: exercise.name,
+        muscleGroup: exercise.muscleGroup,
+        sets: sets.length,
+        avgWeight: Math.round(sets.reduce((sum, s) => sum + s.weight, 0) / sets.length),
+        totalReps: sets.reduce((sum, s) => sum + s.reps, 0),
+        avgRpe: Math.round(sets.reduce((sum, s) => sum + s.rpe, 0) / sets.length),
+        volume: Math.round(sets.reduce((sum, s) => sum + s.volume, 0)),
+        notes: this.notes[id] || ''
+      });
+    });
+    
+    return exercisesSummary;
+  }
+  
+  // ==================== GETTERS ====================
+  
+  getCurrentExercise() {
+    return this.workout.exercises[this.currentExerciseIndex] || null;
+  }
+  
+  getNextExercise() {
+    const nextIndex = this.currentExerciseIndex + 1;
+    return this.workout.exercises[nextIndex] || null;
+  }
+  
+  getProgress() {
+    return {
+      currentExercise: this.currentExerciseIndex + 1,
+      totalExercises: this.workout.exercises.length,
+      currentSet: this.currentSet,
+      completedExercises: this.completedExercises.length,
+      percentage: Math.round((this.completedExercises.length / this.workout.exercises.length) * 100)
+    };
+  }
+  
+  getSessionSummary() {
+    return {
+      week: this.week,
+      day: this.day,
+      workoutName: this.workout.name,
+      duration: this.sessionStartTime ? Math.round((Date.now() - this.sessionStartTime) / 60000) : 0,
+      volume: this.calculateSessionVolume(),
+      setsCompleted: this.sessionData.length,
+      exercisesCompleted: this.completedExercises.length,
+      totalExercises: this.workout.exercises.length
+    };
+  }
+  
+  // ==================== PERSISTANCE ====================
+  
+  saveProgress() {
+    const state = {
+      week: this.week,
+      day: this.day,
+      currentExerciseIndex: this.currentExerciseIndex,
+      currentSet: this.currentSet,
+      completedExercises: this.completedExercises,
+      sessionData: this.sessionData,
+      sessionStartTime: this.sessionStartTime,
+      isPaused: this.isPaused,
+      notes: this.notes
+    };
+    
+    localStorage.setItem('hybrid_master_current_session', JSON.stringify(state));
+  }
+  
+  saveToHistory(data) {
+    const history = JSON.parse(localStorage.getItem('hybrid_master_history') || '{}');
+    
+    if (!history[`week_${this.week}`]) {
+      history[`week_${this.week}`] = {
+        dimanche: { completed: false, volume: 0, exercises: [] },
+        mardi: { completed: false, volume: 0, exercises: [] },
+        vendredi: { completed: false, volume: 0, exercises: [] }
+      };
     }
-
-    /**
-     * Sauvegarde la progression d'un exercice (compatibilité avec l'ancienne API)
-     */
-    saveProgressForExercise(exerciseId) {
-        const completed = this.completedSets.has(exerciseId) ? Array.from(this.completedSets.get(exerciseId)) : [];
-        const weights = this.customWeights.get(exerciseId) ?? {};
-
-        if (this.storage) {
-            if (typeof this.storage.saveCompletedSets === 'function') {
-                this.storage.saveCompletedSets(this.currentWeek, this.currentDay, exerciseId, completed);
-            }
-            if (typeof this.storage.saveCustomWeights === 'function') {
-                this.storage.saveCustomWeights(this.currentWeek, this.currentDay, exerciseId, weights);
-            }
-            // Also try unified saveProgress if available
-            if (typeof this.storage.saveProgress === 'function') {
-                this.saveProgress();
-            }
-        }
+    
+    history[`week_${this.week}`][this.day] = data;
+    
+    localStorage.setItem('hybrid_master_history', JSON.stringify(history));
+  }
+  
+  clearProgress() {
+    localStorage.removeItem('hybrid_master_current_session');
+  }
+  
+  // ==================== CHARGEMENT SESSION EN COURS ====================
+  
+  static loadInProgressSession() {
+    const saved = localStorage.getItem('hybrid_master_current_session');
+    if (!saved) return null;
+    
+    try {
+      return JSON.parse(saved);
+    } catch (error) {
+      console.error('Erreur chargement session:', error);
+      return null;
     }
-
-    /**
-     * Marque une série comme complétée
-     */
-    completeSet(exerciseId, setIndex) {
-        if (!exerciseId || !Number.isInteger(setIndex) || setIndex < 0) return;
-
-        if (!this.completedSets.has(exerciseId)) {
-            this.completedSets.set(exerciseId, new Set());
-        }
-
-        this.completedSets.get(exerciseId).add(Number(setIndex));
-        this.saveProgressForExercise(exerciseId);
-        console.log(`✅ Série ${setIndex + 1} complétée pour ${exerciseId}`);
-    }
-
-    /**
-     * Décoche une série
-     */
-    uncompleteSet(exerciseId, setIndex) {
-        if (!exerciseId || !Number.isInteger(setIndex) || setIndex < 0) return;
-        if (!this.completedSets.has(exerciseId)) return;
-
-        this.completedSets.get(exerciseId).delete(Number(setIndex));
-        this.saveProgressForExercise(exerciseId);
-        console.log(`❌ Série ${setIndex + 1} décochée pour ${exerciseId}`);
-    }
-
-    /**
-     * Vérifie si une série est complétée
-     */
-    isSetCompleted(exerciseId, setIndex) {
-        if (!exerciseId || !Number.isInteger(setIndex)) return false;
-        if (!this.completedSets.has(exerciseId)) return false;
-        return this.completedSets.get(exerciseId).has(Number(setIndex));
-    }
-
-    /**
-     * Modifie le poids d'une série
-     */
-    updateWeight(exerciseId, setIndex, newWeight) {
-        if (!exerciseId) return;
-        const w = Number(newWeight);
-        if (!Number.isFinite(w)) return;
-
-        if (!this.customWeights.has(exerciseId)) {
-            this.customWeights.set(exerciseId, {});
-        }
-
-        const weights = this.customWeights.get(exerciseId);
-        weights[Number(setIndex)] = w;
-        this.customWeights.set(exerciseId, weights);
-
-        this.saveProgressForExercise(exerciseId);
-        console.log(`💪 Poids modifié: ${exerciseId} série ${Number(setIndex) + 1} → ${w}kg`);
-    }
-
-    /**
-     * Récupère le poids d'une série
-     */
-    getWeight(exerciseId, setIndex, defaultWeight = 0) {
-        if (!exerciseId) return defaultWeight;
-        const weights = this.customWeights.get(exerciseId);
-        if (!weights) return defaultWeight;
-        return weights[Number(setIndex)] !== undefined ? weights[Number(setIndex)] : defaultWeight;
-    }
-
-    /**
-     * Termine la séance
-     */
-    end() {
-        this.endTime = new Date();
-        const duration = Math.floor((this.endTime - (this.startTime || this.endTime)) / 1000);
-
-        const stats = this.getStats();
-        console.log(`🏁 Séance terminée en ${this.formatDuration(duration)}`);
-        console.log('📊 Statistiques:', stats);
-
-        // Save final progress snapshot
-        this.saveProgress();
-
-        return {
-            duration,
-            stats,
-            startTime: this.startTime ? this.startTime.toISOString() : null,
-            endTime: this.endTime ? this.endTime.toISOString() : null
-        };
-    }
-
-    /**
-     * Calcule les statistiques de la séance
-     */
-    getStats() {
-        let totalSets = 0;
-        let completedSetsCount = 0;
-        let totalVolume = 0;
-
-        this.exercises.forEach(exercise => {
-            const exerciseId = exercise.id ?? exercise.nom ?? null;
-            const sets = Array.isArray(exercise.series) ? exercise.series : (Array.isArray(exercise.sets) ? exercise.sets : []);
-            totalSets += sets.length;
-
-            sets.forEach((set, index) => {
-                if (this.isSetCompleted(exerciseId, index)) {
-                    completedSetsCount++;
-
-                    const weight = this.getWeight(exerciseId, index, set.poids ?? set.weight ?? 0);
-                    const reps = Number.parseInt(set.reps ?? set.repetitions ?? 0, 10) || 0;
-                    totalVolume += weight * reps;
-                }
-            });
-        });
-
-        return {
-            totalExercises: this.exercises.length,
-            totalSets,
-            completedSets: completedSetsCount,
-            completionRate: totalSets > 0 ? Math.round((completedSetsCount / totalSets) * 100) : 0,
-            totalVolume,
-            averageVolumePerSet: completedSetsCount > 0 ? Math.round(totalVolume / completedSetsCount) : 0
-        };
-    }
-
-    /**
-     * Formate une durée en secondes
-     */
-    formatDuration(seconds) {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-
-        if (hours > 0) {
-            return `${hours}h ${minutes}min`;
-        }
-        return `${minutes}min`;
-    }
-
-    /**
-     * Réinitialise la séance (internals + storage)
-     */
-    reset() {
-        this.completedSets.clear();
-        this.customWeights.clear();
-
-        // Effacer les données sauvegardées (per-exercise if available)
-        if (Array.isArray(this.exercises)) {
-            this.exercises.forEach(exercise => {
-                const exerciseId = exercise.id ?? exercise.nom ?? null;
-                if (!exerciseId) return;
-                if (typeof this.storage.saveCompletedSets === 'function') {
-                    this.storage.saveCompletedSets(this.currentWeek, this.currentDay, exerciseId, []);
-                }
-                if (typeof this.storage.saveCustomWeights === 'function') {
-                    this.storage.saveCustomWeights(this.currentWeek, this.currentDay, exerciseId, {});
-                }
-            });
-        }
-
-        // Also save unified empty progress if supported
-        this.saveProgress();
-
-        console.log('🔄 Séance réinitialisée');
-    }
-
-    /**
-     * Récupère l'état actuel de la session sous forme sérialisable
-     */
-    getState() {
-        const completed = {};
-        for (const [id, set] of this.completedSets.entries()) {
-            completed[id] = Array.from(set);
-        }
-        const customWeights = {};
-        for (const [id, weights] of this.customWeights.entries()) {
-            customWeights[id] = weights;
-        }
-
-        return {
-            week: this.currentWeek,
-            day: this.currentDay,
-            completedSets: completed,
-            customWeights,
-            startTime: this.startTime ? this.startTime.toISOString() : null,
-            stats: this.getStats()
-        };
-    }
+  }
+  
+  static hasInProgressSession() {
+    return localStorage.getItem('hybrid_master_current_session') !== null;
+  }
+  
+  static clearInProgressSession() {
+    localStorage.removeItem('hybrid_master_current_session');
+  }
 }
+
+// Export pour utilisation dans app.js
+export { WorkoutSession };
