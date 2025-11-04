@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Programme de musculation Hybrid Master 51 - 26 semaines">
     <title>💪 Hybrid Master 51</title>
-    
+
     <!-- CSS Modulaires (ordre important) -->
     <link rel="stylesheet" href="./styles/01-reset.css">
     <link rel="stylesheet" href="./styles/02-variables.css">
@@ -19,7 +19,6 @@
 <body>
     <!-- Container principal -->
     <div id="app">
-        
         <!-- Header -->
         <header class="app-header">
             <h1 class="app-title">💪 HYBRID MASTER 51</h1>
@@ -74,27 +73,15 @@
             </button>
             <button class="day-tab" data-day="maison">
                 <span class="day-name">Maison</span>
-                <span class="day-subtitle">Hammer Curl</span>
+                <span class="day-subtitle">Exercices libres</span>
             </button>
         </section>
-
-        <!-- Container Workouts -->
-        <main id="workout-container" class="workout-container">
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p>Chargement du programme...</p>
-            </div>
-        </main>
-
-        <!-- Statistiques (optionnel) -->
-        <aside id="stats-panel" class="stats-panel hidden">
-            <h3>📊 Statistiques de la séance</h3>
-            <div id="stats-content"></div>
-        </aside>
-
+        
+        <!-- Ajouter ce container pour l'affichage des exercices/statistiques etc. -->
+        <div id="workout-container"></div>
     </div>
-
-    <!-- JavaScript Module -->
+    
+    <!-- Lien vers ton JS principal, en mode module -->
     <script type="module" src="./scripts/app.js"></script>
 </body>
 </html>
