@@ -41,6 +41,61 @@ class HybridMasterApp {
         // État actuel
         this.currentWeek = 1;
         this.currentDay = 'dimanche';
+        
+        // Flag pour éviter les écouteurs en double
+        this._workoutEventListenersAdded = false;
+        
+        // Ajouter les écouteurs d'événements globaux
+        this.setupWorkoutEventListeners();
+    }
+
+    /**
+     * Configure les écouteurs d'événements pour le workout
+     * Protégé par un flag pour éviter les doublons
+     */
+    setupWorkoutEventListeners() {
+        if (this._workoutEventListenersAdded) {
+            return; // Éviter les écouteurs en double
+        }
+        
+        // Écouter l'événement de démarrage du timer de repos
+        document.addEventListener('start-rest-timer', (e) => {
+            const { duration } = e.detail;
+            if (duration && this.timer) {
+                this.timer.reset();
+                this.timer.start(duration);
+                console.log(`⏱️ Timer de repos démarré: ${duration}s`);
+            }
+        });
+        
+        // Écouter l'événement de série complétée
+        document.addEventListener('set-completed', (e) => {
+            const { exerciseId, setNumber, isChecked } = e.detail;
+            if (this.session) {
+                const setIndex = parseInt(setNumber);
+                if (isChecked) {
+                    if (typeof this.session.completeSet === 'function') {
+                        this.session.completeSet(exerciseId, setIndex);
+                    }
+                } else {
+                    if (typeof this.session.uncompleteSet === 'function') {
+                        this.session.uncompleteSet(exerciseId, setIndex);
+                    }
+                }
+            }
+        });
+        
+        // Écouter l'événement de changement de poids
+        document.addEventListener('weight-changed', (e) => {
+            const { exerciseId, setNumber, newWeight } = e.detail;
+            if (this.session && typeof this.session.updateWeight === 'function') {
+                const setIndex = parseInt(setNumber) || 0;
+                this.session.updateWeight(exerciseId, setIndex, newWeight);
+            }
+        });
+        
+        this._workoutEventListenersAdded = true;
+        console.log('✅ Écouteurs d\'événements workout configurés');
     }
 
     /**

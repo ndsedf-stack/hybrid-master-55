@@ -60,6 +60,90 @@ hybrid-master-51/
     <script type="module" src="./scripts/app.js"></script>
     ```
 
+## 🔄 Dernières Corrections (Novembre 2024)
+
+Cette version inclut 5 corrections critiques implémentées en commits séparés :
+
+### 1️⃣ Écouteurs d'événements dans app.js
+- **Fichier modifié** : `scripts/app.js`
+- **Changements** :
+  - Ajout d'écouteurs pour les événements `start-rest-timer`, `set-completed`, et `weight-changed`
+  - Protection contre les écouteurs en double avec le flag `_workoutEventListenersAdded`
+  - Intégration avec le timer et la session de workout
+
+### 2️⃣ Version robuste de workout-session.js
+- **Fichier modifié** : `scripts/modules/workout-session.js`
+- **Changements** :
+  - Utilisation de `Map` pour une meilleure gestion des données
+  - Sérialisation ISO des dates dans `getSessionProgress()` et `end()`
+  - Validation améliorée des paramètres dans toutes les méthodes
+  - Vérification de l'existence des méthodes de storage avant appel
+
+### 3️⃣ Classes CSS pour le timer et les boutons de repos
+- **Fichier modifié** : `styles/05-components.css`
+- **Changements** :
+  - Ajout de styles pour `.timer-section`, `.timer-display`, `.timer-controls`
+  - Classes pour les boutons : `.start-btn`, `.pause-btn`, `.reset-btn`
+  - Styles pour `.rest-timer-btn` avec animations et états hover
+  - Animation `pulse` pour le timer en cours d'exécution
+
+### 4️⃣ Correction des libellés dans index.html
+- **Fichier modifié** : `index.html`
+- **Changements** :
+  - Vérification de l'encodage UTF-8 (déjà présent)
+  - Correction des boutons du timer en français : "Démarrer", "Pause", "Réinitialiser"
+  - Cohérence linguistique dans toute l'interface
+
+### 5️⃣ Ajout du champ RPE aux exercices
+- **Fichier modifié** : `scripts/core/program-data.js`
+- **Changements** :
+  - Ajout du champ `rpe: blockInfo.rpe` à tous les exercices (27 exercices)
+  - Le RPE varie selon le bloc et la semaine (6-7, 7-8, 8, 8-9, 5-6 pour deload)
+  - Permet un suivi de l'intensité perçue pour chaque exercice
+
+## 🧪 Comment tester les modifications
+
+### Test 1 : Écouteurs d'événements (pas de doublons)
+1. Ouvrez `index.html` dans votre navigateur
+2. Ouvrez la console développeur (F12)
+3. Changez de semaine ou de jour plusieurs fois
+4. Vérifiez dans la console que le message "✅ Écouteurs d'événements workout configurés" n'apparaît qu'**une seule fois**
+
+### Test 2 : Timer de repos
+1. Naviguez vers une séance (ex: Dimanche)
+2. Cliquez sur un bouton de repos (ex: "Repos 120s")
+3. Vérifiez que le timer démarre automatiquement
+4. Vérifiez dans la console : "⏱️ Timer de repos démarré: 120s"
+
+### Test 3 : Sauvegarde des séries complétées
+1. Cochez une série d'un exercice
+2. Vérifiez dans la console : "✅ Série X complétée pour ..."
+3. Rafraîchissez la page (F5)
+4. Vérifiez que la série reste cochée (sauvegarde persistante)
+
+### Test 4 : Modification des poids
+1. Modifiez le poids d'une série
+2. Vérifiez dans la console : "💪 Poids modifié: ..."
+3. Rafraîchissez la page
+4. Vérifiez que le poids personnalisé est conservé
+
+### Test 5 : Sérialisation ISO des dates
+1. Ouvrez la console développeur
+2. Tapez : `app.session.getSessionProgress()`
+3. Vérifiez que `startTime` et `endTime` (si présents) sont au format ISO
+   - Exemple : `"2024-11-04T15:30:00.000Z"`
+
+### Test 6 : Affichage du RPE
+1. Inspectez un exercice dans la console : `console.log(ProgramData.getWorkout(1, 'dimanche'))`
+2. Vérifiez que chaque exercice a un champ `rpe` (ex: "6-7", "7-8", etc.)
+3. Le RPE doit varier selon le bloc et la semaine
+
+### Test 7 : Styles CSS du timer
+1. Vérifiez que le timer a un fond sombre et une police monospace
+2. Cliquez sur "Démarrer" et vérifiez l'animation de pulsation
+3. Les boutons doivent avoir des effets hover (élévation, ombre)
+4. Les boutons de repos doivent avoir l'icône ⏱️
+
 ## 📚 Dépannage et points de vérification
 
 - **Si rien ne s’affiche** :
