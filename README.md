@@ -48,6 +48,59 @@ hybrid-master-51/
 
 ## ✅ Points-clés du code (modifications récentes)
 
+### 🆕 Version 1.1 - Novembre 2025
+
+Cette version inclut 5 améliorations critiques pour la robustesse et l'expérience utilisateur :
+
+1. **Event Listeners Robustes** (`app.js`)
+   - Ajout de listeners pour `start-rest-timer`, `set-completed`, et `weight-changed`
+   - Protection contre les doublons avec flag `_workoutEventListenersAdded`
+   - Validation systématique de `this.timer` et `this.session` avant appel
+   - Conversions sécurisées avec `Number()` et `parseInt()`
+
+2. **WorkoutSession Amélioré** (`workout-session.js`)
+   - Utilisation de Maps pour `completedSets` et `customWeights` (meilleure performance)
+   - Sérialisation ISO 8601 pour `startTime` et `endTime`
+   - Validation complète des paramètres d'entrée
+   - Vérification de l'existence des méthodes storage
+
+3. **Styles Timer et Boutons** (`05-components.css`)
+   - États visuels du timer : `.running`, `.paused`, `.alert`
+   - Animations `@keyframes pulse` et `alert-pulse`
+   - Styles `.timer-btn.hidden` pour gestion de visibilité
+   - Boutons de repos `.rest-btn` avec états hover/active
+
+4. **Encodage UTF-8 et UI** (`index.html`)
+   - Encodage UTF-8 vérifié
+   - Emojis dans titre et boutons : 💪 ▶️ ⏸️ 🔄
+   - Navigation avec symboles : ◀ Précédent / Suivant ▶
+
+5. **Valeurs RPE** (`program-data.js`)
+   - Ajout du champ `rpe: "7-8"` pour tous les exercices (27 exercices)
+   - Prêt pour intégration future de suivi RPE
+
+### Tests Manuels Recommandés
+
+Après déploiement, vérifiez :
+
+1. **Navigation** : Changement de semaines/jours sans erreur console
+2. **Timer** : Démarrage, pause, reset fonctionnent correctement
+3. **Events** : Les events customisés (`start-rest-timer`, etc.) sont bien écoutés
+4. **Storage** : Progression sauvegardée et rechargée au refresh
+5. **Affichage** : Tous les exercices affichent le champ RPE
+6. **Encodage** : Emojis et caractères accentués s'affichent correctement
+
+Pour tester les events :
+```javascript
+// Dans la console navigateur
+document.dispatchEvent(new CustomEvent('start-rest-timer', { detail: { duration: 90 }}));
+document.dispatchEvent(new CustomEvent('set-completed', { detail: { exerciseId: 'test', setNumber: '1', isChecked: true }}));
+document.dispatchEvent(new CustomEvent('weight-changed', { detail: { exerciseId: 'test', newWeight: 50 }}));
+```
+
+---
+
+### Architecture
 - **Méthode `displayWorkout(week, day)` dans `app.js`** :
   - Utilise `ProgramData.getWorkout(week, day)` pour récupérer la séance courante.
   - Affiche la séance à l’aide de `workout-renderer.js`.
