@@ -6,6 +6,7 @@ export class TimerManager {
     constructor() {
         this.seconds = 0;
         this.isRunning = false;
+        this.isFinished = false;
         this.interval = null;
         this.targetSeconds = null;
         this.onTick = null;
@@ -40,9 +41,27 @@ export class TimerManager {
             }
         });
 
+        // Request notification permission if default
+        this.requestNotificationPermission();
+
         this.updateDisplay();
         this.updateButtons();
         console.log('✅ TimerManager initialisé');
+    }
+
+    /**
+     * Request notification permission
+     */
+    requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    console.log('✅ Notification permission granted');
+                } else {
+                    console.log('ℹ️ Notification permission denied');
+                }
+            });
+        }
     }
 
     /**
@@ -52,7 +71,13 @@ export class TimerManager {
         if (this.isRunning) return;
 
         this.isRunning = true;
+        this.isFinished = false;
         this.targetSeconds = targetSeconds;
+        
+        // Remove finished class when starting
+        if (this.display) {
+            this.display.classList.remove('finished');
+        }
 
         this.interval = setInterval(() => {
             this.seconds++;
@@ -69,6 +94,7 @@ export class TimerManager {
         }, 1000);
 
         this.updateButtons();
+        this.updateDisplay();
     }
 
     /**
@@ -84,6 +110,7 @@ export class TimerManager {
         }
 
         this.updateButtons();
+        this.updateDisplay();
     }
 
     /**
@@ -104,6 +131,13 @@ export class TimerManager {
         this.pause();
         this.seconds = 0;
         this.targetSeconds = null;
+        this.isFinished = false;
+        
+        // Remove finished class on reset
+        if (this.display) {
+            this.display.classList.remove('finished');
+        }
+        
         this.updateDisplay();
         this.updateButtons();
     }
@@ -113,19 +147,79 @@ export class TimerManager {
      */
     complete() {
         this.pause();
+        this.isFinished = true;
+        
+        // Add finished class for visual alert
+        if (this.display) {
+            this.display.classList.add('finished');
+        }
+        
+        // Play sound
         this.playSound();
+        
+        // Show visual notification
+        this.showVisualNotification();
         
         if (this.onComplete) {
             this.onComplete(this.seconds);
         }
 
-        // Notification
+        // Browser notification
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('⏱️ Timer terminé !', {
                 body: `Temps écoulé : ${this.formatTime(this.seconds)}`,
                 icon: '/icon.png'
             });
         }
+        
+        this.updateDisplay();
+    }
+
+    /**
+     * Show visual notification
+     */
+    showVisualNotification() {
+        // Create a temporary visual notification element
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 30px 50px;
+            border-radius: 15px;
+            font-size: 2rem;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 10px 40px rgba(220, 53, 69, 0.6);
+            animation: alert-bounce 0.5s ease-out;
+        `;
+        notification.textContent = '⏱️ Timer terminé !';
+        
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes alert-bounce {
+                0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+                50% { transform: translate(-50%, -50%) scale(1.1); }
+                100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(notification);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.transition = 'opacity 0.5s ease-out';
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+                document.head.removeChild(style);
+            }, 500);
+        }, 3000);
     }
 
     /**
@@ -159,7 +253,8 @@ export class TimerManager {
 
             // Classe CSS selon l'état
             this.display.classList.toggle('running', this.isRunning);
-            this.display.classList.toggle('paused', !this.isRunning && this.seconds > 0);
+            this.display.classList.toggle('paused', !this.isRunning && this.seconds > 0 && !this.isFinished);
+            this.display.classList.toggle('finished', this.isFinished);
         }
     }
 
@@ -182,6 +277,7 @@ export class TimerManager {
         return {
             seconds: this.seconds,
             isRunning: this.isRunning,
+            isFinished: this.isFinished,
             targetSeconds: this.targetSeconds
         };
     }
