@@ -72,7 +72,10 @@ class HybridMasterApp {
             console.log(`⚖️ Poids changé: ${exerciseId} -> ${newWeight}kg`);
             if (!this.session || !exerciseId) return;
             const weight = Number(newWeight);
-            if (Number.isFinite(weight)) { this.session.updateWeight(exerciseId, undefined, weight); }
+            if (Number.isFinite(weight)) { 
+                // Update weight for set index 0 (all sets share the same weight)
+                this.session.updateWeight(exerciseId, 0, weight); 
+            }
         });
 
         console.log('✅ Événements de workout configurés');
