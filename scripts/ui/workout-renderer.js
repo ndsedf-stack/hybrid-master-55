@@ -1,380 +1,279 @@
 /**
- * WORKOUT RENDERER - Affichage des exercices
+ * HYBRID MASTER 51 - WORKOUT RENDERER
+ * Version améliorée avec meilleur design
  */
 
 export class WorkoutRenderer {
-    constructor(container, session) {
-        this.container = container;
-        this.session = session;
+  constructor() {
+    this.container = document.getElementById('workout-container');
+  }
+
+  /**
+   * Affiche un workout complet
+   */
+  render(workout, weekNumber) {
+    if (!workout || !workout.exercises || workout.exercises.length === 0) {
+      this.showError(`Aucun exercice trouvé pour cette séance`);
+      return;
     }
 
-    /**
-     * Affiche le workout complet
-     */
-    render(workout) {
-        if (!workout || !workout.exercices || workout.exercices.length === 0) {
-            this.renderEmpty();
-            return;
-        }
+    const exercisesHTML = workout.exercises.map((ex, index) => 
+      this.renderExercise(ex, index, weekNumber)
+    ).join('');
 
-        this.container.innerHTML = '';
+    this.container.innerHTML = `
+      <div class="workout-header">
+        <h2>${workout.name || 'Séance d\'entraînement'}</h2>
+        <div class="workout-info">
+          <span class="workout-duration">⏱️ ${workout.duration || '60'} min</span>
+          <span class="workout-exercises">💪 ${workout.exercises.length} exercices</span>
+        </div>
+      </div>
+      <div class="exercises-list">
+        ${exercisesHTML}
+      </div>
+    `;
+
+    // Attacher les event listeners après le rendu
+    this.attachEventListeners();
+  }
+
+  /**
+   * Affiche un exercice individuel
+   */
+  renderExercise(exercise, index, weekNumber) {
+    const isSuperset = exercise.superset || false;
+    const badges = this.renderBadges(exercise);
+    const tempo = exercise.tempo || '2-0-2-0';
+    const rest = exercise.rest || 90;
+    const rpe = exercise.rpe || 'N/A';
+
+    return `
+      <div class="exercise-card ${isSuperset ? 'superset' : ''}" data-exercise-id="${index}">
+        ${isSuperset ? '<div class="superset-label">⚡ SUPERSET</div>' : ''}
         
-        // Regrouper les supersets
-        const groups = this.groupExercises(workout.exercices);
-        
-        groups.forEach(group => {
-            if (group.type === 'superset') {
-                this.renderSuperset(group.exercises);
-            } else {
-                this.renderExercise(group.exercises[0]);
-            }
-        });
-    }
+        <div class="exercise-header">
+          <div class="exercise-title">
+            <span class="exercise-number">${index + 1}</span>
+            <h3>${exercise.name}</h3>
+          </div>
+          ${badges}
+        </div>
 
-    /**
-     * Regroupe les exercices en supersets
-     */
-    groupExercises(exercises) {
-        const groups = [];
-        let currentSuperset = null;
-
-        exercises.forEach(exercise => {
-            if (exercise.superset) {
-                if (!currentSuperset) {
-                    currentSuperset = {
-                        type: 'superset',
-                        exercises: []
-                    };
-                    groups.push(currentSuperset);
-                }
-                currentSuperset.exercises.push(exercise);
-            } else {
-                if (currentSuperset) {
-                    currentSuperset = null;
-                }
-                groups.push({
-                    type: 'single',
-                    exercises: [exercise]
-                });
-            }
-        });
-
-        return groups;
-    }
-
-    /**
-     * Affiche un superset
-     */
-    renderSuperset(exercises) {
-        const supersetCard = document.createElement('div');
-        supersetCard.className = 'exercise-card superset-card';
-        
-        const header = document.createElement('div');
-        header.className = 'superset-header';
-        header.innerHTML = `
-            <span class="superset-badge">🔗 SUPERSET</span>
-            <span class="superset-info">${exercises.length} exercices</span>
-        `;
-        supersetCard.appendChild(header);
-
-        exercises.forEach((exercise, index) => {
-            const exerciseEl = this.createExerciseElement(exercise, true);
-            exerciseEl.classList.add(`superset-item-${index + 1}`);
-            supersetCard.appendChild(exerciseEl);
-        });
-
-        this.container.appendChild(supersetCard);
-    }
-
-    /**
-     * Affiche un exercice simple
-     */
-    renderExercise(exercise) {
-        const card = this.createExerciseElement(exercise, false);
-        this.container.appendChild(card);
-    }
-
-    /**
-     * Crée l'élément HTML d'un exercice
-     */
-    createExerciseElement(exercise, isSuperset) {
-        const card = document.createElement('div');
-        card.className = isSuperset ? 'exercise-item' : 'exercise-card';
-        card.dataset.exerciseId = exercise.id || exercise.nom;
-
-        // Header
-        const header = this.createExerciseHeader(exercise);
-        card.appendChild(header);
-
-        // Séries
-        const seriesContainer = this.createSeriesContainer(exercise);
-        card.appendChild(seriesContainer);
-
-        // Info repos
-        const restInfo = this.createRestInfo(exercise);
-        card.appendChild(restInfo);
-
-        return card;
-    }
-
-    /**
-     * Crée le header de l'exercice
-     */
-    createExerciseHeader(exercise) {
-        const header = document.createElement('div');
-        header.className = 'exercise-header';
-
-        const title = document.createElement('h3');
-        title.className = 'exercise-name';
-        title.textContent = exercise.nom;
-
-        const badges = document.createElement('div');
-        badges.className = 'exercise-badges';
-
-        // Badge technique
-        if (exercise.technique) {
-            const badge = document.createElement('span');
-            badge.className = 'badge badge-technique';
-            badge.textContent = exercise.technique;
-            badges.appendChild(badge);
-        }
-
-        // Badge type
-        if (exercise.type) {
-            const badge = document.createElement('span');
-            badge.className = `badge badge-${exercise.type.toLowerCase()}`;
-            badge.textContent = exercise.type;
-            badges.appendChild(badge);
-        }
-
-        header.appendChild(title);
-        header.appendChild(badges);
-
-        return header;
-    }
-
-    /**
-     * Crée le container des séries
-     */
-    createSeriesContainer(exercise) {
-        const container = document.createElement('div');
-        container.className = 'series-container';
-
-        const exerciseId = exercise.id || exercise.nom;
-        const series = Array.isArray(exercise.series) ? exercise.series : [];
-
-        series.forEach((set, index) => {
-            const setCard = this.createSetCard(exerciseId, set, index);
-            container.appendChild(setCard);
-        });
-
-        return container;
-    }
-
-    /**
-     * Crée une carte de série
-     */
-    createSetCard(exerciseId, set, index) {
-        const card = document.createElement('div');
-        card.className = 'set-card';
-
-        // Checkbox
-        const checkbox = document.createElement('label');
-        checkbox.className = 'set-checkbox';
-        
-        const input = document.createElement('input');
-        input.type = 'checkbox';
-        input.dataset.exerciseId = exerciseId;
-        input.dataset.setIndex = index;
-        
-        const isCompleted = this.session && this.session.isSetCompleted(exerciseId, index);
-        input.checked = isCompleted;
-        
-        input.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                this.session.completeSet(exerciseId, index);
-                card.classList.add('completed');
-            } else {
-                this.session.uncompleteSet(exerciseId, index);
-                card.classList.remove('completed');
-            }
-        });
-
-        const checkmark = document.createElement('span');
-        checkmark.className = 'checkmark';
-
-        const setNumber = document.createElement('span');
-        setNumber.className = 'set-number';
-        setNumber.textContent = `Série ${index + 1}`;
-
-        checkbox.appendChild(input);
-        checkbox.appendChild(checkmark);
-        checkbox.appendChild(setNumber);
-
-        // Infos série
-        const setInfo = document.createElement('div');
-        setInfo.className = 'set-info';
-
-        // Reps
-        const reps = document.createElement('div');
-        reps.className = 'set-reps';
-        reps.innerHTML = `<strong>${set.reps || '?'}</strong> reps`;
-
-        // Poids
-        const weightControl = this.createWeightControl(exerciseId, index, set.poids || 0);
-
-        // Tempo (si présent)
-        if (set.tempo) {
-            const tempo = document.createElement('div');
-            tempo.className = 'set-tempo';
-            tempo.textContent = `Tempo: ${set.tempo}`;
-            setInfo.appendChild(tempo);
-        }
-
-        setInfo.appendChild(reps);
-        setInfo.appendChild(weightControl);
-
-        card.appendChild(checkbox);
-        card.appendChild(setInfo);
-
-        if (isCompleted) {
-            card.classList.add('completed');
-        }
-
-        return card;
-    }
-
-    /**
-     * Crée le contrôle de poids
-     */
-    createWeightControl(exerciseId, setIndex, defaultWeight) {
-        const control = document.createElement('div');
-        control.className = 'weight-control';
-
-        const currentWeight = this.session 
-            ? this.session.getWeight(exerciseId, setIndex, defaultWeight)
-            : defaultWeight;
-
-        // Bouton -
-        const minusBtn = document.createElement('button');
-        minusBtn.className = 'weight-btn weight-minus';
-        minusBtn.textContent = '−';
-        minusBtn.type = 'button';
-
-        // Input poids
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.className = 'weight-input';
-        input.value = currentWeight;
-        input.min = '0';
-        input.step = '2.5';
-
-        // Label kg
-        const label = document.createElement('span');
-        label.className = 'weight-label';
-        label.textContent = 'kg';
-
-        // Bouton +
-        const plusBtn = document.createElement('button');
-        plusBtn.className = 'weight-btn weight-plus';
-        plusBtn.textContent = '+';
-        plusBtn.type = 'button';
-
-        // Events
-        const updateWeight = (newWeight) => {
-            input.value = newWeight;
-            if (this.session) {
-                this.session.updateWeight(exerciseId, setIndex, parseFloat(newWeight));
-            }
-        };
-
-        minusBtn.addEventListener('click', () => {
-            const current = parseFloat(input.value) || 0;
-            updateWeight(Math.max(0, current - 2.5));
-        });
-
-        plusBtn.addEventListener('click', () => {
-            const current = parseFloat(input.value) || 0;
-            updateWeight(current + 2.5);
-        });
-
-        input.addEventListener('change', (e) => {
-            updateWeight(parseFloat(e.target.value) || 0);
-        });
-
-        control.appendChild(minusBtn);
-        control.appendChild(input);
-        control.appendChild(label);
-        control.appendChild(plusBtn);
-
-        return control;
-    }
-
-    /**
-     * Crée les infos de repos
-     */
-    createRestInfo(exercise) {
-        const info = document.createElement('div');
-        info.className = 'rest-info';
-
-        // Repos
-        if (exercise.repos) {
-            const rest = document.createElement('div');
-            rest.className = 'rest-time';
-            rest.innerHTML = `⏱️ Repos: <strong>${exercise.repos}</strong>`;
-            info.appendChild(rest);
-        }
-
-        // Bouton timer
-        const timerBtn = document.createElement('button');
-        timerBtn.className = 'timer-btn-inline';
-        timerBtn.innerHTML = '⏱️ Timer';
-        timerBtn.type = 'button';
-        timerBtn.addEventListener('click', () => {
-            // Trigger timer global
-            const startBtn = document.getElementById('timer-start');
-            if (startBtn) startBtn.click();
-        });
-        info.appendChild(timerBtn);
-
-        return info;
-    }
-
-    /**
-     * Affiche un état vide
-     */
-    renderEmpty() {
-        this.container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">💪</div>
-                <h3>Aucun exercice</h3>
-                <p>Sélectionnez une semaine et un jour</p>
+        <div class="exercise-meta">
+          <div class="meta-row">
+            <div class="meta-item">
+              <span class="meta-label">Séries</span>
+              <span class="meta-value">${exercise.sets}</span>
             </div>
-        `;
+            <div class="meta-item">
+              <span class="meta-label">Reps</span>
+              <span class="meta-value">${exercise.reps}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">RPE</span>
+              <span class="meta-value">${rpe}</span>
+            </div>
+          </div>
+          
+          <div class="meta-row weight-row">
+            <div class="meta-item weight-control">
+              <span class="meta-label">💪 Poids (kg)</span>
+              <div class="weight-input-group">
+                <button class="weight-btn weight-btn-minus" data-action="decrease" title="Diminuer -2.5kg">−</button>
+                <input 
+                  type="number" 
+                  class="weight-input" 
+                  value="${exercise.weight || 0}" 
+                  step="2.5"
+                  min="0"
+                  data-exercise-id="${index}"
+                />
+                <button class="weight-btn weight-btn-plus" data-action="increase" title="Augmenter +2.5kg">+</button>
+              </div>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">⏱️ Repos</span>
+              <span class="meta-value">${rest}s</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="exercise-details">
+          <div class="tempo-display">
+            <span class="tempo-label">Tempo:</span>
+            <span class="tempo-value">${tempo}</span>
+            <span class="tempo-help">(desc-pause-mont-pause)</span>
+          </div>
+          
+          ${exercise.technique ? `
+            <div class="technique-badge">
+              🔥 <strong>${exercise.technique}</strong>
+            </div>
+          ` : ''}
+
+          ${exercise.notes ? `
+            <div class="exercise-notes">
+              <strong>📝 Notes:</strong> ${exercise.notes}
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="sets-tracker">
+          <div class="sets-tracker-header">Cocher les séries complétées :</div>
+          <div class="sets-checkboxes">
+            ${this.renderSetsCheckboxes(exercise.sets, index)}
+          </div>
+        </div>
+
+        <button class="rest-timer-btn" data-rest="${rest}">
+          ⏱️ Démarrer repos (${rest}s)
+        </button>
+      </div>
+    `;
+  }
+
+  /**
+   * Affiche les badges
+   */
+  renderBadges(exercise) {
+    const badges = [];
+
+    if (exercise.category) {
+      const categoryClass = exercise.category === 'Polyarticulaire' ? 'poly' : 'iso';
+      badges.push(`<span class="badge badge-${categoryClass}">${exercise.category}</span>`);
     }
 
-    /**
-     * Affiche un message d'erreur
-     */
-    renderError(message) {
-        this.container.innerHTML = `
-            <div class="error-state">
-                <div class="error-icon">⚠️</div>
-                <h3>Erreur</h3>
-                <p>${message}</p>
-            </div>
-        `;
+    if (exercise.superset) {
+      badges.push(`<span class="badge badge-superset">Superset</span>`);
     }
 
-    /**
-     * Affiche un loader
-     */
-    renderLoading() {
-        this.container.innerHTML = `
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p>Chargement du programme...</p>
-            </div>
-        `;
+    if (exercise.technique) {
+      badges.push(`<span class="badge badge-technique">${exercise.technique}</span>`);
     }
+
+    return badges.length > 0 ? `
+      <div class="exercise-badges">
+        ${badges.join('')}
+      </div>
+    ` : '';
+  }
+
+  /**
+   * Affiche les checkboxes pour les séries
+   */
+  renderSetsCheckboxes(totalSets, exerciseIndex) {
+    const checkboxes = [];
+    for (let i = 1; i <= totalSets; i++) {
+      checkboxes.push(`
+        <label class="set-checkbox">
+          <input 
+            type="checkbox" 
+            data-exercise-id="${exerciseIndex}" 
+            data-set="${i}"
+            id="set-${exerciseIndex}-${i}"
+          />
+          <span class="set-label">${i}</span>
+        </label>
+      `);
+    }
+    return checkboxes.join('');
+  }
+
+  /**
+   * Attache les event listeners
+   */
+  attachEventListeners() {
+    // Boutons +/-
+    const weightBtns = this.container.querySelectorAll('.weight-btn');
+    weightBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const action = btn.dataset.action;
+        const input = btn.parentElement.querySelector('.weight-input');
+        let currentValue = parseFloat(input.value) || 0;
+        
+        if (action === 'increase') {
+          input.value = (currentValue + 2.5).toFixed(1);
+        } else if (action === 'decrease' && currentValue >= 2.5) {
+          input.value = (currentValue - 2.5).toFixed(1);
+        }
+
+        input.dispatchEvent(new Event('change'));
+      });
+    });
+
+    // Inputs poids
+    const weightInputs = this.container.querySelectorAll('.weight-input');
+    weightInputs.forEach(input => {
+      input.addEventListener('change', (e) => {
+        const exerciseId = input.dataset.exerciseId;
+        const newWeight = parseFloat(input.value) || 0;
+        
+        const event = new CustomEvent('weight-changed', {
+          detail: { exerciseId, newWeight }
+        });
+        document.dispatchEvent(event);
+      });
+    });
+
+    // Checkboxes séries
+    const setCheckboxes = this.container.querySelectorAll('.set-checkbox input');
+    setCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        const exerciseId = checkbox.dataset.exerciseId;
+        const setNumber = checkbox.dataset.set;
+        const isChecked = checkbox.checked;
+
+        const event = new CustomEvent('set-completed', {
+          detail: { exerciseId, setNumber, isChecked }
+        });
+        document.dispatchEvent(event);
+      });
+    });
+
+    // Boutons timer repos
+    const timerBtns = this.container.querySelectorAll('.rest-timer-btn');
+    timerBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const restDuration = parseInt(btn.dataset.rest);
+        
+        const event = new CustomEvent('start-rest-timer', {
+          detail: { duration: restDuration }
+        });
+        document.dispatchEvent(event);
+      });
+    });
+  }
+
+  /**
+   * Affiche un message de chargement
+   */
+  showLoading() {
+    this.container.innerHTML = `
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Chargement des exercices...</p>
+      </div>
+    `;
+  }
+
+  /**
+   * Affiche un message d'erreur
+   */
+  showError(message) {
+    this.container.innerHTML = `
+      <div class="error-message">
+        <div class="error-icon">⚠️</div>
+        <h2>Erreur</h2>
+        <p>${message}</p>
+        <button onclick="location.reload()" class="retry-btn">
+          🔄 Recharger la page
+        </button>
+      </div>
+    `;
+  }
 }
+
+export default WorkoutRenderer;
