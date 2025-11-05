@@ -19,35 +19,35 @@
      PALETTE DE COULEURS PRINCIPALES
      ============================================ */
   
-  /* Couleur primaire (accent) */
-  --color-primary: #00d4aa;
-  --color-primary-dark: #00b894;
-  --color-primary-light: #00f5c4;
+  /* Couleur primaire (vert fitness énergique) */
+  --color-primary: #4CAF50;
+  --color-primary-dark: #45a049;
+  --color-primary-light: #66BB6A;
   
-  /* Couleur secondaire */
-  --color-secondary: #3b82f6;
-  --color-secondary-dark: #2563eb;
-  --color-secondary-light: #60a5fa;
+  /* Couleur secondaire (bleu confiance) */
+  --color-secondary: #2196F3;
+  --color-secondary-dark: #1976D2;
+  --color-secondary-light: #42A5F5;
   
-  /* Couleur d'accentuation */
-  --color-accent: #f59e0b;
-  --color-accent-dark: #d97706;
-  --color-accent-light: #fbbf24;
+  /* Couleur d'accentuation (orange action) */
+  --color-accent: #FF9800;
+  --color-accent-dark: #F57C00;
+  --color-accent-light: #FFB74D;
   
   /* Couleurs sémantiques */
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
+  --color-success: #4CAF50;
+  --color-warning: #FF9800;
+  --color-error: #F44336;
+  --color-info: #2196F3;
   
   /* ============================================
      COULEURS DE FOND (Dark Mode)
      ============================================ */
   
-  --color-bg-primary: #080b12;
-  --color-bg-secondary: #0d111a;
-  --color-bg-tertiary: #1a1f2e;
-  --color-bg-card: rgba(255, 255, 255, 0.03);
+  --color-bg-primary: #0A0E1A;
+  --color-bg-secondary: #121829;
+  --color-bg-tertiary: #1E2538;
+  --color-bg-card: rgba(255, 255, 255, 0.05);
   
   /* ============================================
      COULEURS DE TEXTE
@@ -70,10 +70,11 @@
      OMBRES
      ============================================ */
   
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.25);
+  --shadow-glow: 0 0 20px rgba(76, 175, 80, 0.3);
   
   /* ============================================
      TYPOGRAPHIE
