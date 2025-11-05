@@ -1,6 +1,7 @@
 // ============================================================================
 // 📊 scripts/core/program-data.js
-// Programme Hybrid Master 51 complet - 26 semaines
+// Programme Hybrid Master 51 COMPLET - 26 semaines
+// FICHIER À PLACER DANS : scripts/core/program-data.js
 // ============================================================================
 
 class ProgramData {
@@ -24,11 +25,10 @@ class ProgramData {
           technique: {
             name: "Tempo 3-1-2",
             description: "3s descente, 1s pause étirée, 2s montée",
-            rpe: "6-7",
-            details: "Pauses stratégiques sur exercices isolation"
+            rpe: "6-7"
           },
           workouts: {
-            // ==================== DIMANCHE ====================
+            // ==================== DIMANCHE : DOS + JAMBES LOURDES + BRAS ====================
             dimanche: {
               name: "DOS + JAMBES LOURDES + BRAS",
               duration: 68,
@@ -41,7 +41,7 @@ class ProgramData {
                   reps: "6-8",
                   rest: 120,
                   startWeight: 75,
-                  targetWeight: 120, // Semaine 26
+                  targetWeight: 120,
                   progression: { increment: 5, every: 3 },
                   muscleGroup: "Dos",
                   rir: 2,
@@ -58,7 +58,7 @@ class ProgramData {
                   progression: { increment: 2.5, every: 2 },
                   muscleGroup: "Quadriceps",
                   rir: 2,
-                  notes: "Haltère tenu devant poitrine, amplitude complète"
+                  notes: "Haltère tenu devant poitrine"
                 },
                 {
                   id: "ex_dim_3",
@@ -71,7 +71,7 @@ class ProgramData {
                   progression: { increment: 10, every: 2 },
                   muscleGroup: "Quadriceps",
                   rir: 2,
-                  notes: "Pieds largeur épaules, descente contrôlée"
+                  notes: "Pieds largeur épaules"
                 },
                 {
                   id: "ex_dim_4a",
@@ -85,7 +85,7 @@ class ProgramData {
                   muscleGroup: "Dos",
                   rir: 2,
                   superset: "ex_dim_4b",
-                  notes: "Mains écartées 1.5× largeur épaules, tirer vers haut pecs"
+                  notes: "Mains écartées 1.5× largeur épaules"
                 },
                 {
                   id: "ex_dim_4b",
@@ -99,7 +99,7 @@ class ProgramData {
                   muscleGroup: "Épaules",
                   rir: 2,
                   superset: "ex_dim_4a",
-                  notes: "Barre calée dans coin, presse oblique"
+                  notes: "Barre calée dans coin"
                 },
                 {
                   id: "ex_dim_5",
@@ -112,7 +112,7 @@ class ProgramData {
                   progression: { increment: 2.5, every: 2 },
                   muscleGroup: "Dos",
                   rir: 2,
-                  notes: "Coudes vers extérieur, tirer vers bas des pecs"
+                  notes: "Coudes vers extérieur, tirer vers bas pecs"
                 },
                 {
                   id: "ex_dim_6a",
@@ -126,7 +126,7 @@ class ProgramData {
                   muscleGroup: "Biceps",
                   rir: 2,
                   superset: "ex_dim_6b",
-                  notes: "Bloc 1 & 3 / Spider Curl pour Bloc 2 & 4 - Pause 2s bras tendus"
+                  notes: "Bloc 1 & 3 / Spider Curl Bloc 2 & 4"
                 },
                 {
                   id: "ex_dim_6b",
@@ -140,12 +140,12 @@ class ProgramData {
                   muscleGroup: "Triceps",
                   rir: 2,
                   superset: "ex_dim_6a",
-                  notes: "Coudes fixes le long du corps, extension complète"
+                  notes: "Coudes fixes le long du corps"
                 }
               ]
             },
             
-            // ==================== MARDI ====================
+            // ==================== MARDI : PECS + ÉPAULES + TRICEPS ====================
             mardi: {
               name: "PECS + ÉPAULES + TRICEPS",
               duration: 70,
@@ -162,7 +162,7 @@ class ProgramData {
                   progression: { increment: 2.5, every: 3 },
                   muscleGroup: "Pectoraux",
                   rir: 2,
-                  notes: "22kg PAR haltère (44kg total) - Mouvement principal"
+                  notes: "22kg PAR haltère (44kg total)"
                 },
                 {
                   id: "ex_mar_2",
@@ -175,7 +175,7 @@ class ProgramData {
                   progression: { increment: 2.5, every: 3 },
                   muscleGroup: "Pectoraux",
                   rir: 2,
-                  notes: "Poulies à hauteur épaules, pause 2s bras écartés"
+                  notes: "Poulies à hauteur épaules, pause 2s"
                 },
                 {
                   id: "ex_mar_3",
@@ -188,7 +188,7 @@ class ProgramData {
                   progression: { increment: 10, every: 3 },
                   muscleGroup: "Quadriceps",
                   rir: 2,
-                  notes: "Volume léger pour fréquence jambes, contrôle"
+                  notes: "Volume léger pour fréquence"
                 },
                 {
                   id: "ex_mar_4a",
@@ -202,7 +202,7 @@ class ProgramData {
                   muscleGroup: "Triceps",
                   rir: 2,
                   superset: "ex_mar_4b",
-                  notes: "Coudes hauts et fixes, extension complète"
+                  notes: "Coudes hauts et fixes"
                 },
                 {
                   id: "ex_mar_4b",
@@ -216,7 +216,7 @@ class ProgramData {
                   muscleGroup: "Épaules",
                   rir: 2,
                   superset: "ex_mar_4a",
-                  notes: "Pause 1s bras horizontaux, contrôle descente"
+                  notes: "Pause 1s bras horizontaux"
                 },
                 {
                   id: "ex_mar_5",
@@ -229,7 +229,7 @@ class ProgramData {
                   progression: { increment: 2.5, every: 3 },
                   muscleGroup: "Épaules",
                   rir: 2,
-                  notes: "Pause 1s contraction arrière, coudes hauts"
+                  notes: "Pause 1s contraction arrière"
                 },
                 {
                   id: "ex_mar_6",
@@ -242,7 +242,7 @@ class ProgramData {
                   progression: { increment: 2.5, every: 2 },
                   muscleGroup: "Dos",
                   rir: 2,
-                  notes: "Mains largeur épaules, tirer vers nombril, coudes le long du corps"
+                  notes: "Mains largeur épaules, tirer vers nombril"
                 },
                 {
                   id: "ex_mar_7",
@@ -255,12 +255,12 @@ class ProgramData {
                   progression: { increment: 2.5, every: 3 },
                   muscleGroup: "Triceps",
                   rir: 2,
-                  notes: "Coudes fixes près de la tête, étirement maximal"
+                  notes: "Coudes fixes près de la tête"
                 }
               ]
             },
             
-            // ==================== VENDREDI ====================
+            // ==================== VENDREDI : DOS + JAMBES LÉGÈRES + BRAS ====================
             vendredi: {
               name: "DOS + JAMBES LÉGÈRES + BRAS + ÉPAULES",
               duration: 73,
@@ -277,7 +277,7 @@ class ProgramData {
                   progression: { increment: 2.5, every: 2 },
                   muscleGroup: "Dos",
                   rir: 2,
-                  notes: "Rowing unilatéral, barre calée dans coin"
+                  notes: "Rowing unilatéral"
                 },
                 {
                   id: "ex_ven_2a",
@@ -291,7 +291,7 @@ class ProgramData {
                   muscleGroup: "Ischio-jambiers",
                   rir: 2,
                   superset: "ex_ven_2b",
-                  notes: "Contrôler la descente, contraction maximale"
+                  notes: "Contrôler la descente"
                 },
                 {
                   id: "ex_ven_2b",
@@ -305,7 +305,7 @@ class ProgramData {
                   muscleGroup: "Quadriceps",
                   rir: 2,
                   superset: "ex_ven_2a",
-                  notes: "Extension complète, pause 1s en haut"
+                  notes: "Extension complète"
                 },
                 {
                   id: "ex_ven_3a",
@@ -319,7 +319,7 @@ class ProgramData {
                   muscleGroup: "Pectoraux",
                   rir: 2,
                   superset: "ex_ven_3b",
-                  notes: "Poulies moyennes, tempo contrôlé"
+                  notes: "Poulies moyennes"
                 },
                 {
                   id: "ex_ven_3b",
@@ -333,7 +333,7 @@ class ProgramData {
                   muscleGroup: "Pectoraux",
                   rir: 2,
                   superset: "ex_ven_3a",
-                  notes: "Pause 2s bras écartés, étirement maximal"
+                  notes: "Pause 2s bras écartés"
                 },
                 {
                   id: "ex_ven_4a",
@@ -347,7 +347,7 @@ class ProgramData {
                   muscleGroup: "Biceps",
                   rir: 2,
                   superset: "ex_ven_4b",
-                  notes: "Pause 2s bras tendus, pas de swing"
+                  notes: "Pause 2s bras tendus"
                 },
                 {
                   id: "ex_ven_4b",
@@ -361,7 +361,7 @@ class ProgramData {
                   muscleGroup: "Triceps",
                   rir: 2,
                   superset: "ex_ven_4a",
-                  notes: "Assis, corde, coudes fixes"
+                  notes: "Assis, corde"
                 },
                 {
                   id: "ex_ven_5",
@@ -374,7 +374,7 @@ class ProgramData {
                   progression: { increment: 2.5, every: 4 },
                   muscleGroup: "Épaules",
                   rir: 2,
-                  notes: "Deuxième session de la semaine"
+                  notes: "Deuxième session semaine"
                 },
                 {
                   id: "ex_ven_6",
@@ -387,7 +387,7 @@ class ProgramData {
                   progression: { increment: 2.5, every: 4 },
                   muscleGroup: "Avant-bras",
                   rir: 2,
-                  notes: "Barre EZ, avant-bras sur banc, amplitude complète"
+                  notes: "Barre EZ, avant-bras sur banc"
                 }
               ]
             }
@@ -401,11 +401,10 @@ class ProgramData {
           weeks: [7, 8, 9, 10, 11],
           technique: {
             name: "Tempo 2-1-2 + Rest-Pause",
-            description: "Tempo plus rapide, Rest-Pause sur dernière série exercices principaux",
-            rpe: "7-8",
-            details: "Dimanche: Trap Bar S5 | Mardi: Dumbbell Press S5 | Vendredi: Landmine Row S5"
+            description: "Tempo plus rapide, Rest-Pause dernière série",
+            rpe: "7-8"
           },
-          workouts: {} // Hérite des exercices du Bloc 1
+          workouts: {} // Hérite du Bloc 1
         },
         
         // ====================== BLOC 3 : SURCOMPENSATION ======================
@@ -415,11 +414,10 @@ class ProgramData {
           weeks: [13, 14, 15, 16, 17],
           technique: {
             name: "Drop-sets + Myo-reps",
-            description: "Intensification métabolique, stress musculaire maximal",
-            rpe: "8",
-            details: "Drop-sets S4 sur composés | Myo-reps S4/S5 sur isolations"
+            description: "Intensification métabolique",
+            rpe: "8"
           },
-          workouts: {} // Hérite des exercices du Bloc 1
+          workouts: {} // Hérite du Bloc 1
         },
         
         // ====================== BLOC 4 : INTENSIFICATION MAXIMALE ======================
@@ -429,26 +427,24 @@ class ProgramData {
           weeks: [19, 20, 21, 22, 23, 25],
           technique: {
             name: "Clusters + Myo-reps + Partials",
-            description: "Toutes techniques avancées combinées",
-            rpe: "8-9",
-            details: "Clusters exercices lourds | Myo-reps isolations | Partials jambes"
+            description: "Techniques avancées combinées",
+            rpe: "8-9"
           },
-          workouts: {} // Hérite des exercices du Bloc 1
+          workouts: {} // Hérite du Bloc 1
         }
       ],
       
-      // ==================== EXERCICES MAISON ====================
+      // ==================== EXERCICE MAISON ====================
       homeWorkouts: {
         hammerCurl: {
           name: "Hammer Curl (Maison)",
-          frequency: "2×/semaine (Mardi soir + Jeudi soir)",
+          frequency: "2×/semaine (Mardi + Jeudi soir)",
           sets: 3,
           reps: 12,
           startWeight: 12,
           targetWeight: 34.5,
           progression: { increment: 2.5, every: 3 },
-          muscleGroup: "Biceps",
-          notes: "Complément au programme, prise neutre (marteau)"
+          muscleGroup: "Biceps"
         }
       }
     };
@@ -462,7 +458,7 @@ class ProgramData {
     
     const isDeload = this.program.metadata.deloadWeeks.includes(week);
     
-    // Si le bloc n'a pas de workouts définis, hériter du Bloc 1
+    // Si le bloc n'a pas de workouts, hériter du Bloc 1
     const workouts = Object.keys(block.workouts).length > 0 
       ? block.workouts 
       : this.program.blocks[0].workouts;
@@ -476,7 +472,6 @@ class ProgramData {
   }
   
   getExerciseCurrentWeight(exerciseId, week) {
-    // Trouver l'exercice dans tous les blocs
     for (const block of this.program.blocks) {
       for (const day in block.workouts) {
         const exercise = block.workouts[day].exercises?.find(ex => ex.id === exerciseId);
@@ -491,27 +486,21 @@ class ProgramData {
   
   getAllExercises() {
     const exercises = [];
-    this.program.blocks[0].workouts.dimanche.exercises.forEach(ex => exercises.push(ex));
-    this.program.blocks[0].workouts.mardi.exercises.forEach(ex => exercises.push(ex));
-    this.program.blocks[0].workouts.vendredi.exercises.forEach(ex => exercises.push(ex));
+    const bloc1 = this.program.blocks[0].workouts;
+    
+    bloc1.dimanche.exercises.forEach(ex => exercises.push(ex));
+    bloc1.mardi.exercises.forEach(ex => exercises.push(ex));
+    bloc1.vendredi.exercises.forEach(ex => exercises.push(ex));
+    
     return exercises;
-  }
-  
-  getVolumeMetrics() {
-    return {
-      quadriceps: { direct: 16, indirect: 7, total: 23, frequency: 3 },
-      ischiojambiers: { direct: 10, indirect: 7, total: 17, frequency: 2 },
-      fessiers: { direct: 9, indirect: 10, total: 19, frequency: 3 },
-      dos: { direct: 22, indirect: 8, total: 30, frequency: 3 },
-      pectoraux: { direct: 17, indirect: 5, total: 22, frequency: 3 },
-      epaulesPost: { direct: 9, indirect: 3, total: 12, frequency: 2 },
-      epaulesLat: { direct: 8, indirect: 2, total: 10, frequency: 3 },
-      biceps: { direct: 9, indirect: 10, total: 19, frequency: 3 },
-      triceps: { direct: 15, indirect: 5, total: 20, frequency: 3 },
-      avantBras: { direct: 3, indirect: 13, total: 16, frequency: 3 }
-    };
   }
 }
 
-// Export pour utilisation dans app.js
-export { ProgramData };
+// Export pour app.js
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { ProgramData };
+} else if (typeof define === 'function' && define.amd) {
+  define([], () => ({ ProgramData }));
+} else {
+  window.ProgramData = ProgramData;
+}
