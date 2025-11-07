@@ -1,8 +1,8 @@
 /* ========================================
-   COMPOSANTS - Style Corrigé iPhone
+   COMPOSANTS - Style Amélioré + Supersets
    ======================================== */
 
-/* Cartes d'exercices optimisées */
+/* Cartes d'exercices */
 .exercise-card {
   background: var(--surface-color);
   border-radius: 16px;
@@ -10,6 +10,29 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease-out;
+  transition: all 0.3s ease;
+}
+
+/* SUPERSET - Carte en surbrillance */
+.exercise-card.superset {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+}
+
+.exercise-card.superset::before {
+  content: '⚡ SUPERSET';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  z-index: 1;
 }
 
 /* Header de l'exercice */
@@ -20,6 +43,7 @@
   padding: 16px;
   background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
 }
 
 .exercise-header.strength {
@@ -28,6 +52,12 @@
 
 .exercise-header.cardio {
   background: linear-gradient(135deg, #321a1a 0%, #0f1419 100%);
+}
+
+/* Superset header */
+.exercise-card.superset .exercise-header {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+  border-bottom: 2px solid rgba(59, 130, 246, 0.3);
 }
 
 .exercise-icon {
@@ -83,6 +113,11 @@
   padding: 8px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.param-item:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .param-label {
@@ -97,7 +132,7 @@
 .param-value {
   font-size: 18px;
   font-weight: 700;
-  color: var(--primary-color);
+  color: #ff8c42; /* Orange comme sur la photo */
   line-height: 1;
 }
 
@@ -108,7 +143,7 @@
   gap: 8px;
 }
 
-/* Items de série - CORRECTION PRINCIPALE */
+/* Items de série */
 .serie-item {
   display: flex;
   align-items: center;
@@ -125,31 +160,37 @@
   transform: scale(0.98);
 }
 
-/* État complété - STYLE CORRIGÉ */
+/* État complété - EXACTEMENT COMME LA PHOTO */
 .serie-item.completed {
-  background: rgba(34, 197, 94, 0.15);
-  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.12);
+  border-color: #22c55e;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
 }
 
 .serie-item.completed .serie-number {
   background: #22c55e;
   color: #000;
+  font-weight: 800;
 }
 
 .serie-item.completed .serie-info {
-  opacity: 0.7;
-  text-decoration: line-through;
+  opacity: 1;
 }
 
-/* Numéro de série */
+.serie-item.completed .serie-reps,
+.serie-item.completed .serie-weight {
+  text-decoration: none;
+}
+
+/* Numéro de série - Style photo */
 .serie-number {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
   font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
@@ -169,15 +210,16 @@
 .serie-reps {
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #fff;
 }
 
 .serie-weight {
-  font-size: 13px;
-  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff8c42; /* Orange comme sur la photo */
 }
 
-/* Repos */
+/* Repos - Style photo */
 .serie-rest {
   display: flex;
   align-items: center;
@@ -194,16 +236,16 @@
   font-size: 14px;
 }
 
-/* BOUTON CHECKBOX - CORRECTION COMPLÈTE */
+/* BOUTON CHECKBOX - Style photo exact */
 .serie-check {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
@@ -213,7 +255,7 @@
 }
 
 .serie-check:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
   transform: scale(1.05);
 }
 
@@ -223,40 +265,40 @@
 
 /* Icône de check */
 .check-icon {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 900;
   color: transparent;
   transition: all 0.3s ease;
   line-height: 1;
 }
 
-/* État complété du bouton */
+/* État complété du bouton - EXACTEMENT COMME LA PHOTO */
 .serie-item.completed .serie-check {
   background: #22c55e;
   border-color: #22c55e;
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
 }
 
 .serie-item.completed .check-icon {
   color: #000;
-  transform: scale(1.2);
+  transform: scale(1.1);
 }
 
 /* Animation du check */
 @keyframes checkPop {
   0% {
-    transform: scale(0);
+    transform: scale(0) rotate(-180deg);
   }
   50% {
-    transform: scale(1.3);
+    transform: scale(1.3) rotate(0deg);
   }
   100% {
-    transform: scale(1);
+    transform: scale(1) rotate(0deg);
   }
 }
 
 .serie-item.completed .check-icon {
-  animation: checkPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: checkPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 /* Notes */
@@ -281,6 +323,50 @@
   font-size: 14px;
   color: var(--text-primary);
   line-height: 1.5;
+}
+
+/* Section Progression - Style photo */
+.progression-card {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 2px solid #22c55e;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progression-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.progression-values {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.progression-from {
+  font-size: 18px;
+  font-weight: 700;
+  color: #22c55e;
+}
+
+.progression-arrow {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.progression-to {
+  font-size: 18px;
+  font-weight: 700;
+  color: #22c55e;
 }
 
 /* Message vide */
@@ -334,12 +420,12 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.week-nav-btn:hover {
+.week-nav-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.1);
   transform: scale(1.05);
 }
 
-.week-nav-btn:active {
+.week-nav-btn:active:not(:disabled) {
   transform: scale(0.95);
 }
 
@@ -364,6 +450,31 @@
 .week-date {
   font-size: 13px;
   color: var(--text-secondary);
+}
+
+/* Timer Section */
+.timer-section {
+  margin-bottom: 24px;
+  padding: 24px;
+  background: var(--surface-color);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.timer-display {
+  font-size: 48px;
+  font-weight: 700;
+  color: #22c55e;
+  margin-bottom: 16px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }
 
 /* Header */
@@ -404,7 +515,7 @@
   gap: 8px;
 }
 
-/* Bottom Navigation */
+/* Bottom Navigation - Style photo exact */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -434,6 +545,7 @@
   transition: all 0.3s ease;
   border-radius: 12px;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .nav-item:active {
