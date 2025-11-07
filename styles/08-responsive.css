@@ -1,454 +1,409 @@
-/* ================================================================ */
-/* 08-RESPONSIVE.CSS - Mobile et Tablette */
-/* ================================================================ */
+/* ============================================
+   08-responsive.css - Responsive Design
+   Optimisé pour iPhone 15 Pro Max
+   ============================================ */
 
-/* ================================================================ */
-/* TABLETTE (768px - 1024px) */
-/* ================================================================ */
+/* ==================== MOBILE FIRST ==================== */
 
-@media (max-width: 1024px) {
-  :root {
-    --spacing-xl: 2rem;
+/* iOS Safe Area */
+@supports (padding: env(safe-area-inset-bottom)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
   
-  .container {
-    max-width: 100%;
+  .header {
+    padding-top: env(safe-area-inset-top);
+    height: calc(var(--header-height) + env(safe-area-inset-top));
   }
   
-  .logo {
-    font-size: 2rem;
-  }
-  
-  .week-info h1 {
-    font-size: 1.75rem;
-  }
-  
-  .day-tabs {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .timer {
-    min-width: 200px;
-  }
-  
-  .timer-display-value {
-    font-size: 3.5rem;
+  .bottom-nav {
+    padding-bottom: calc(var(--spacing-sm) + env(safe-area-inset-bottom));
+    height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
   }
 }
 
-/* ================================================================ */
-/* MOBILE (max 768px) */
-/* ================================================================ */
+/* Optimisations tactiles */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
 
-@media (max-width: 768px) {
+button, a, .clickable {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Amélioration du scroll */
+.main-content {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* ==================== SMALL MOBILE (< 375px) ==================== */
+
+@media (max-width: 374px) {
   :root {
-    --spacing-sm: 0.75rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.25rem;
-    --spacing-xl: 1.5rem;
-    --font-size-base: 0.95rem;
-    --font-size-lg: 1.15rem;
-    --font-size-xl: 1.35rem;
-    --font-size-2xl: 1.75rem;
+    --font-size-base: 0.9375rem; /* 15px */
+    --font-size-lg: 1.0625rem;   /* 17px */
+    --font-size-xl: 1.1875rem;   /* 19px */
+    --font-size-2xl: 1.375rem;   /* 22px */
+    --font-size-3xl: 1.625rem;   /* 26px */
+    --font-size-4xl: 2rem;       /* 32px */
+    
+    --spacing-md: 0.875rem;      /* 14px */
+    --spacing-lg: 1.25rem;       /* 20px */
   }
   
-  /* Container */
+  .workout-stats {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .exercise-meta {
+    grid-template-columns: 1fr;
+  }
+  
+  .day-selector {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==================== MOBILE STANDARD (375px - 428px) ==================== */
+
+@media (min-width: 375px) and (max-width: 428px) {
+  /* iPhone 15 Pro / Pro Max */
+  
   .container {
-    padding: var(--spacing-sm);
+    padding: 0 var(--spacing-lg);
   }
   
-  /* Header */
-  .main-header {
-    padding: var(--spacing-lg) 0;
-    margin-bottom: var(--spacing-lg);
+  .workout-header {
+    padding: var(--spacing-lg) var(--spacing-xl);
   }
   
-  .logo {
-    font-size: 1.75rem;
-    letter-spacing: 2px;
+  .exercise-card {
+    padding: var(--spacing-md) var(--spacing-lg);
   }
   
-  .tagline {
-    font-size: var(--font-size-sm);
-  }
-  
-  /* Week Navigation */
-  .week-navigation {
-    padding: var(--spacing-md);
-  }
-  
-  .week-controls {
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-  
-  .btn-week {
-    width: 100%;
-    min-width: auto;
+  /* Optimisation des grilles */
+  .set-row {
+    grid-template-columns: 36px 1fr 1fr 32px;
+    gap: var(--spacing-sm);
     padding: var(--spacing-sm) var(--spacing-md);
   }
   
-  .week-info h1 {
-    font-size: 1.5rem;
+  /* Amélioration des zones tactiles */
+  .btn {
+    min-height: 44px; /* iOS guideline */
   }
   
-  .block-name {
-    font-size: var(--font-size-base);
+  .nav-item {
+    min-width: 70px;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
+/* ==================== LARGE MOBILE / PHABLET (> 428px) ==================== */
+
+@media (min-width: 429px) and (max-width: 639px) {
+  .container {
+    padding: 0 var(--spacing-xl);
   }
   
-  /* Day Tabs */
-  .day-tabs {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-sm);
+  .workout-stats {
+    gap: var(--spacing-lg);
   }
   
-  .day-tab {
-    padding: var(--spacing-md);
+  .stats-grid {
+    gap: var(--spacing-lg);
   }
   
-  .day-icon {
-    font-size: 2rem;
-  }
-  
-  .day-label {
-    font-size: var(--font-size-base);
-  }
-  
-  /* Stats */
-  .stats-section {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-sm);
-  }
-  
-  .stat-card {
-    padding: var(--spacing-md);
-  }
-  
-  .stat-value {
-    font-size: 1.75rem;
-  }
-  
-  /* Workout Header */
-  .workout-header {
-    padding: var(--spacing-lg);
-  }
-  
-  .workout-header h2 {
-    font-size: 1.5rem;
-  }
-  
-  .workout-meta {
-    gap: var(--spacing-md);
-  }
-  
-  /* Exercise Card */
   .exercise-card {
-    padding: var(--spacing-lg);
+    padding: var(--spacing-xl);
+  }
+}
+
+/* ==================== TABLET (640px - 1023px) ==================== */
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .container {
+    max-width: 600px;
+    padding: 0 var(--spacing-xl);
   }
   
-  .exercise-header {
+  .workout-header {
+    padding: var(--spacing-2xl);
+  }
+  
+  .workout-stats {
+    gap: var(--spacing-xl);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .exercise-meta {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .day-selector {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  
+  /* Navigation latérale pour tablette */
+  .bottom-nav {
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    border-top: none;
+    border-right: 1px solid var(--color-border);
+  }
+  
+  .bottom-nav-content {
     flex-direction: column;
-    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: calc(var(--header-height) + var(--spacing-xl));
   }
   
-  .exercise-number {
-    width: 40px;
-    height: 40px;
-    font-size: var(--font-size-lg);
-  }
-  
-  .exercise-title h3 {
-    font-size: var(--font-size-lg);
-  }
-  
-  .exercise-badges {
+  .nav-item {
     width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
   }
   
-  /* Meta Grid */
-  .meta-grid {
-    grid-template-columns: 1fr 1fr;
+  .nav-item-label {
+    font-size: var(--font-size-base);
+  }
+  
+  .main-content {
+    margin-left: var(--sidebar-width);
+    padding-bottom: var(--spacing-2xl);
+  }
+}
+
+/* ==================== DESKTOP (> 1024px) ==================== */
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: var(--container-max-width);
+    padding: 0 var(--spacing-2xl);
+  }
+  
+  .header-content {
+    padding: 0 var(--spacing-2xl);
+  }
+  
+  .workout-header {
+    padding: var(--spacing-3xl);
+    border-radius: var(--radius-2xl);
+  }
+  
+  .workout-stats {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-2xl);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-xl);
+  }
+  
+  .exercise-meta {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  
+  .day-selector {
+    grid-template-columns: repeat(7, 1fr);
+  }
+  
+  .exercise-card {
+    padding: var(--spacing-2xl);
+  }
+  
+  .set-row {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-lg);
+  }
+  
+  /* Hover effects pour desktop */
+  .exercise-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Navigation latérale */
+  .bottom-nav {
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    border-top: none;
+    border-right: 1px solid var(--color-border);
+  }
+  
+  .bottom-nav-content {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: calc(var(--header-height) + var(--spacing-2xl));
     gap: var(--spacing-sm);
   }
   
-  .meta-item {
-    padding: var(--spacing-sm);
+  .nav-item {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--radius-md);
+    margin: 0 var(--spacing-md);
   }
   
-  .meta-value {
+  .nav-item:hover {
+    background: var(--color-bg-tertiary);
+  }
+  
+  .nav-item.active {
+    background: var(--color-primary-glow);
+  }
+  
+  .nav-item-icon {
     font-size: var(--font-size-xl);
   }
   
-  /* Weight Control */
-  .weight-control {
-    flex-wrap: wrap;
-  }
-  
-  .weight-input {
-    width: 100%;
-    max-width: 120px;
-  }
-  
-  .btn-weight-adjust {
-    width: 36px;
-    height: 36px;
-    font-size: var(--font-size-lg);
-  }
-  
-  /* Tempo */
-  .tempo-display {
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-  
-  .tempo-value {
-    font-size: 1.5rem;
-  }
-  
-  /* Sets Tracker */
-  .sets-tracker {
-    padding: var(--spacing-md);
-  }
-  
-  .sets-checkboxes {
-    gap: var(--spacing-sm);
-  }
-  
-  .set-number {
-    width: 50px;
-    height: 50px;
-    font-size: var(--font-size-lg);
-    border-width: 3px;
-  }
-  
-  .set-checkbox:hover .set-number {
-    border-width: 3px;
-  }
-  
-  /* Timer */
-  .timer-fixed {
-    top: 80px;
-    right: 10px;
-    left: 10px;
-    width: auto;
-  }
-  
-  .timer {
-    padding: var(--spacing-md);
-    min-width: auto;
-  }
-  
-  .timer-display-value {
-    font-size: 3rem;
-  }
-  
-  .timer-controls {
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
-  
-  .btn-timer-control {
-    width: 100%;
-    padding: var(--spacing-sm);
-    font-size: var(--font-size-sm);
-  }
-  
-  /* Superset Container */
-  .superset-container {
-    padding: var(--spacing-md);
-  }
-  
-  .superset-label {
-    top: -12px;
-    left: 15px;
-    padding: 0.3rem 0.8rem;
-    font-size: 0.7rem;
-  }
-  
-  /* Badges */
-  .badge {
-    padding: 0.25rem 0.6rem;
-    font-size: 0.7rem;
-  }
-  
-  /* Buttons */
-  .btn-start-rest-timer {
-    padding: var(--spacing-md);
+  .nav-item-label {
     font-size: var(--font-size-base);
   }
   
-  /* Charts */
-  .charts-container {
-    grid-template-columns: 1fr;
-  }
-  
-  .chart-card {
-    padding: var(--spacing-md);
-  }
-  
-  .chart-canvas {
-    height: 250px;
+  .main-content {
+    margin-left: var(--sidebar-width);
+    padding-bottom: var(--spacing-3xl);
   }
 }
 
-/* ================================================================ */
-/* PETITS MOBILES (max 480px) */
-/* ================================================================ */
+/* ==================== LANDSCAPE MODE ==================== */
 
-@media (max-width: 480px) {
-  :root {
-    --spacing-xs: 0.375rem;
-    --spacing-sm: 0.625rem;
-    --spacing-md: 0.875rem;
-    --spacing-lg: 1rem;
-    --spacing-xl: 1.25rem;
-    --font-size-sm: 0.8rem;
-    --font-size-base: 0.875rem;
-    --font-size-lg: 1rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-  }
-  
-  .container {
-    padding: var(--spacing-xs);
-  }
-  
-  .main-header {
-    padding: var(--spacing-md) 0;
-  }
-  
-  .logo {
-    font-size: 1.5rem;
-  }
-  
-  .week-navigation {
-    padding: var(--spacing-sm);
-  }
-  
-  .week-info h1 {
-    font-size: 1.35rem;
-  }
-  
-  .badge {
-    padding: 0.2rem 0.5rem;
-    font-size: 0.65rem;
-  }
-  
-  .day-tabs {
-    grid-template-columns: 1fr;
-  }
-  
-  .day-tab {
-    padding: var(--spacing-sm);
-  }
-  
-  .stats-section {
-    grid-template-columns: 1fr;
-  }
-  
-  .stat-card {
-    padding: var(--spacing-sm);
-  }
-  
-  .stat-value {
-    font-size: 1.5rem;
-  }
-  
+@media (max-height: 500px) and (orientation: landscape) {
   .workout-header {
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
   }
   
-  .workout-header h2 {
-    font-size: 1.25rem;
+  .workout-title {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .workout-stats {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
   }
   
   .exercise-card {
     padding: var(--spacing-md);
   }
   
-  .exercise-number {
-    width: 35px;
-    height: 35px;
-    font-size: var(--font-size-base);
-  }
-  
-  .exercise-title h3 {
-    font-size: var(--font-size-base);
-  }
-  
-  .meta-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .meta-value {
+  .exercise-name {
     font-size: var(--font-size-lg);
   }
   
-  .tempo-value {
-    font-size: 1.25rem;
+  .timer-display {
+    padding: var(--spacing-lg);
   }
   
-  .set-number {
-    width: 45px;
-    height: 45px;
-    font-size: var(--font-size-base);
-  }
-  
-  .timer-display-value {
-    font-size: 2.5rem;
-  }
-  
-  .btn-start-rest-timer {
-    padding: var(--spacing-sm);
-    font-size: var(--font-size-sm);
-  }
-  
-  .exercise-notes {
-    font-size: var(--font-size-sm);
+  .timer-value {
+    font-size: 3rem;
   }
 }
 
-/* ================================================================ */
-/* LANDSCAPE MOBILE */
-/* ================================================================ */
-
-@media (max-width: 768px) and (orientation: landscape) {
-  .timer-fixed {
-    top: 60px;
-    right: 5px;
-  }
-  
-  .timer {
-    padding: var(--spacing-sm);
-  }
-  
-  .timer-display-value {
-    font-size: 2rem;
-  }
-  
-  .main-header {
-    padding: var(--spacing-md) 0;
-  }
-}
-
-/* ================================================================ */
-/* PRINT */
-/* ================================================================ */
+/* ==================== PRINT STYLES ==================== */
 
 @media print {
-  .timer-fixed,
-  .btn-week,
-  .btn-weight-adjust,
-  .btn-timer-control,
-  .btn-start-rest-timer {
+  .header,
+  .bottom-nav,
+  .nav-item,
+  .btn,
+  .timer-display {
     display: none !important;
+  }
+  
+  .main-content {
+    margin: 0;
+    padding: 0;
   }
   
   .exercise-card {
     page-break-inside: avoid;
+    border: 1px solid #000;
   }
   
   body {
     background: white;
     color: black;
+  }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==================== HIGH CONTRAST MODE ==================== */
+
+@media (prefers-contrast: high) {
+  :root {
+    --color-border: rgba(255, 255, 255, 0.3);
+    --color-border-hover: rgba(255, 255, 255, 0.5);
+  }
+  
+  .exercise-card,
+  .card {
+    border-width: 2px;
+  }
+  
+  .btn {
+    border: 2px solid currentColor;
+  }
+}
+
+/* ==================== DARK MODE ENHANCEMENT ==================== */
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #000000;
+  }
+  
+  .header,
+  .bottom-nav {
+    background: rgba(10, 14, 20, 0.95);
+  }
+}
+
+/* ==================== NOTCH / DYNAMIC ISLAND ==================== */
+
+/* iPhone 15 Pro Max with Dynamic Island */
+@supports (padding: max(0px)) {
+  .header {
+    padding-left: max(var(--spacing-md), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-md), env(safe-area-inset-right));
+  }
+  
+  .main-content {
+    padding-left: max(var(--spacing-md), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-md), env(safe-area-inset-right));
   }
 }
