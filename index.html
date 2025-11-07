@@ -38,245 +38,39 @@
   </header>
 
   <!-- Main Content -->
-  <main class="main-content">
+  <main class="main-content" id="app">
     <div class="container">
       
-      <!-- Workout Header -->
-      <div class="workout-header fade-in">
-        <div class="workout-week">
-          📅 Semaine 1
-        </div>
-        <h1 class="workout-title">HYBRID MASTER 51</h1>
-        <p class="workout-subtitle">Dimanche - Dos + Jambes Lourdes</p>
-        
-        <div class="workout-stats">
-          <div class="workout-stat">
-            <span class="workout-stat-value">35</span>
-            <span class="workout-stat-label">Séries</span>
-          </div>
-          <div class="workout-stat">
-            <span class="workout-stat-value">10</span>
-            <span class="workout-stat-label">Exercices</span>
-          </div>
-          <div class="workout-stat">
-            <span class="workout-stat-value">75</span>
-            <span class="workout-stat-label">Minutes</span>
-          </div>
-        </div>
-      </div>
-
       <!-- Week Navigation -->
       <div class="week-navigation slide-up">
-        <button class="week-nav-btn">
+        <button class="week-nav-btn" id="prev-week">
           ←
         </button>
-        <div class="week-info">
+        <div class="week-info" id="week-display">
           <div class="week-current">Semaine 1/26</div>
           <div class="week-date">Bloc 1 • Tempo 3-1-2</div>
         </div>
-        <button class="week-nav-btn">
+        <button class="week-nav-btn" id="next-week">
           →
         </button>
       </div>
 
-      <!-- Technique Banner -->
-      <div class="technique-banner slide-up">
-        <div class="technique-icon">🔥</div>
-        <div class="technique-content">
-          <div class="technique-title">Tempo 3-1-2</div>
-          <div class="technique-description">3s descente, 1s pause, 2s montée</div>
+      <!-- Timer Section -->
+      <div class="timer-section" style="display: none;">
+        <div id="timer-display" class="timer-display">00:00</div>
+        <div class="timer-controls">
+          <button id="timer-start" class="btn-primary">Démarrer</button>
+          <button id="timer-pause" class="btn-secondary">Pause</button>
+          <button id="timer-reset" class="btn-secondary">Réinitialiser</button>
         </div>
       </div>
 
-      <!-- Stats Grid -->
-      <div class="stats-grid slide-up">
-        <div class="stat-card">
-          <div class="stat-icon">💪</div>
-          <span class="stat-value text-primary">27.5kg</span>
-          <span class="stat-label">Goblet Squat</span>
+      <!-- Workout Container (sera rempli dynamiquement) -->
+      <div id="workout-container">
+        <!-- Le contenu sera généré par JavaScript -->
+        <div class="loading-message">
+          <p>Chargement du programme...</p>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">🎯</div>
-          <span class="stat-value text-success">120kg</span>
-          <span class="stat-label">Leg Press</span>
-        </div>
-      </div>
-
-      <!-- Exercise Card 1 -->
-      <div class="exercise-card scale">
-        <div class="exercise-header">
-          <div class="exercise-info">
-            <h2 class="exercise-name">Goblet Squat</h2>
-            <div class="exercise-tags">
-              <span class="badge badge-primary">🔥 Composé</span>
-              <span class="badge badge-secondary">🦵 Quadriceps</span>
-            </div>
-            <div class="exercise-target">
-              <span>🎯</span>
-              <span>Quadriceps, Fessiers, Core</span>
-            </div>
-          </div>
-          <div class="exercise-icon">🏋️</div>
-        </div>
-
-        <div class="exercise-meta">
-          <div class="meta-item">
-            <span class="meta-value">4</span>
-            <span class="meta-label">Séries</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-value highlight">10</span>
-            <span class="meta-label">Reps</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-value highlight">27.5kg</span>
-            <span class="meta-label">Poids</span>
-          </div>
-        </div>
-
-        <div class="sets-container">
-          <div class="set-row completed">
-            <div class="set-number">1</div>
-            <div class="set-info">
-              <div class="set-reps">10 reps</div>
-              <div class="set-weight">27.5kg</div>
-            </div>
-            <div class="set-rest">⏱️ 75s repos</div>
-            <div class="set-checkbox"></div>
-          </div>
-
-          <div class="set-row completed">
-            <div class="set-number">2</div>
-            <div class="set-info">
-              <div class="set-reps">10 reps</div>
-              <div class="set-weight">27.5kg</div>
-            </div>
-            <div class="set-rest">⏱️ 75s repos</div>
-            <div class="set-checkbox"></div>
-          </div>
-
-          <div class="set-row">
-            <div class="set-number">3</div>
-            <div class="set-info">
-              <div class="set-reps">10 reps</div>
-              <div class="set-weight">27.5kg</div>
-            </div>
-            <div class="set-rest">⏱️ 75s repos</div>
-            <div class="set-checkbox"></div>
-          </div>
-
-          <div class="set-row">
-            <div class="set-number">4</div>
-            <div class="set-info">
-              <div class="set-reps">10 reps</div>
-              <div class="set-weight">27.5kg</div>
-            </div>
-            <div class="set-rest">⏱️ 75s repos</div>
-            <div class="set-checkbox"></div>
-          </div>
-        </div>
-
-        <div class="progression-card">
-          <div class="progression-header">
-            <span class="progression-icon">📈</span>
-            <span class="progression-title">Progression</span>
-          </div>
-          <div class="progression-details">
-            <span class="progression-value">110kg</span>
-            <span class="progression-arrow">→</span>
-            <span class="progression-value">240kg</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Exercise Card 2 -->
-      <div class="exercise-card scale">
-        <div class="exercise-header">
-          <div class="exercise-info">
-            <h2 class="exercise-name">Leg Press</h2>
-            <div class="exercise-tags">
-              <span class="badge badge-primary">💥 Machine</span>
-              <span class="badge badge-secondary">🦵 Quadriceps</span>
-            </div>
-            <div class="exercise-target">
-              <span>🎯</span>
-              <span>Quadriceps, Fessiers</span>
-            </div>
-          </div>
-          <div class="exercise-icon">🦵</div>
-        </div>
-
-        <div class="exercise-meta">
-          <div class="meta-item">
-            <span class="meta-value">4</span>
-            <span class="meta-label">Séries</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-value highlight">10</span>
-            <span class="meta-label">Reps</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-value highlight">120kg</span>
-            <span class="meta-label">Poids</span>
-          </div>
-        </div>
-
-        <div class="sets-container">
-          <div class="set-row">
-            <div class="set-number">1</div>
-            <div class="set-info">
-              <div class="set-reps">10 reps</div>
-              <div class="set-weight">120kg</div>
-            </div>
-            <div class="set-rest">⏱️ 75s repos</div>
-            <div class="set-checkbox"></div>
-          </div>
-
-          <div class="set-row">
-            <div class="set-number">2</div>
-            <div class="set-info">
-              <div class="set-reps">10 reps</div>
-              <div class="set-weight">120kg</div>
-            </div>
-            <div class="set-rest">⏱️ 75s repos</div>
-            <div class="set-checkbox"></div>
-          </div>
-
-          <div class="set-row">
-            <div class="set-number">3</div>
-            <div class="set-info">
-              <div class="set-reps">10 reps</div>
-              <div class="set-weight">120kg</div>
-            </div>
-            <div class="set-rest">⏱️ 75s repos</div>
-            <div class="set-checkbox"></div>
-          </div>
-
-          <div class="set-row">
-            <div class="set-number">4</div>
-            <div class="set-info">
-              <div class="set-reps">10 reps</div>
-              <div class="set-weight">120kg</div>
-            </div>
-            <div class="set-rest">⏱️ 75s repos</div>
-            <div class="set-checkbox"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Warmup Section -->
-      <div class="warmup-section slide-up">
-        <div class="warmup-header">
-          <span class="warmup-icon">🔥</span>
-          <h3 class="warmup-title">Échauffement</h3>
-        </div>
-        <div class="warmup-duration">⏱️ 15 minutes recommandées</div>
-        <ul class="warmup-list">
-          <li class="warmup-item">5 min vélo ou rameur (cardio léger)</li>
-          <li class="warmup-item">Mobilité hanches et chevilles</li>
-          <li class="warmup-item">2 séries de 10 squats au poids du corps</li>
-          <li class="warmup-item">Activation fessiers (band walks)</li>
-        </ul>
       </div>
 
     </div>
@@ -305,6 +99,8 @@
   </nav>
 
   <!-- Scripts -->
+  <script src="scripts/core/program-data.js" type="module"></script>
+  <script src="scripts/core/progression-engine.js" type="module"></script>
   <script src="scripts/app.js" type="module"></script>
 </body>
 </html>
