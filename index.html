@@ -1,102 +1,36 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  
-  <!-- Meta tags iOS corrigés -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#0A0E14">
-  
-  <title>🏆 Hybrid Master 51</title>
-  
-  <!-- iOS App Icons -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
-  
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles/01-reset.css">
-  <link rel="stylesheet" href="styles/02-variables.css">
-  <link rel="stylesheet" href="styles/03-base.css">
-  <link rel="stylesheet" href="styles/04-layout.css">
-  <link rel="stylesheet" href="styles/05-components.css">
-  <link rel="stylesheet" href="styles/08-responsive.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hybrid Master 55</title>
+  <link rel="stylesheet" href="styles/08-responsive.css" />
+  <link rel="stylesheet" href="styles/main.css" />
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <div class="header-content">
-      <div class="header-title">
-        <span class="header-icon">🏆</span>
-        <span>Hybrid Master 51</span>
-      </div>
-      <div class="header-actions">
-        <button class="btn-icon btn-secondary" aria-label="Paramètres">
-          ⚙️
-        </button>
-      </div>
-    </div>
+  <header>
+    <h1 id="week-title">Semaine 1/26</h1>
+    <h2 id="block-title">Bloc 1 - Tempo 3-1-2</h2>
   </header>
 
-  <!-- Main Content -->
-  <main class="main-content" id="app">
-    <div class="container">
-      <!-- Week Navigation -->
-      <div class="week-navigation slide-up">
-        <button class="week-nav-btn" id="prev-week" aria-label="Semaine précédente">
-          ←
-        </button>
-        <div class="week-info" id="week-display">
-          <div class="week-current">Semaine 1/26</div>
-          <div class="week-date">Bloc 1 • Tempo 3-1-2</div>
-        </div>
-        <button class="week-nav-btn" id="next-week" aria-label="Semaine suivante">
-          →
-        </button>
-      </div>
-
-      <!-- Timer Section -->
-      <div class="timer-section" style="display: none;">
-        <div id="timer-display" class="timer-display">00:00</div>
-        <div class="timer-controls">
-          <button id="timer-start" class="btn-primary">Démarrer</button>
-          <button id="timer-pause" class="btn-secondary">Pause</button>
-          <button id="timer-reset" class="btn-secondary">Réinitialiser</button>
-        </div>
-      </div>
-
-      <!-- Workout Container -->
-      <div id="workout-container">
-        <div class="loading-message">
-          <p>Chargement du programme...</p>
-        </div>
-      </div>
+  <main id="swipe-zone">
+    <div id="session-content">Chargement du programme...</div>
+    <div class="navigation">
+      <button id="btn-prev">← Précédent</button>
+      <button id="btn-next">Suivant →</button>
     </div>
   </main>
 
-  <!-- Bottom Navigation -->
-  <nav class="bottom-nav">
-    <div class="bottom-nav-content">
-      <div class="nav-item active">
-        <span class="nav-item-icon">💪</span>
-        <span class="nav-item-label">Séance</span>
-      </div>
-      <div class="nav-item">
-        <span class="nav-item-icon">📊</span>
-        <span class="nav-item-label">Stats</span>
-      </div>
-      <div class="nav-item">
-        <span class="nav-item-icon">📈</span>
-        <span class="nav-item-label">Progrès</span>
-      </div>
-      <div class="nav-item">
-        <span class="nav-item-icon">👤</span>
-        <span class="nav-item-label">Profil</span>
-      </div>
-    </div>
-  </nav>
+  <footer>
+    <nav>
+      <button>Séance</button>
+      <button>Stats</button>
+      <button>Progrès</button>
+      <button>Profil</button>
+    </nav>
+  </footer>
 
-  <!-- Scripts -->
+  <script src="scripts/core/program-data.js"></script>
   <script src="scripts/app.js"></script>
 </body>
 </html>
