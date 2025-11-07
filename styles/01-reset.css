@@ -1,75 +1,201 @@
-/* ===================================================================
-   HYBRID MASTER 51 - RESET CSS
-   ===================================================================
-   Reset moderne pour une base cohérente cross-browser
-   =================================================================== */
+/* ========================================
+   RESET CSS - HYBRID MASTER 51
+   Reset moderne et normalization
+======================================== */
 
-*, *::before, *::after {
+/* ===== BOX SIZING ===== */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+/* ===== ROOT ===== */
 html {
-  line-height: 1.5;
   -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+/* ===== BODY ===== */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  min-height: 100vh;
-  scroll-behavior: smooth;
-  text-rendering: optimizeSpeed;
-}
-
+/* ===== HEADINGS ===== */
 h1, h2, h3, h4, h5, h6 {
+  margin: 0;
   font-size: inherit;
   font-weight: inherit;
-  line-height: inherit;
 }
 
+/* ===== TEXT ===== */
+p, span, div, article, section, aside, nav, footer, header {
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== LISTES ===== */
+ul, ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== LIENS ===== */
 a {
-  background-color: transparent;
+  color: inherit;
   text-decoration: none;
-  color: inherit;
 }
 
-button, input, select, textarea {
+/* ===== BUTTONS ===== */
+button, input, optgroup, select, textarea {
   font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  border: none;
-  background: none;
-  outline: none;
-  color: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
 }
 
-button {
-  cursor: pointer;
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  -webkit-appearance: button;
+  appearance: button;
 }
 
+button::-moz-focus-inner,
+[type='button']::-moz-focus-inner,
+[type='reset']::-moz-focus-inner,
+[type='submit']::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+button:-moz-focusring,
+[type='button']:-moz-focusring,
+[type='reset']:-moz-focusring,
+[type='submit']:-moz-focusring {
+  outline: 1px dotted ButtonText;
+}
+
+/* ===== FORMS ===== */
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder {
+  opacity: 1;
+  color: #9ca3af;
+}
+
+input[type='search'] {
+  -webkit-appearance: textfield;
+  appearance: textfield;
+  outline-offset: -2px;
+}
+
+input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  font: inherit;
+}
+
+/* ===== MEDIA ===== */
 img, picture, video, canvas, svg {
   display: block;
   max-width: 100%;
 }
 
-ul, ol {
-  list-style: none;
+img {
+  border-style: none;
 }
 
-input, textarea, select {
-  border: none;
+svg {
+  overflow: hidden;
+}
+
+/* ===== TABLES ===== */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* ===== AUTRES ÉLÉMENTS ===== */
+hr {
+  height: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+abbr[title] {
+  text-decoration: underline dotted;
+}
+
+b, strong {
+  font-weight: bolder;
+}
+
+code, kbd, samp, pre {
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 1em;
+}
+
+small {
+  font-size: 80%;
+}
+
+sub, sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/* ===== FOCUS ===== */
+*:focus {
   outline: none;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-primary);
+*:focus-visible {
+  outline: 2px solid currentColor;
   outline-offset: 2px;
 }
 
+/* ===== DÉSACTIVATION DES ANIMATIONS SI DEMANDÉ ===== */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -77,25 +203,87 @@ input, textarea, select {
   }
 }
 
+/* ===== HIDDEN ===== */
+[hidden] {
+  display: none !important;
+}
+
+/* ===== SELECTION ===== */
 ::selection {
-  background-color: var(--color-primary);
-  color: var(--color-text-inverted);
+  background-color: rgba(59, 130, 246, 0.3);
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* ===== WEBKIT SPECIFIC ===== */
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  height: auto;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--color-bg-secondary);
+::-webkit-search-decoration {
+  -webkit-appearance: none;
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--color-border-heavy);
-  border-radius: var(--radius-full);
+::-webkit-color-swatch-wrapper {
+  padding: 0;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary);
+::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  font: inherit;
+}
+
+/* ===== PRINT ===== */
+@media print {
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+  }
+
+  abbr[title]::after {
+    content: " (" attr(title) ")";
+  }
+
+  pre {
+    white-space: pre-wrap !important;
+  }
+
+  pre,
+  blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
 }
