@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <!-- Meta tags iOS corrigés -->
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0A0E14">
   
@@ -18,11 +20,9 @@
   <link rel="stylesheet" href="styles/03-base.css">
   <link rel="stylesheet" href="styles/04-layout.css">
   <link rel="stylesheet" href="styles/05-components.css">
-  <link rel="stylesheet" href="styles/06-series.css">
   <link rel="stylesheet" href="styles/08-responsive.css">
 </head>
 <body>
-  
   <!-- Header -->
   <header class="header">
     <div class="header-content">
@@ -31,7 +31,7 @@
         <span>Hybrid Master 51</span>
       </div>
       <div class="header-actions">
-        <button class="btn-icon btn-secondary">
+        <button class="btn-icon btn-secondary" aria-label="Paramètres">
           ⚙️
         </button>
       </div>
@@ -41,17 +41,16 @@
   <!-- Main Content -->
   <main class="main-content" id="app">
     <div class="container">
-      
       <!-- Week Navigation -->
       <div class="week-navigation slide-up">
-        <button class="week-nav-btn" id="prev-week">
+        <button class="week-nav-btn" id="prev-week" aria-label="Semaine précédente">
           ←
         </button>
         <div class="week-info" id="week-display">
           <div class="week-current">Semaine 1/26</div>
           <div class="week-date">Bloc 1 • Tempo 3-1-2</div>
         </div>
-        <button class="week-nav-btn" id="next-week">
+        <button class="week-nav-btn" id="next-week" aria-label="Semaine suivante">
           →
         </button>
       </div>
@@ -66,14 +65,12 @@
         </div>
       </div>
 
-      <!-- Workout Container (sera rempli dynamiquement) -->
+      <!-- Workout Container -->
       <div id="workout-container">
-        <!-- Le contenu sera généré par JavaScript -->
         <div class="loading-message">
           <p>Chargement du programme...</p>
         </div>
       </div>
-
     </div>
   </main>
 
