@@ -1,15 +1,7 @@
 /**
- * HYBRID MASTER 51 - APPLICATION PRINCIPALE CORRIGÉE
- * Tous les événements fonctionnels
+ * HYBRID MASTER 51 - APPLICATION PRINCIPALE SIMPLIFIÉE
+ * Version sans imports complexes pour éviter les erreurs
  */
-
-// ============================================================================
-// IMPORTS
-// ============================================================================
-import ProgramData from './core/program-data.js';
-import ProgressionEngine from './core/progression-engine.js';
-import WorkoutRenderer from './ui/workout-renderer.js';
-import WorkoutSession from './modules/workout-session.js';
 
 // ============================================================================
 // ÉTAT DE L'APPLICATION
@@ -18,90 +10,65 @@ class App {
     constructor() {
         this.currentWeek = 1;
         this.maxWeeks = 26;
-        this.currentDay = 0; // 0 = Dimanche
-        this.programData = null;
-        this.renderer = new WorkoutRenderer();
-        this.session = new WorkoutSession();
+        this.currentDay = 0;
+        this.completedSets = new Map();
         this.restTimer = null;
         this.restTimeRemaining = 0;
     }
 
     /**
-     * Initialisation de l'application
+     * Initialisation
      */
     async init() {
-        console.log('🚀 Initialisation de l\'application...');
+        console.log('🚀 Démarrage de l\'application...');
 
         try {
-            // Charger les données du programme
-            this.programData = new ProgramData();
-            console.log('✅ Données du programme chargées');
-
-            // Initialiser le renderer
-            this.renderer.init();
-            console.log('✅ Renderer initialisé');
-
-            // Initialiser la session
-            this.session.init();
-            console.log('✅ Session initialisée');
-
-            // Définir le jour actuel
-            this.currentDay = new Date().getDay(); // 0 = Dimanche, 1 = Lundi...
-            
             // Attacher les événements
             this.attachEventListeners();
             console.log('✅ Événements attachés');
 
-            // Afficher la séance du jour
+            // Afficher la séance
             this.renderCurrentWorkout();
             console.log('✅ Application prête !');
 
         } catch (error) {
-            console.error('❌ Erreur lors de l\'initialisation:', error);
-            this.showError('Erreur de chargement du programme');
+            console.error('❌ Erreur:', error);
+            this.showError('Erreur de chargement');
         }
     }
 
     /**
-     * Attacher tous les event listeners
+     * Attacher TOUS les event listeners
      */
     attachEventListeners() {
-        // Navigation de semaine
-        const prevWeekBtn = document.getElementById('prev-week');
-        const nextWeekBtn = document.getElementById('next-week');
+        // Navigation semaine
+        const prevBtn = document.getElementById('prev-week');
+        const nextBtn = document.getElementById('next-week');
 
-        if (prevWeekBtn) {
-            prevWeekBtn.addEventListener('click', () => this.changeWeek(-1));
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.changeWeek(-1);
+            });
         }
 
-        if (nextWeekBtn) {
-            nextWeekBtn.addEventListener('click', () => this.changeWeek(1));
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.changeWeek(1);
+            });
         }
 
-        // Navigation du bas (onglets)
+        // Navigation du bas
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach((item, index) => {
-            item.addEventListener('click', () => this.handleNavClick(index));
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleNavClick(index);
+            });
         });
 
-        // Boutons de timer
-        const timerStart = document.getElementById('timer-start');
-        const timerPause = document.getElementById('timer-pause');
-        const timerReset = document.getElementById('timer-reset');
-
-        if (timerStart) {
-            timerStart.addEventListener('click', () => this.startTimer());
-        }
-
-        if (timerPause) {
-            timerPause.addEventListener('click', () => this.pauseTimer());
-        }
-
-        if (timerReset) {
-            timerReset.addEventListener('click', () => this.resetTimer());
-        }
-
-        // Événements des séries (checkboxes)
+        // Checkboxes - DÉLÉGATION D'ÉVÉNEMENTS
         document.addEventListener('click', (e) => {
             const checkButton = e.target.closest('.serie-check');
             if (!checkButton) return;
@@ -112,26 +79,21 @@ class App {
             this.handleSetCompletion(checkButton);
         });
 
-        // Écouter les événements de completion
-        document.addEventListener('set-completed', (e) => {
-            this.onSetCompleted(e.detail);
-        });
-
-        // Écouter les demandes de timer
-        document.addEventListener('start-rest-timer', (e) => {
-            this.startRestTimer(e.detail.duration);
-        });
+        console.log('✅ Event listeners attachés');
     }
 
     /**
-     * Gérer le clic sur une série
+     * Gérer le clic sur checkbox
      */
     handleSetCompletion(checkButton) {
         const exerciseId = checkButton.dataset.exerciseId;
-        const setNumber = checkButton.dataset.setNumber;
+        const setNumber = parseInt(checkButton.dataset.setNumber);
         const serieItem = checkButton.closest('.serie-item');
         
-        if (!serieItem) return;
+        if (!serieItem) {
+            console.error('❌ Serie item introuvable');
+            return;
+        }
 
         // Toggle l'état
         const isCompleted = serieItem.classList.toggle('completed');
@@ -142,25 +104,30 @@ class App {
             checkIcon.textContent = isCompleted ? '✓' : '';
         }
 
-        // Sauvegarder l'état
-        this.session.markSetCompleted(exerciseId, parseInt(setNumber), isCompleted);
+        // Sauvegarder
+        if (!this.completedSets.has(exerciseId)) {
+            this.completedSets.set(exerciseId, new Set());
+        }
 
-        // Démarrer le timer de repos si série complétée
+        const sets = this.completedSets.get(exerciseId);
         if (isCompleted) {
-            const exerciseCard = checkButton.closest('.exercise-card');
-            const restParam = exerciseCard?.querySelector('.param-item .param-label');
-            
-            if (restParam && restParam.textContent === 'REPOS') {
-                const restValue = restParam.nextElementSibling?.textContent;
-                const restSeconds = parseInt(restValue);
-                
-                if (restSeconds) {
+            sets.add(setNumber);
+        } else {
+            sets.delete(setNumber);
+        }
+
+        console.log(`${isCompleted ? '✅' : '❌'} Série ${setNumber} de ${exerciseId}`);
+
+        // Démarrer le timer si complété
+        if (isCompleted) {
+            const restParam = serieItem.querySelector('.serie-rest .rest-time');
+            if (restParam) {
+                const restSeconds = parseInt(restParam.textContent);
+                if (restSeconds > 0) {
                     this.startRestTimer(restSeconds);
                 }
             }
         }
-
-        console.log(`Série ${setNumber} de ${exerciseId}: ${isCompleted ? 'complétée' : 'annulée'}`);
     }
 
     /**
@@ -170,7 +137,7 @@ class App {
         const newWeek = this.currentWeek + direction;
 
         if (newWeek < 1 || newWeek > this.maxWeeks) {
-            console.log('⚠️ Limite de semaines atteinte');
+            console.log('⚠️ Limite atteinte');
             return;
         }
 
@@ -189,9 +156,6 @@ class App {
         if (!weekDisplay) return;
 
         const bloc = Math.ceil(this.currentWeek / 4);
-        const weekInBloc = ((this.currentWeek - 1) % 4) + 1;
-        
-        // Déterminer le tempo selon le bloc
         const tempos = ['3-1-2', '2-0-2', '4-0-1', '1-0-1', '3-0-3', '2-1-1'];
         const tempo = tempos[(bloc - 1) % tempos.length];
 
@@ -200,7 +164,7 @@ class App {
             <div class="week-date">Bloc ${bloc} • Tempo ${tempo}</div>
         `;
 
-        // Gérer les boutons
+        // Boutons
         const prevBtn = document.getElementById('prev-week');
         const nextBtn = document.getElementById('next-week');
 
@@ -212,88 +176,115 @@ class App {
      * Afficher la séance actuelle
      */
     renderCurrentWorkout() {
-        if (!this.programData) {
-            console.error('❌ Pas de données de programme');
+        const container = document.getElementById('workout-container');
+        if (!container) return;
+
+        // Exemple de séance (vous remplacerez avec vos vraies données)
+        const workout = this.getDemoWorkout();
+
+        if (!workout) {
+            container.innerHTML = '<div class="empty-workout"><p>🏖️ Repos aujourd\'hui</p></div>';
             return;
         }
 
-        const weekData = this.programData.getWeek(this.currentWeek);
-        
-        if (!weekData || !weekData.days) {
-            console.error('❌ Pas de données pour cette semaine');
-            this.showError('Aucune séance trouvée pour cette semaine');
-            return;
-        }
-
-        // Trouver la séance du jour
-        const dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-        const todayName = dayNames[this.currentDay];
-        
-        const workoutDay = weekData.days.find(day => 
-            day.day.toLowerCase() === todayName
-        );
-
-        if (!workoutDay) {
-            console.log(`🏖️ Repos le ${todayName}`);
-            this.renderer.render(null, this.currentWeek);
-            return;
-        }
-
-        console.log(`💪 Séance du ${todayName}:`, workoutDay);
-        this.renderer.render(workoutDay, this.currentWeek);
+        const html = this.generateWorkoutHTML(workout);
+        container.innerHTML = html;
     }
 
     /**
-     * Gérer les clics sur la navigation du bas
+     * Générer le HTML de la séance
      */
-    handleNavClick(index) {
-        // Retirer la classe active de tous les items
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(item => item.classList.remove('active'));
-
-        // Ajouter la classe active à l'item cliqué
-        navItems[index].classList.add('active');
-
-        // Gérer les différentes sections
-        switch(index) {
-            case 0: // Séance
-                this.renderCurrentWorkout();
-                break;
-            case 1: // Stats
-                this.showStats();
-                break;
-            case 2: // Progrès
-                this.showProgress();
-                break;
-            case 3: // Profil
-                this.showProfile();
-                break;
-        }
-
-        console.log(`📱 Navigation: onglet ${index}`);
+    generateWorkoutHTML(workout) {
+        return workout.exercises.map(exercise => `
+            <div class="exercise-card slide-up ${exercise.superset ? 'superset' : ''}">
+                <div class="exercise-header strength">
+                    <span class="exercise-icon">💪</span>
+                    <div class="exercise-title">
+                        <h3 class="exercise-name">${exercise.name}</h3>
+                        <div class="exercise-details">
+                            <span>🎯 ${exercise.muscles}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="exercise-body">
+                    <div class="exercise-params">
+                        <div class="param-item">
+                            <div class="param-label">SÉRIES</div>
+                            <div class="param-value">${exercise.sets}</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">REPS</div>
+                            <div class="param-value">${exercise.reps}</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">POIDS</div>
+                            <div class="param-value">${exercise.weight}kg</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">REPOS</div>
+                            <div class="param-value">${exercise.rest}s</div>
+                        </div>
+                    </div>
+                    
+                    <div class="series-container">
+                        ${this.generateSetsHTML(exercise)}
+                    </div>
+                </div>
+            </div>
+        `).join('');
     }
 
     /**
-     * Démarrer le timer de repos
+     * Générer le HTML des séries
+     */
+    generateSetsHTML(exercise) {
+        const sets = [];
+        for (let i = 1; i <= exercise.sets; i++) {
+            const isCompleted = this.completedSets.has(exercise.id) && 
+                               this.completedSets.get(exercise.id).has(i);
+            
+            sets.push(`
+                <div class="serie-item ${isCompleted ? 'completed' : ''}" data-set-number="${i}">
+                    <div class="serie-number">${i}</div>
+                    <div class="serie-info">
+                        <div class="serie-reps">${exercise.reps} reps</div>
+                        <div class="serie-weight">${exercise.weight}kg</div>
+                    </div>
+                    <div class="serie-rest">
+                        <span class="rest-icon">⏱️</span>
+                        <span class="rest-time">${exercise.rest}s repos</span>
+                    </div>
+                    <button 
+                        class="serie-check" 
+                        data-exercise-id="${exercise.id}"
+                        data-set-number="${i}"
+                    >
+                        <span class="check-icon">${isCompleted ? '✓' : ''}</span>
+                    </button>
+                </div>
+            `);
+        }
+        return sets.join('');
+    }
+
+    /**
+     * Timer de repos
      */
     startRestTimer(seconds) {
-        // Arrêter le timer existant
         if (this.restTimer) {
             clearInterval(this.restTimer);
         }
 
         this.restTimeRemaining = seconds;
         
-        // Afficher la section timer
         const timerSection = document.querySelector('.timer-section');
         if (timerSection) {
             timerSection.style.display = 'block';
         }
 
-        // Mettre à jour l'affichage
         this.updateTimerDisplay();
 
-        // Démarrer le compte à rebours
         this.restTimer = setInterval(() => {
             this.restTimeRemaining--;
             this.updateTimerDisplay();
@@ -303,7 +294,7 @@ class App {
             }
         }, 1000);
 
-        console.log(`⏱️ Timer démarré: ${seconds}s`);
+        console.log(`⏱️ Timer: ${seconds}s`);
     }
 
     /**
@@ -318,13 +309,12 @@ class App {
         
         timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-        // Changer la couleur selon le temps restant
         if (this.restTimeRemaining <= 10) {
-            timerDisplay.style.color = '#ef4444'; // Rouge
+            timerDisplay.style.color = '#ef4444';
         } else if (this.restTimeRemaining <= 30) {
-            timerDisplay.style.color = '#f59e0b'; // Orange
+            timerDisplay.style.color = '#f59e0b';
         } else {
-            timerDisplay.style.color = '#22c55e'; // Vert
+            timerDisplay.style.color = '#22c55e';
         }
     }
 
@@ -335,12 +325,10 @@ class App {
         clearInterval(this.restTimer);
         this.restTimer = null;
 
-        // Notification sonore (optionnel)
         if ('vibrate' in navigator) {
             navigator.vibrate([200, 100, 200]);
         }
 
-        // Masquer le timer après 2 secondes
         setTimeout(() => {
             const timerSection = document.querySelector('.timer-section');
             if (timerSection) {
@@ -352,88 +340,83 @@ class App {
     }
 
     /**
-     * Contrôles du timer
+     * Navigation du bas
      */
-    startTimer() {
-        if (!this.restTimer && this.restTimeRemaining > 0) {
-            this.startRestTimer(this.restTimeRemaining);
-        }
-    }
+    handleNavClick(index) {
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => item.classList.remove('active'));
+        navItems[index].classList.add('active');
 
-    pauseTimer() {
-        if (this.restTimer) {
-            clearInterval(this.restTimer);
-            this.restTimer = null;
-            console.log('⏸️ Timer en pause');
-        }
-    }
-
-    resetTimer() {
-        if (this.restTimer) {
-            clearInterval(this.restTimer);
-            this.restTimer = null;
-        }
-        this.restTimeRemaining = 0;
-        
-        const timerSection = document.querySelector('.timer-section');
-        if (timerSection) {
-            timerSection.style.display = 'none';
-        }
-        
-        console.log('🔄 Timer réinitialisé');
-    }
-
-    /**
-     * Afficher les stats (placeholder)
-     */
-    showStats() {
         const container = document.getElementById('workout-container');
         if (!container) return;
 
-        container.innerHTML = `
-            <div class="empty-workout">
-                <h2>📊 Statistiques</h2>
-                <p>Section en cours de développement...</p>
-            </div>
-        `;
+        switch(index) {
+            case 0:
+                this.renderCurrentWorkout();
+                break;
+            case 1:
+                container.innerHTML = '<div class="empty-workout"><h2>📊 Stats</h2><p>En développement...</p></div>';
+                break;
+            case 2:
+                container.innerHTML = '<div class="empty-workout"><h2>📈 Progrès</h2><p>En développement...</p></div>';
+                break;
+            case 3:
+                container.innerHTML = '<div class="empty-workout"><h2>👤 Profil</h2><p>En développement...</p></div>';
+                break;
+        }
+
+        console.log(`📱 Onglet ${index}`);
     }
 
     /**
-     * Afficher les progrès (placeholder)
+     * Données de démo
      */
-    showProgress() {
-        const container = document.getElementById('workout-container');
-        if (!container) return;
-
-        container.innerHTML = `
-            <div class="empty-workout">
-                <h2>📈 Progression</h2>
-                <p>Section en cours de développement...</p>
-            </div>
-        `;
-    }
-
-    /**
-     * Afficher le profil (placeholder)
-     */
-    showProfile() {
-        const container = document.getElementById('workout-container');
-        if (!container) return;
-
-        container.innerHTML = `
-            <div class="empty-workout">
-                <h2>👤 Profil</h2>
-                <p>Section en cours de développement...</p>
-            </div>
-        `;
-    }
-
-    /**
-     * Gérer la completion d'une série
-     */
-    onSetCompleted(detail) {
-        console.log('✅ Série complétée:', detail);
-        // Logique additionnelle si nécessaire
+    getDemoWorkout() {
+        return {
+            day: 'Lundi',
+            exercises: [
+                {
+                    id: 'squat',
+                    name: 'Goblet Squat',
+                    muscles: 'Quadriceps, Fessiers',
+                    sets: 4,
+                    reps: 10,
+                    weight: 27.5,
+                    rest: 75,
+                    superset: false
+                },
+                {
+                    id: 'legpress',
+                    name: 'Leg Press',
+                    muscles: 'Quadriceps, Fessiers',
+                    sets: 4,
+                    reps: 10,
+                    weight: 120,
+                    rest: 75,
+                    superset: false
+                },
+                {
+                    id: 'rdl',
+                    name: 'Romanian Deadlift',
+                    muscles: 'Ischio-jambiers',
+                    sets: 3,
+                    reps: 12,
+                    weight: 60,
+                    rest: 60,
+                    superset: true
+                },
+                {
+                    id: 'curls',
+                    name: 'Leg Curl',
+                    muscles: 'Ischio-jambiers',
+                    sets: 3,
+                    reps: 12,
+                    weight: 40,
+                    rest: 60,
+                    superset: true
+                }
+            ]
+        };
     }
 
     /**
@@ -452,16 +435,14 @@ class App {
 }
 
 // ============================================================================
-// DÉMARRAGE DE L'APPLICATION
+// DÉMARRAGE
 // ============================================================================
 const app = new App();
 
-// Attendre que le DOM soit chargé
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => app.init());
 } else {
     app.init();
 }
 
-// Export pour utilisation externe
-export default app;
+console.log('📱 App loaded');
