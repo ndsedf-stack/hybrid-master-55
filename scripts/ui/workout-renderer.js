@@ -1,5 +1,5 @@
 /**
- * WORKOUT RENDERER - Affichage des séances d'entraînement
+ * WORKOUT RENDERER - Affichage des séances avec supersets
  * Génère le HTML pour afficher les exercices avec leurs séries
  */
 
@@ -33,12 +33,37 @@ export default class WorkoutRenderer {
             return;
         }
 
+        // Détecter les supersets
+        const exercisesWithSupersets = this.detectSupersets(workoutDay.exercises);
+
         // Générer le HTML pour tous les exercices
-        const exercisesHTML = workoutDay.exercises.map((exercise, index) => 
+        const exercisesHTML = exercisesWithSupersets.map((exercise, index) => 
             this.renderExercise(exercise, index, week)
         ).join('');
 
         this.container.innerHTML = exercisesHTML;
+    }
+
+    /**
+     * Détecter les supersets (exercices avec même numéro de série)
+     */
+    detectSupersets(exercises) {
+        return exercises.map((exercise, index) => {
+            // Si l'exercice a une propriété "superset" ou "setGroup"
+            if (exercise.superset || exercise.setGroup) {
+                return { ...exercise, isSuperset: true };
+            }
+
+            // Détection automatique : exercices consécutifs de même catégorie
+            const nextExercise = exercises[index + 1];
+            if (nextExercise && 
+                exercise.category === nextExercise.category && 
+                exercise.rest === nextExercise.rest) {
+                return { ...exercise, isSuperset: true };
+            }
+
+            return exercise;
+        });
     }
 
     /**
@@ -57,7 +82,9 @@ export default class WorkoutRenderer {
             rpe,
             rest,
             tempo,
-            notes
+            notes,
+            isSuperset,
+            progression
         } = exercise;
 
         // Déterminer l'icône et la classe selon le type
@@ -65,6 +92,7 @@ export default class WorkoutRenderer {
         const typeClass = type === 'cardio' ? 'cardio' : 'strength';
         const categoryLabel = category || '';
         const musclesLabel = muscles ? muscles.join(', ') : '';
+        const supersetClass = isSuperset ? 'superset' : '';
 
         // Génération des paramètres principaux
         const paramsHTML = this.renderParams(exercise);
@@ -80,8 +108,11 @@ export default class WorkoutRenderer {
             </div>
         ` : '';
 
+        // Progression si présente
+        const progressionHTML = progression ? this.renderProgression(progression) : '';
+
         return `
-            <div class="exercise-card slide-up" data-exercise-id="${id}">
+            <div class="exercise-card slide-up ${supersetClass}" data-exercise-id="${id}">
                 <div class="exercise-header ${typeClass}">
                     <span class="exercise-icon">${icon}</span>
                     <div class="exercise-title">
@@ -97,13 +128,14 @@ export default class WorkoutRenderer {
                     ${paramsHTML}
                     ${seriesHTML}
                     ${notesHTML}
+                    ${progressionHTML}
                 </div>
             </div>
         `;
     }
 
     /**
-     * Rend les paramètres principaux (séries, reps, poids, RPE, repos)
+     * Rend les paramètres principaux
      */
     renderParams(exercise) {
         const { sets, reps, weight, rpe, rest, tempo } = exercise;
@@ -172,14 +204,15 @@ export default class WorkoutRenderer {
      * Rend les séries individuelles avec checkboxes
      */
     renderSeries(exercise, exerciseId) {
-        const { sets, reps, weight, rest, type } = exercise;
+        const { sets, reps, weight, rest } = exercise;
 
         if (!sets || sets === 0) return '';
 
         const seriesArray = Array.from({ length: sets }, (_, i) => i + 1);
 
         const seriesHTML = seriesArray.map(setNumber => {
-            const isCompleted = false; // TODO: récupérer depuis le storage
+            // Récupérer l'état depuis le storage (TODO)
+            const isCompleted = false;
             const completedClass = isCompleted ? 'completed' : '';
 
             return `
@@ -213,54 +246,25 @@ export default class WorkoutRenderer {
             </div>
         `;
     }
+
+    /**
+     * Rend la carte de progression
+     */
+    renderProgression(progression) {
+        const { from, to } = progression;
+
+        return `
+            <div class="progression-card">
+                <div class="progression-label">
+                    <span>☑️</span>
+                    <span>Progression</span>
+                </div>
+                <div class="progression-values">
+                    <span class="progression-from">${from}kg</span>
+                    <span class="progression-arrow">→</span>
+                    <span class="progression-to">${to}kg</span>
+                </div>
+            </div>
+        `;
+    }
 }
-
-// Ajouter les event listeners pour les interactions
-document.addEventListener('DOMContentLoaded', () => {
-    // Délégation d'événements pour les checkboxes de séries
-    document.addEventListener('click', (e) => {
-        const checkButton = e.target.closest('.serie-check');
-        if (!checkButton) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        const exerciseId = checkButton.dataset.exerciseId;
-        const setNumber = checkButton.dataset.setNumber;
-        const serieItem = checkButton.closest('.serie-item');
-        
-        if (!serieItem) return;
-
-        // Toggle l'état
-        const isCompleted = serieItem.classList.toggle('completed');
-        
-        // Mettre à jour l'icône
-        const checkIcon = checkButton.querySelector('.check-icon');
-        if (checkIcon) {
-            checkIcon.textContent = isCompleted ? '✓' : '';
-        }
-
-        // Émettre l'événement pour la gestion d'état
-        document.dispatchEvent(new CustomEvent('set-completed', {
-            detail: {
-                exerciseId,
-                setNumber: parseInt(setNumber),
-                isChecked: isCompleted
-            }
-        }));
-
-        // Démarrer le timer de repos si série complétée
-        if (isCompleted) {
-            const restTime = checkButton.closest('.exercise-card')
-                ?.querySelector('.param-value')
-                ?.textContent
-                ?.match(/(\d+)s/)?.[1];
-            
-            if (restTime) {
-                document.dispatchEvent(new CustomEvent('start-rest-timer', {
-                    detail: { duration: parseInt(restTime) }
-                }));
-            }
-        }
-    });
-});
