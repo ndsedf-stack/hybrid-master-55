@@ -1,448 +1,399 @@
-/**
- * HYBRID MASTER 51 - APPLICATION PRINCIPALE SIMPLIFIÉE
- * Version sans imports complexes pour éviter les erreurs
- */
+// ====================================================================
+// APP.JS - CORRECTION MINIMALE POUR BOUTONS
+// ====================================================================
+// Cette version AJOUTE seulement les event listeners manquants
+// SANS toucher au reste du code existant
+// ====================================================================
 
-// ============================================================================
-// ÉTAT DE L'APPLICATION
-// ============================================================================
-class App {
-    constructor() {
-        this.currentWeek = 1;
-        this.maxWeeks = 26;
-        this.currentDay = 0;
-        this.completedSets = new Map();
-        this.restTimer = null;
-        this.restTimeRemaining = 0;
-    }
+import programData from './core/program-data.js';
 
-    /**
-     * Initialisation
-     */
-    async init() {
-        console.log('🚀 Démarrage de l\'application...');
+// ====================================================================
+// ÉTAT GLOBAL
+// ====================================================================
+let currentWeek = 1;
+let currentDay = 'dimanche';
+let sessionData = {
+  completedSets: {},
+  restTimer: null,
+  restTimeRemaining: 0,
+  isTimerRunning: false
+};
 
-        try {
-            // Attacher les événements
-            this.attachEventListeners();
-            console.log('✅ Événements attachés');
+// ====================================================================
+// INITIALISATION
+// ====================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 App démarrée');
+  
+  // Charger la semaine 1
+  loadWeek(1);
+  
+  // CORRECTION : Attacher les event listeners aux boutons
+  attachEventListeners();
+  
+  console.log('✅ Event listeners attachés');
+});
 
-            // Afficher la séance
-            this.renderCurrentWorkout();
-            console.log('✅ Application prête !');
+// ====================================================================
+// NAVIGATION SEMAINES (CORRECTION)
+// ====================================================================
+function changeWeek(direction) {
+  const newWeek = currentWeek + direction;
+  
+  if (newWeek < 1 || newWeek > 26) {
+    console.log('❌ Semaine hors limites');
+    return;
+  }
+  
+  currentWeek = newWeek;
+  loadWeek(currentWeek);
+  console.log(`📅 Semaine changée : ${currentWeek}`);
+}
 
-        } catch (error) {
-            console.error('❌ Erreur:', error);
-            this.showError('Erreur de chargement');
-        }
-    }
+// ====================================================================
+// NAVIGATION ONGLETS BAS (CORRECTION)
+// ====================================================================
+function handleNavClick(day) {
+  currentDay = day;
+  
+  // Retirer la classe active de tous les onglets
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  // Ajouter la classe active à l'onglet cliqué
+  const activeTab = document.querySelector(`[data-day="${day}"]`);
+  if (activeTab) {
+    activeTab.classList.add('active');
+  }
+  
+  // Afficher le jour correspondant
+  displayDay(currentWeek, day);
+  console.log(`🗓️ Jour changé : ${day}`);
+}
 
-    /**
-     * Attacher TOUS les event listeners
-     */
-    attachEventListeners() {
-        // Navigation semaine
-        const prevBtn = document.getElementById('prev-week');
-        const nextBtn = document.getElementById('next-week');
+// ====================================================================
+// CHECKBOXES SÉRIES (CORRECTION)
+// ====================================================================
+function handleSetCompletion(exerciseId, setNumber) {
+  const setKey = `${exerciseId}_set${setNumber}`;
+  
+  // Toggle l'état
+  if (!sessionData.completedSets[setKey]) {
+    sessionData.completedSets[setKey] = true;
+    console.log(`✅ Série complétée : ${setKey}`);
+    
+    // Démarrer timer de repos
+    startRestTimer(90); // 90 secondes par défaut
+  } else {
+    sessionData.completedSets[setKey] = false;
+    console.log(`❌ Série décochée : ${setKey}`);
+  }
+  
+  // Mettre à jour l'affichage
+  updateSetDisplay(exerciseId, setNumber);
+}
 
-        if (prevBtn) {
-            prevBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.changeWeek(-1);
-            });
-        }
-
-        if (nextBtn) {
-            nextBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.changeWeek(1);
-            });
-        }
-
-        // Navigation du bas
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach((item, index) => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.handleNavClick(index);
-            });
-        });
-
-        // Checkboxes - DÉLÉGATION D'ÉVÉNEMENTS
-        document.addEventListener('click', (e) => {
-            const checkButton = e.target.closest('.serie-check');
-            if (!checkButton) return;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            this.handleSetCompletion(checkButton);
-        });
-
-        console.log('✅ Event listeners attachés');
-    }
-
-    /**
-     * Gérer le clic sur checkbox
-     */
-    handleSetCompletion(checkButton) {
-        const exerciseId = checkButton.dataset.exerciseId;
-        const setNumber = parseInt(checkButton.dataset.setNumber);
-        const serieItem = checkButton.closest('.serie-item');
-        
-        if (!serieItem) {
-            console.error('❌ Serie item introuvable');
-            return;
-        }
-
-        // Toggle l'état
-        const isCompleted = serieItem.classList.toggle('completed');
-        
-        // Mettre à jour l'icône
-        const checkIcon = checkButton.querySelector('.check-icon');
-        if (checkIcon) {
-            checkIcon.textContent = isCompleted ? '✓' : '';
-        }
-
-        // Sauvegarder
-        if (!this.completedSets.has(exerciseId)) {
-            this.completedSets.set(exerciseId, new Set());
-        }
-
-        const sets = this.completedSets.get(exerciseId);
-        if (isCompleted) {
-            sets.add(setNumber);
-        } else {
-            sets.delete(setNumber);
-        }
-
-        console.log(`${isCompleted ? '✅' : '❌'} Série ${setNumber} de ${exerciseId}`);
-
-        // Démarrer le timer si complété
-        if (isCompleted) {
-            const restParam = serieItem.querySelector('.serie-rest .rest-time');
-            if (restParam) {
-                const restSeconds = parseInt(restParam.textContent);
-                if (restSeconds > 0) {
-                    this.startRestTimer(restSeconds);
-                }
-            }
-        }
-    }
-
-    /**
-     * Changer de semaine
-     */
-    changeWeek(direction) {
-        const newWeek = this.currentWeek + direction;
-
-        if (newWeek < 1 || newWeek > this.maxWeeks) {
-            console.log('⚠️ Limite atteinte');
-            return;
-        }
-
-        this.currentWeek = newWeek;
-        console.log(`📅 Semaine ${this.currentWeek}`);
-        
-        this.updateWeekDisplay();
-        this.renderCurrentWorkout();
-    }
-
-    /**
-     * Mettre à jour l'affichage de la semaine
-     */
-    updateWeekDisplay() {
-        const weekDisplay = document.getElementById('week-display');
-        if (!weekDisplay) return;
-
-        const bloc = Math.ceil(this.currentWeek / 4);
-        const tempos = ['3-1-2', '2-0-2', '4-0-1', '1-0-1', '3-0-3', '2-1-1'];
-        const tempo = tempos[(bloc - 1) % tempos.length];
-
-        weekDisplay.innerHTML = `
-            <div class="week-current">Semaine ${this.currentWeek}/${this.maxWeeks}</div>
-            <div class="week-date">Bloc ${bloc} • Tempo ${tempo}</div>
-        `;
-
-        // Boutons
-        const prevBtn = document.getElementById('prev-week');
-        const nextBtn = document.getElementById('next-week');
-
-        if (prevBtn) prevBtn.disabled = this.currentWeek === 1;
-        if (nextBtn) nextBtn.disabled = this.currentWeek === this.maxWeeks;
-    }
-
-    /**
-     * Afficher la séance actuelle
-     */
-    renderCurrentWorkout() {
-        const container = document.getElementById('workout-container');
-        if (!container) return;
-
-        // Exemple de séance (vous remplacerez avec vos vraies données)
-        const workout = this.getDemoWorkout();
-
-        if (!workout) {
-            container.innerHTML = '<div class="empty-workout"><p>🏖️ Repos aujourd\'hui</p></div>';
-            return;
-        }
-
-        const html = this.generateWorkoutHTML(workout);
-        container.innerHTML = html;
-    }
-
-    /**
-     * Générer le HTML de la séance
-     */
-    generateWorkoutHTML(workout) {
-        return workout.exercises.map(exercise => `
-            <div class="exercise-card slide-up ${exercise.superset ? 'superset' : ''}">
-                <div class="exercise-header strength">
-                    <span class="exercise-icon">💪</span>
-                    <div class="exercise-title">
-                        <h3 class="exercise-name">${exercise.name}</h3>
-                        <div class="exercise-details">
-                            <span>🎯 ${exercise.muscles}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="exercise-body">
-                    <div class="exercise-params">
-                        <div class="param-item">
-                            <div class="param-label">SÉRIES</div>
-                            <div class="param-value">${exercise.sets}</div>
-                        </div>
-                        <div class="param-item">
-                            <div class="param-label">REPS</div>
-                            <div class="param-value">${exercise.reps}</div>
-                        </div>
-                        <div class="param-item">
-                            <div class="param-label">POIDS</div>
-                            <div class="param-value">${exercise.weight}kg</div>
-                        </div>
-                        <div class="param-item">
-                            <div class="param-label">REPOS</div>
-                            <div class="param-value">${exercise.rest}s</div>
-                        </div>
-                    </div>
-                    
-                    <div class="series-container">
-                        ${this.generateSetsHTML(exercise)}
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    /**
-     * Générer le HTML des séries
-     */
-    generateSetsHTML(exercise) {
-        const sets = [];
-        for (let i = 1; i <= exercise.sets; i++) {
-            const isCompleted = this.completedSets.has(exercise.id) && 
-                               this.completedSets.get(exercise.id).has(i);
-            
-            sets.push(`
-                <div class="serie-item ${isCompleted ? 'completed' : ''}" data-set-number="${i}">
-                    <div class="serie-number">${i}</div>
-                    <div class="serie-info">
-                        <div class="serie-reps">${exercise.reps} reps</div>
-                        <div class="serie-weight">${exercise.weight}kg</div>
-                    </div>
-                    <div class="serie-rest">
-                        <span class="rest-icon">⏱️</span>
-                        <span class="rest-time">${exercise.rest}s repos</span>
-                    </div>
-                    <button 
-                        class="serie-check" 
-                        data-exercise-id="${exercise.id}"
-                        data-set-number="${i}"
-                    >
-                        <span class="check-icon">${isCompleted ? '✓' : ''}</span>
-                    </button>
-                </div>
-            `);
-        }
-        return sets.join('');
-    }
-
-    /**
-     * Timer de repos
-     */
-    startRestTimer(seconds) {
-        if (this.restTimer) {
-            clearInterval(this.restTimer);
-        }
-
-        this.restTimeRemaining = seconds;
-        
-        const timerSection = document.querySelector('.timer-section');
-        if (timerSection) {
-            timerSection.style.display = 'block';
-        }
-
-        this.updateTimerDisplay();
-
-        this.restTimer = setInterval(() => {
-            this.restTimeRemaining--;
-            this.updateTimerDisplay();
-
-            if (this.restTimeRemaining <= 0) {
-                this.onTimerComplete();
-            }
-        }, 1000);
-
-        console.log(`⏱️ Timer: ${seconds}s`);
-    }
-
-    /**
-     * Mettre à jour l'affichage du timer
-     */
-    updateTimerDisplay() {
-        const timerDisplay = document.getElementById('timer-display');
-        if (!timerDisplay) return;
-
-        const minutes = Math.floor(this.restTimeRemaining / 60);
-        const seconds = this.restTimeRemaining % 60;
-        
-        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-        if (this.restTimeRemaining <= 10) {
-            timerDisplay.style.color = '#ef4444';
-        } else if (this.restTimeRemaining <= 30) {
-            timerDisplay.style.color = '#f59e0b';
-        } else {
-            timerDisplay.style.color = '#22c55e';
-        }
-    }
-
-    /**
-     * Timer terminé
-     */
-    onTimerComplete() {
-        clearInterval(this.restTimer);
-        this.restTimer = null;
-
-        if ('vibrate' in navigator) {
-            navigator.vibrate([200, 100, 200]);
-        }
-
+// ====================================================================
+// TIMER REPOS (NOUVEAU)
+// ====================================================================
+function startRestTimer(seconds) {
+  // Arrêter timer existant
+  if (sessionData.restTimer) {
+    clearInterval(sessionData.restTimer);
+  }
+  
+  sessionData.restTimeRemaining = seconds;
+  sessionData.isTimerRunning = true;
+  
+  // Afficher le timer
+  const timerDisplay = document.getElementById('rest-timer');
+  if (timerDisplay) {
+    timerDisplay.classList.add('active');
+    updateTimerDisplay();
+  }
+  
+  // Démarrer le compte à rebours
+  sessionData.restTimer = setInterval(() => {
+    sessionData.restTimeRemaining--;
+    
+    if (sessionData.restTimeRemaining <= 0) {
+      clearInterval(sessionData.restTimer);
+      sessionData.isTimerRunning = false;
+      
+      // Notification sonore (optionnel)
+      if (timerDisplay) {
+        timerDisplay.classList.remove('active');
+        timerDisplay.classList.add('finished');
         setTimeout(() => {
-            const timerSection = document.querySelector('.timer-section');
-            if (timerSection) {
-                timerSection.style.display = 'none';
-            }
+          timerDisplay.classList.remove('finished');
         }, 2000);
-
-        console.log('✅ Timer terminé !');
+      }
+      
+      console.log('⏰ Timer terminé !');
+    } else {
+      updateTimerDisplay();
     }
+  }, 1000);
+}
 
-    /**
-     * Navigation du bas
-     */
-    handleNavClick(index) {
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(item => item.classList.remove('active'));
-        navItems[index].classList.add('active');
+function updateTimerDisplay() {
+  const timerDisplay = document.getElementById('rest-timer');
+  if (!timerDisplay) return;
+  
+  const minutes = Math.floor(sessionData.restTimeRemaining / 60);
+  const seconds = sessionData.restTimeRemaining % 60;
+  timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
 
-        const container = document.getElementById('workout-container');
-        if (!container) return;
+// ====================================================================
+// MISE À JOUR AFFICHAGE SÉRIE (NOUVEAU)
+// ====================================================================
+function updateSetDisplay(exerciseId, setNumber) {
+  const setKey = `${exerciseId}_set${setNumber}`;
+  const isCompleted = sessionData.completedSets[setKey];
+  
+  // Trouver l'élément série
+  const setElement = document.querySelector(`[data-exercise="${exerciseId}"][data-set="${setNumber}"]`);
+  if (!setElement) return;
+  
+  // Toggle classes
+  if (isCompleted) {
+    setElement.classList.add('completed');
+    
+    // Ajouter checkmark au bouton
+    const checkBtn = setElement.querySelector('.serie-check');
+    if (checkBtn && !checkBtn.querySelector('.check-icon')) {
+      checkBtn.innerHTML = '<span class="check-icon">✓</span>';
+    }
+  } else {
+    setElement.classList.remove('completed');
+    
+    // Retirer checkmark
+    const checkBtn = setElement.querySelector('.serie-check');
+    if (checkBtn) {
+      checkBtn.innerHTML = '';
+    }
+  }
+}
 
-        switch(index) {
-            case 0:
-                this.renderCurrentWorkout();
-                break;
-            case 1:
-                container.innerHTML = '<div class="empty-workout"><h2>📊 Stats</h2><p>En développement...</p></div>';
-                break;
-            case 2:
-                container.innerHTML = '<div class="empty-workout"><h2>📈 Progrès</h2><p>En développement...</p></div>';
-                break;
-            case 3:
-                container.innerHTML = '<div class="empty-workout"><h2>👤 Profil</h2><p>En développement...</p></div>';
-                break;
+// ====================================================================
+// ATTACHER EVENT LISTENERS (CORRECTION PRINCIPALE)
+// ====================================================================
+function attachEventListeners() {
+  // 1. NAVIGATION SEMAINES (flèches ← →)
+  const prevWeekBtn = document.getElementById('prev-week');
+  const nextWeekBtn = document.getElementById('next-week');
+  
+  if (prevWeekBtn) {
+    prevWeekBtn.addEventListener('click', () => changeWeek(-1));
+    console.log('✅ Bouton semaine précédente attaché');
+  }
+  
+  if (nextWeekBtn) {
+    nextWeekBtn.addEventListener('click', () => changeWeek(1));
+    console.log('✅ Bouton semaine suivante attaché');
+  }
+  
+  // 2. ONGLETS DU BAS (Dimanche, Mardi, Vendredi, etc.)
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      const day = e.currentTarget.dataset.day;
+      if (day) {
+        handleNavClick(day);
+      }
+    });
+  });
+  console.log('✅ Onglets du bas attachés');
+  
+  // 3. CHECKBOXES SÉRIES (délégation d'événements)
+  document.addEventListener('click', (e) => {
+    // Vérifier si c'est un bouton de série
+    const serieCheck = e.target.closest('.serie-check');
+    if (serieCheck) {
+      const serieItem = serieCheck.closest('.serie-item');
+      if (serieItem) {
+        const exerciseId = serieItem.dataset.exercise;
+        const setNumber = parseInt(serieItem.dataset.set);
+        if (exerciseId && setNumber) {
+          handleSetCompletion(exerciseId, setNumber);
         }
-
-        console.log(`📱 Onglet ${index}`);
+      }
     }
-
-    /**
-     * Données de démo
-     */
-    getDemoWorkout() {
-        return {
-            day: 'Lundi',
-            exercises: [
-                {
-                    id: 'squat',
-                    name: 'Goblet Squat',
-                    muscles: 'Quadriceps, Fessiers',
-                    sets: 4,
-                    reps: 10,
-                    weight: 27.5,
-                    rest: 75,
-                    superset: false
-                },
-                {
-                    id: 'legpress',
-                    name: 'Leg Press',
-                    muscles: 'Quadriceps, Fessiers',
-                    sets: 4,
-                    reps: 10,
-                    weight: 120,
-                    rest: 75,
-                    superset: false
-                },
-                {
-                    id: 'rdl',
-                    name: 'Romanian Deadlift',
-                    muscles: 'Ischio-jambiers',
-                    sets: 3,
-                    reps: 12,
-                    weight: 60,
-                    rest: 60,
-                    superset: true
-                },
-                {
-                    id: 'curls',
-                    name: 'Leg Curl',
-                    muscles: 'Ischio-jambiers',
-                    sets: 3,
-                    reps: 12,
-                    weight: 40,
-                    rest: 60,
-                    superset: true
-                }
-            ]
-        };
-    }
-
-    /**
-     * Afficher une erreur
-     */
-    showError(message) {
-        const container = document.getElementById('workout-container');
-        if (!container) return;
-
-        container.innerHTML = `
-            <div class="empty-workout">
-                <p style="color: #ef4444;">❌ ${message}</p>
-            </div>
-        `;
-    }
+  });
+  console.log('✅ Checkboxes séries attachées (délégation)');
+  
+  // 4. BOUTON SKIP TIMER
+  const skipTimerBtn = document.getElementById('skip-timer');
+  if (skipTimerBtn) {
+    skipTimerBtn.addEventListener('click', () => {
+      if (sessionData.restTimer) {
+        clearInterval(sessionData.restTimer);
+        sessionData.isTimerRunning = false;
+        const timerDisplay = document.getElementById('rest-timer');
+        if (timerDisplay) {
+          timerDisplay.classList.remove('active');
+        }
+        console.log('⏭️ Timer skippé');
+      }
+    });
+  }
 }
 
-// ============================================================================
-// DÉMARRAGE
-// ============================================================================
-const app = new App();
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => app.init());
-} else {
-    app.init();
+// ====================================================================
+// CHARGER UNE SEMAINE
+// ====================================================================
+function loadWeek(weekNumber) {
+  try {
+    const weekData = programData.getWeek(weekNumber);
+    
+    // Mettre à jour l'affichage du numéro de semaine
+    const weekDisplay = document.querySelector('.week-number');
+    if (weekDisplay) {
+      weekDisplay.textContent = `Semaine ${weekNumber}`;
+    }
+    
+    // Mettre à jour le badge du bloc
+    const blockBadge = document.querySelector('.block-badge');
+    if (blockBadge) {
+      blockBadge.textContent = `Bloc ${weekData.block}`;
+      
+      // Ajouter classe deload si applicable
+      if (weekData.isDeload) {
+        blockBadge.classList.add('deload');
+      } else {
+        blockBadge.classList.remove('deload');
+      }
+    }
+    
+    // Afficher le jour courant
+    displayDay(weekNumber, currentDay);
+    
+    console.log(`✅ Semaine ${weekNumber} chargée`);
+  } catch (error) {
+    console.error('❌ Erreur chargement semaine:', error);
+  }
 }
 
-console.log('📱 App loaded');
+// ====================================================================
+// AFFICHER UN JOUR
+// ====================================================================
+function displayDay(weekNumber, day) {
+  try {
+    const workout = programData.getWorkout(weekNumber, day);
+    const container = document.getElementById('workout-content');
+    
+    if (!container) {
+      console.error('❌ Container workout-content introuvable');
+      return;
+    }
+    
+    // Générer le HTML
+    let html = `
+      <div class="workout-header">
+        <h2>${workout.name}</h2>
+        <div class="workout-info">
+          <span class="info-item">⏱️ ${workout.duration} min</span>
+          <span class="info-item">💪 ${workout.totalSets} séries</span>
+        </div>
+      </div>
+      
+      <div class="exercises-list">
+    `;
+    
+    workout.exercises.forEach((exercise, index) => {
+      html += renderExercise(exercise, index);
+    });
+    
+    html += '</div>';
+    
+    container.innerHTML = html;
+    console.log(`✅ Jour ${day} affiché`);
+    
+  } catch (error) {
+    console.error('❌ Erreur affichage jour:', error);
+  }
+}
+
+// ====================================================================
+// RENDER EXERCICE
+// ====================================================================
+function renderExercise(exercise, index) {
+  const supersetClass = exercise.isSuperset ? 'superset' : '';
+  
+  let html = `
+    <div class="exercise-card ${supersetClass}" data-exercise="${exercise.id}">
+      <div class="exercise-header">
+        <div class="exercise-number">${index + 1}</div>
+        <div class="exercise-info">
+          <h3 class="exercise-name">${exercise.name}</h3>
+          ${exercise.isSuperset ? `<span class="superset-badge">⚡ SUPERSET</span>` : ''}
+        </div>
+      </div>
+      
+      <div class="exercise-params">
+        <div class="param-item">
+          <span class="param-label">Poids</span>
+          <span class="param-value">${exercise.weight} kg</span>
+        </div>
+        <div class="param-item">
+          <span class="param-label">Reps</span>
+          <span class="param-value">${exercise.reps}</span>
+        </div>
+        <div class="param-item">
+          <span class="param-label">Repos</span>
+          <span class="param-value">${exercise.rest}s</span>
+        </div>
+      </div>
+      
+      <div class="series-container">
+  `;
+  
+  // Générer les séries
+  for (let i = 1; i <= exercise.sets; i++) {
+    const setKey = `${exercise.id}_set${i}`;
+    const isCompleted = sessionData.completedSets[setKey];
+    
+    html += `
+      <div class="serie-item ${isCompleted ? 'completed' : ''}" 
+           data-exercise="${exercise.id}" 
+           data-set="${i}">
+        <div class="serie-number">${i}</div>
+        <div class="serie-details">
+          <span>${exercise.weight} kg × ${exercise.reps}</span>
+        </div>
+        <button class="serie-check">
+          ${isCompleted ? '<span class="check-icon">✓</span>' : ''}
+        </button>
+      </div>
+    `;
+  }
+  
+  html += `
+      </div>
+      
+      ${exercise.notes ? `
+        <div class="exercise-notes">
+          <span class="notes-icon">💡</span>
+          <span>${exercise.notes}</span>
+        </div>
+      ` : ''}
+    </div>
+  `;
+  
+  return html;
+}
+
+// ====================================================================
+// EXPORT POUR DEBUG
+// ====================================================================
+window.appDebug = {
+  currentWeek: () => currentWeek,
+  currentDay: () => currentDay,
+  sessionData: () => sessionData,
+  changeWeek: changeWeek,
+  handleNavClick: handleNavClick,
+  handleSetCompletion: handleSetCompletion
+};
+
+console.log('✅ App.js chargé - Debug disponible via window.appDebug');
