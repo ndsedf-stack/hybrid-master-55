@@ -4,16 +4,15 @@
  */
 
 // ============================================================================
-// IMPORTS
+// IMPORTS - Commentés car les fichiers n'existent pas encore
 // ============================================================================
-import ProgramData from './core/program-data.js';
-import { ProgressionEngine } from './core/progression-engine.js';
-// import { WorkoutRenderer } from './ui/workout-renderer.js'; // <- NE PAS UTILISER ACCOLADE sur un export default !
-import WorkoutRenderer from './ui/workout-renderer.js';
-import { NavigationUI } from './ui/navigation-ui.js';
-import { TimerManager } from './modules/timer-manager.js';
-import { WorkoutSession } from './modules/workout-session.js';
-import { LocalStorage } from './storage/local-storage.js';
+// import ProgramData from './core/program-data.js';
+// import { ProgressionEngine } from './core/progression-engine.js';
+// import WorkoutRenderer from './ui/workout-renderer.js';
+// import { NavigationUI } from './ui/navigation-ui.js';
+// import { TimerManager } from './modules/timer-manager.js';
+// import { WorkoutSession } from './modules/workout-session.js';
+// import { LocalStorage } from './storage/local-storage.js';
 
 // ============================================================================
 // APPLICATION PRINCIPALE
@@ -25,25 +24,12 @@ class HybridMasterApp {
         // Vérifier les éléments DOM requis
         this.validateDOM();
         
-        // Initialiser les modules
-        this.storage = new LocalStorage();
-        this.progressionEngine = new ProgressionEngine(ProgramData.program);
-
-        // session = progression directe
-        this.session = new WorkoutSession(this.storage);
-
-        this.timer = new TimerManager();
-        this.navigation = new NavigationUI();
-
-        // Container pour l'affichage
-        this.workoutRenderer = new WorkoutRenderer();
-
         // État actuel
         this.currentWeek = 1;
         this.currentDay = 'dimanche';
 
-        // marqueur d'initialisation des listeners (idempotence)
-        this._workoutEventsSetup = false;
+        // Initialiser les gestionnaires basiques
+        this.initBasicHandlers();
     }
 
     /**
@@ -73,154 +59,144 @@ class HybridMasterApp {
     }
 
     /**
+     * Initialise les gestionnaires basiques
+     */
+    initBasicHandlers() {
+        // Boutons de navigation
+        const prevBtn = document.getElementById('prev-week');
+        const nextBtn = document.getElementById('next-week');
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => this.changeWeek(-1));
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => this.changeWeek(1));
+        }
+
+        // Boutons du timer (basique)
+        const timerStart = document.getElementById('timer-start');
+        const timerPause = document.getElementById('timer-pause');
+        const timerReset = document.getElementById('timer-reset');
+
+        if (timerStart) {
+            timerStart.addEventListener('click', () => {
+                console.log('⏱️ Timer démarré');
+                // TODO: implémenter le timer
+            });
+        }
+
+        if (timerPause) {
+            timerPause.addEventListener('click', () => {
+                console.log('⏸️ Timer en pause');
+                // TODO: implémenter le timer
+            });
+        }
+
+        if (timerReset) {
+            timerReset.addEventListener('click', () => {
+                console.log('🔄 Timer réinitialisé');
+                // TODO: implémenter le timer
+            });
+        }
+
+        console.log('✅ Gestionnaires basiques initialisés');
+    }
+
+    /**
+     * Change de semaine
+     */
+    changeWeek(delta) {
+        const newWeek = this.currentWeek + delta;
+        
+        // Limiter entre 1 et 26
+        if (newWeek < 1 || newWeek > 26) {
+            console.warn('⚠️ Semaine hors limites:', newWeek);
+            return;
+        }
+
+        this.currentWeek = newWeek;
+        this.updateDisplay();
+    }
+
+    /**
+     * Met à jour l'affichage
+     */
+    updateDisplay() {
+        // Mettre à jour l'affichage de la semaine
+        const weekDisplay = document.getElementById('week-display');
+        if (weekDisplay) {
+            const weekCurrent = weekDisplay.querySelector('.week-current');
+            if (weekCurrent) {
+                weekCurrent.textContent = `Semaine ${this.currentWeek}/26`;
+            }
+
+            // Déterminer le bloc et la technique
+            let bloc = 1;
+            let technique = 'Tempo 3-1-2';
+            
+            if (this.currentWeek >= 7 && this.currentWeek <= 12) {
+                bloc = 2;
+                technique = 'Rest-Pause';
+            } else if (this.currentWeek >= 13 && this.currentWeek <= 18) {
+                bloc = 3;
+                technique = 'Drop-sets + Myo-reps';
+            } else if (this.currentWeek >= 19) {
+                bloc = 4;
+                technique = 'Cluster sets + Partials';
+            }
+
+            const weekDate = weekDisplay.querySelector('.week-date');
+            if (weekDate) {
+                weekDate.textContent = `Bloc ${bloc} • ${technique}`;
+            }
+        }
+
+        // Activer/désactiver les boutons
+        const prevBtn = document.getElementById('prev-week');
+        const nextBtn = document.getElementById('next-week');
+
+        if (prevBtn) {
+            prevBtn.disabled = this.currentWeek === 1;
+        }
+
+        if (nextBtn) {
+            nextBtn.disabled = this.currentWeek === 26;
+        }
+
+        // Afficher le message temporaire dans workout-container
+        const container = document.getElementById('workout-container');
+        if (container) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #9BA3B0;">
+                    <h2 style="color: #00d4aa; margin-bottom: 1rem;">
+                        📅 Semaine ${this.currentWeek} - ${this.currentDay}
+                    </h2>
+                    <p>Les données du programme seront chargées depuis program-data.js</p>
+                    <p style="margin-top: 1rem; font-size: 0.9rem;">
+                        ℹ️ Il faut maintenant corriger les autres fichiers JS pour que le contenu s'affiche
+                    </p>
+                </div>
+            `;
+        }
+
+        console.log(`✅ Affichage mis à jour: Semaine ${this.currentWeek}`);
+    }
+
+    /**
      * Initialise l'application
      */
     async init() {
         try {
             console.log('✅ Initialisation de l\'application...');
 
-            // Initialiser les sous-modules
-            this.timer.init();
-            this.navigation.init();
-            this.workoutRenderer.init?.();
-
-            // Charger l'état sauvegardé (par défaut si rien dans le storage)
-            const savedState = this.storage.loadNavigationState?.() || { week: 1, day: 'dimanche' };
-            this.currentWeek = savedState.week;
-            this.currentDay = savedState.day;
-
-            // Configurer les callbacks de navigation
-            this.navigation.onWeekChange = (week, day) => this.displayWorkout(week, day);
-            this.navigation.onDayChange = (week, day) => this.displayWorkout(week, day);
-
-            // Restaurer l'état de navigation
-            this.navigation.setState(this.currentWeek, this.currentDay);
-
-            // ✅ NOUVEAU : Connecter les événements du workout (idempotent)
-            this.setupWorkoutEvents();
-
-            // Afficher le workout initial
-            await this.displayWorkout(this.currentWeek, this.currentDay);
+            // Affichage initial
+            this.updateDisplay();
 
             console.log('✅ Application initialisée !');
+            console.log('ℹ️  Navigation fonctionnelle - Les autres modules seront ajoutés progressivement');
         } catch (error) {
             console.error('❌ Erreur lors de l\'initialisation:', error);
-            this.displayError(error?.message || String(error));
-        }
-    }
-
-    /**
-     * ✅ CORRECTION : Configure les écouteurs d'événements du workout (idempotent)
-     */
-    setupWorkoutEvents() {
-        // Protection contre exécution multiple
-        if (this._workoutEventsSetup) {
-            console.warn('⚠️ Écouteurs déjà configurés, skip');
-            return;
-        }
-        this._workoutEventsSetup = true;
-
-        // 1. Événement : Démarrage du timer de repos
-        document.addEventListener('start-rest-timer', (e) => {
-            const duration = Number(e?.detail?.duration) || 0;
-            if (duration <= 0) {
-                console.warn('⚠️ Durée invalide pour le timer:', duration);
-                return;
-            }
-            if (!this.timer || typeof this.timer.start !== 'function') {
-                console.warn('⚠️ Timer non initialisé ou API start manquante');
-                return;
-            }
-            console.log(`⏱️ Démarrage timer repos: ${duration}s`);
-            this.timer.reset?.();
-            this.timer.start(duration);
-        });
-
-        // 2. Événement : Changement de poids
-        document.addEventListener('weight-changed', (e) => {
-            const { exerciseId, newWeight } = e?.detail || {};
-            if (exerciseId === undefined || newWeight === undefined) {
-                console.warn('⚠️ Données invalides pour weight-changed:', e?.detail);
-                return;
-            }
-            const w = Number(newWeight);
-            if (!Number.isFinite(w)) {
-                console.warn('⚠️ Poids non numérique:', newWeight);
-                return;
-            }
-            console.log(`💪 Poids modifié: exercice ${exerciseId} → ${w}kg`);
-            if (this.session && typeof this.session.updateWeight === 'function') {
-                this.session.updateWeight(exerciseId, 0, w);
-            }
-        });
-
-        // 3. Événement : Série complétée/décochée
-        document.addEventListener('set-completed', (e) => {
-            const { exerciseId, setNumber, isChecked } = e?.detail || {};
-            if (exerciseId === undefined || setNumber === undefined) {
-                console.warn('⚠️ Données invalides pour set-completed:', e?.detail);
-                return;
-            }
-            
-            const setIndex = Number.parseInt(setNumber, 10) - 1;
-            if (!Number.isInteger(setIndex) || setIndex < 0) {
-                console.warn('⚠️ Index de série invalide:', setNumber);
-                return;
-            }
-            
-            if (!this.session) {
-                console.warn('⚠️ Session non initialisée');
-                return;
-            }
-            
-            if (isChecked) {
-                console.log(`✅ Série ${setNumber} complétée (exercice ${exerciseId})`);
-                if (typeof this.session.completeSet === 'function') {
-                    this.session.completeSet(exerciseId, setIndex);
-                }
-            } else {
-                console.log(`❌ Série ${setNumber} décochée (exercice ${exerciseId})`);
-                if (typeof this.session.uncompleteSet === 'function') {
-                    this.session.uncompleteSet(exerciseId, setIndex);
-                }
-            }
-        });
-
-        console.log('✅ Événements workout connectés (3 listeners)');
-    }
-
-    /**
-     * Affiche le workout pour une semaine et un jour donnés
-     */
-    async displayWorkout(week, day) {
-        try {
-            console.log(`🎯 Affichage Semaine ${week} - ${day}`);
-            // Récupérer le workout via ProgramData
-            const workoutDay = ProgramData.getWorkout(week, day);
-            if (!workoutDay) {
-                throw new Error(`Workout introuvable pour S${week} - ${day}`);
-            }
-
-            // Mettre à jour l'état actuel
-            this.currentWeek = week;
-            this.currentDay = day;
-
-            // Sauvegarder l'état de navigation si possible
-            this.storage.saveNavigationState?.(week, day);
-
-            // ✅ CORRIGÉ : Démarrer la session avec API compatible (start / startSession)
-            if (this.session && typeof this.session.start === 'function') {
-                this.session.start(week, day, workoutDay.exercises);
-            } else if (this.session && typeof this.session.startSession === 'function') {
-                this.session.startSession(week, day, workoutDay.exercises);
-            } else {
-                console.warn('⚠️ WorkoutSession.start() non disponible');
-            }
-
-            // Rendre le workout
-            this.workoutRenderer.render?.(workoutDay, week);
-        } catch (error) {
-            console.error('❌ Erreur d\'affichage du workout:', error);
             this.displayError(error?.message || String(error));
         }
     }
@@ -232,8 +208,9 @@ class HybridMasterApp {
         const container = document.getElementById('workout-container');
         if (container) {
             container.innerHTML = `
-                <div class="error-message">
-                    <p>🚨 Erreur : ${message}</p>
+                <div style="background: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; border-radius: 1rem; padding: 1.5rem; margin: 2rem 0;">
+                    <h3 style="color: #ef4444; margin-bottom: 0.5rem;">🚨 Erreur</h3>
+                    <p style="color: #E6E9EF;">${message}</p>
                 </div>
             `;
         }
@@ -243,7 +220,6 @@ class HybridMasterApp {
 // ============================================================================
 // Point d'entrée --- démarre l'application au chargement
 // ============================================================================
-// Expose app sur window pour faciliter le debug / tests console
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new HybridMasterApp();
     window.app.init();
