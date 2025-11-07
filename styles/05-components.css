@@ -1,6 +1,6 @@
 /* ========================================
-   COMPOSANTS - Corrections iPhone
-======================================== */
+   COMPOSANTS - Style Corrigé iPhone
+   ======================================== */
 
 /* Cartes d'exercices optimisées */
 .exercise-card {
@@ -9,263 +9,430 @@
   margin-bottom: 1rem;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease;
+  animation: slideUp 0.3s ease-out;
 }
 
-.exercise-card:active {
-  transform: scale(0.98);
-}
-
-/* Header optimisé pour éviter le débordement */
+/* Header de l'exercice */
 .exercise-header {
-  padding: 1rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  background: linear-gradient(135deg, #FF6B35, #FF8E53);
-  position: relative;
-  overflow: hidden;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Orange pour cardio */
-.exercise-header.cardio {
-  background: linear-gradient(135deg, #FF6B35, #FF8E53);
-}
-
-/* Vert pour force */
 .exercise-header.strength {
-  background: linear-gradient(135deg, #4ECDC4, #44A08D);
+  background: linear-gradient(135deg, #1a2332 0%, #0f1419 100%);
+}
+
+.exercise-header.cardio {
+  background: linear-gradient(135deg, #321a1a 0%, #0f1419 100%);
 }
 
 .exercise-icon {
-  font-size: 1.5rem;
+  font-size: 32px;
+  line-height: 1;
   flex-shrink: 0;
-  width: 1.5rem;
-  height: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .exercise-title {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
 }
 
 .exercise-name {
-  font-size: 1.1rem;
+  font-size: 18px;
   font-weight: 600;
-  color: white;
-  margin: 0;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
   line-height: 1.3;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
 }
 
 .exercise-details {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.95);
-  margin: 0.25rem 0 0 0;
-  line-height: 1.4;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
   flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
-.exercise-details > * {
-  white-space: nowrap;
+.exercise-details span {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 6px;
 }
 
-/* Body de la carte */
+/* Body de l'exercice */
 .exercise-body {
-  padding: 1rem;
+  padding: 16px;
 }
 
+/* Paramètres de l'exercice */
 .exercise-params {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .param-item {
   text-align: center;
-  padding: 0.75rem;
-  background: var(--background-color);
-  border-radius: 12px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
 }
 
 .param-label {
-  font-size: 0.75rem;
+  font-size: 10px;
+  font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 0.25rem;
+  margin-bottom: 4px;
 }
 
 .param-value {
-  font-size: 1.25rem;
+  font-size: 18px;
   font-weight: 700;
   color: var(--primary-color);
+  line-height: 1;
 }
 
-/* Notes d'exercice */
-.exercise-notes {
-  background: var(--background-color);
-  padding: 0.875rem;
+/* Container des séries */
+.series-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Items de série - CORRECTION PRINCIPALE */
+.serie-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
-  margin-bottom: 0.75rem;
+  border: 2px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.serie-item:active {
+  transform: scale(0.98);
+}
+
+/* État complété - STYLE CORRIGÉ */
+.serie-item.completed {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.serie-item.completed .serie-number {
+  background: #22c55e;
+  color: #000;
+}
+
+.serie-item.completed .serie-info {
+  opacity: 0.7;
+  text-decoration: line-through;
+}
+
+/* Numéro de série */
+.serie-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+/* Info de série */
+.serie-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.serie-reps {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.serie-weight {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Repos */
+.serie-rest {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.rest-icon {
+  font-size: 14px;
+}
+
+/* BOUTON CHECKBOX - CORRECTION COMPLÈTE */
+.serie-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.serie-check:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(1.05);
+}
+
+.serie-check:active {
+  transform: scale(0.95);
+}
+
+/* Icône de check */
+.check-icon {
+  font-size: 20px;
+  font-weight: 700;
+  color: transparent;
+  transition: all 0.3s ease;
+  line-height: 1;
+}
+
+/* État complété du bouton */
+.serie-item.completed .serie-check {
+  background: #22c55e;
+  border-color: #22c55e;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+.serie-item.completed .check-icon {
+  color: #000;
+  transform: scale(1.2);
+}
+
+/* Animation du check */
+@keyframes checkPop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.serie-item.completed .check-icon {
+  animation: checkPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Notes */
+.exercise-notes {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid var(--accent-color);
+  border-radius: 8px;
 }
 
 .notes-title {
-  font-size: 0.85rem;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  color: var(--accent-color);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .notes-content {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
+  font-size: 14px;
+  color: var(--text-primary);
   line-height: 1.5;
 }
 
-/* Boutons d'action */
-.exercise-actions {
-  display: flex;
-  gap: 0.75rem;
+/* Message vide */
+.empty-workout {
+  text-align: center;
+  padding: 60px 20px;
 }
 
-.btn-complete {
-  flex: 1;
-  padding: 0.875rem;
-  border-radius: 12px;
-  border: none;
-  background: var(--primary-color);
-  color: white;
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.btn-complete:active {
-  transform: scale(0.96);
-  background: var(--primary-hover);
-}
-
-.btn-complete.completed {
-  background: #4ECDC4;
-}
-
-.btn-skip {
-  padding: 0.875rem 1.25rem;
-  border-radius: 12px;
-  border: 2px solid var(--border-color);
-  background: transparent;
+.empty-workout p {
+  font-size: 18px;
   color: var(--text-secondary);
-  font-weight: 600;
-  font-size: 0.95rem;
+}
+
+/* Message de chargement */
+.loading-message {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.loading-message p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Week Navigation */
+.week-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: var(--surface-color);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.week-nav-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 12px;
+  font-size: 20px;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
-.btn-skip:active {
-  transform: scale(0.96);
-  border-color: var(--text-secondary);
+.week-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
 }
 
-/* Header de l'app */
+.week-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.week-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.week-info {
+  flex: 1;
+  text-align: center;
+  padding: 0 16px;
+}
+
+.week-current {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 4px;
+}
+
+.week-date {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Header */
 .header {
-  position: fixed;
+  background: var(--bg-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  background: var(--surface-color);
-  border-bottom: 1px solid var(--border-color);
-  z-index: 1000;
-  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .header-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
-  max-width: 100%;
+  padding: 12px 16px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .header-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1.1rem;
+  gap: 8px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .header-icon {
-  font-size: 1.5rem;
+  font-size: 24px;
 }
 
-.btn-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background: var(--background-color);
-  color: var(--text-primary);
-  font-size: 1.2rem;
+.header-actions {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  -webkit-tap-highlight-color: transparent;
+  gap: 8px;
 }
 
-.btn-icon:active {
-  transform: scale(0.9);
-}
-
-/* Navigation du bas */
+/* Bottom Navigation */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   background: var(--surface-color);
-  border-top: 1px solid var(--border-color);
-  z-index: 1000;
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .bottom-nav-content {
   display: flex;
   justify-content: space-around;
-  padding: 0.5rem 0;
-  max-width: 100%;
+  padding: 8px 0;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .nav-item {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem;
+  gap: 4px;
+  padding: 8px 12px;
   cursor: pointer;
   transition: all 0.3s ease;
+  border-radius: 12px;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -273,32 +440,81 @@
   transform: scale(0.95);
 }
 
-.nav-item.active .nav-item-icon {
-  color: var(--primary-color);
-}
-
-.nav-item.active .nav-item-label {
-  color: var(--primary-color);
-}
-
 .nav-item-icon {
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  transition: color 0.3s ease;
+  font-size: 24px;
+  transition: transform 0.3s ease;
 }
 
 .nav-item-label {
-  font-size: 0.7rem;
+  font-size: 11px;
   color: var(--text-secondary);
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
-/* Animation d'entrée */
-.slide-up {
-  animation: slideUp 0.4s ease-out;
+.nav-item.active {
+  background: rgba(34, 197, 94, 0.1);
 }
 
+.nav-item.active .nav-item-icon {
+  transform: scale(1.1);
+}
+
+.nav-item.active .nav-item-label {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Boutons */
+.btn-primary,
+.btn-secondary,
+.btn-icon {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #000;
+}
+
+.btn-primary:hover {
+  background: #1ed760;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+/* Animations */
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -310,9 +526,30 @@
   }
 }
 
-/* Loading */
-.loading-message {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: var(--text-secondary);
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Optimisations tactiles iPhone */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+button,
+.serie-check,
+.nav-item,
+.week-nav-btn {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
 }
