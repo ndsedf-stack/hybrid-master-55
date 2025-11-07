@@ -1,227 +1,148 @@
-/* ============================================
-   🎨 HYBRID MASTER 51 - VARIABLES DESIGN
-   Design moderne inspiré de Hevy
-   ============================================ */
+/* ========================================
+   VARIABLES CSS - Thème Sombre Corrigé
+   ======================================== */
 
 :root {
-  /* ==================== COULEURS PRIMAIRES ==================== */
-  --color-bg-primary: #0A0E14;
-  --color-bg-secondary: #151921;
-  --color-bg-tertiary: #1E2330;
-  --color-bg-card: #1A1F2E;
-  --color-bg-card-hover: #222838;
+  /* Couleurs principales - Thème SOMBRE */
+  --bg-primary: #0A0E14;
+  --bg-secondary: #0f1419;
+  --surface-color: #151b24;
+  --surface-elevated: #1a2332;
   
-  /* Accent principal - Orange énergique */
-  --color-primary: #FF6B35;
-  --color-primary-light: #FF8557;
-  --color-primary-dark: #E65A2B;
-  --color-primary-glow: rgba(255, 107, 53, 0.2);
+  /* Couleurs de texte */
+  --text-primary: #ffffff;
+  --text-secondary: #8b9bb3;
+  --text-tertiary: #5c6b7d;
   
-  /* Accent secondaire - Cyan */
-  --color-secondary: #00D4FF;
-  --color-secondary-light: #33DDFF;
-  --color-secondary-dark: #00B8E6;
+  /* Couleurs d'accent */
+  --primary-color: #22c55e;
+  --primary-hover: #16a34a;
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+  --success-color: #10b981;
   
-  /* Succès & Progression */
-  --color-success: #00FF88;
-  --color-success-bg: rgba(0, 255, 136, 0.1);
-  --color-success-glow: rgba(0, 255, 136, 0.2);
+  /* Bordures et séparateurs */
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.05);
   
-  /* Attention */
-  --color-warning: #FFB800;
-  --color-warning-bg: rgba(255, 184, 0, 0.1);
+  /* Ombres */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.5);
   
-  /* Erreur */
-  --color-error: #FF3366;
-  --color-error-bg: rgba(255, 51, 102, 0.1);
+  /* Espacements */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
   
-  /* Texte */
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #A0AEC0;
-  --color-text-tertiary: #718096;
-  --color-text-disabled: #4A5568;
-  
-  /* Bordures */
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-hover: rgba(255, 255, 255, 0.15);
-  --color-divider: rgba(255, 255, 255, 0.05);
-
-  /* ==================== TYPOGRAPHIE ==================== */
-  --font-family-primary: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
-  --font-family-numbers: 'SF Pro Rounded', -apple-system, sans-serif;
-  
-  /* Tailles de police */
-  --font-size-xs: 0.75rem;    /* 12px */
-  --font-size-sm: 0.875rem;   /* 14px */
-  --font-size-base: 1rem;     /* 16px */
-  --font-size-lg: 1.125rem;   /* 18px */
-  --font-size-xl: 1.25rem;    /* 20px */
-  --font-size-2xl: 1.5rem;    /* 24px */
-  --font-size-3xl: 1.875rem;  /* 30px */
-  --font-size-4xl: 2.25rem;   /* 36px */
-  
-  /* Poids de police */
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  --font-weight-black: 900;
-  
-  /* Hauteur de ligne */
-  --line-height-tight: 1.2;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.75;
-
-  /* ==================== ESPACEMENT ==================== */
-  --spacing-xs: 0.25rem;   /* 4px */
-  --spacing-sm: 0.5rem;    /* 8px */
-  --spacing-md: 1rem;      /* 16px */
-  --spacing-lg: 1.5rem;    /* 24px */
-  --spacing-xl: 2rem;      /* 32px */
-  --spacing-2xl: 3rem;     /* 48px */
-  --spacing-3xl: 4rem;     /* 64px */
-
-  /* ==================== BORDER RADIUS ==================== */
+  /* Rayons de bordure */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
-  --radius-2xl: 24px;
   --radius-full: 9999px;
-
-  /* ==================== OMBRES ==================== */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
-  --shadow-glow-primary: 0 0 20px var(--color-primary-glow);
-  --shadow-glow-success: 0 0 20px var(--color-success-glow);
-
-  /* ==================== TRANSITIONS ==================== */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  /* ==================== Z-INDEX ==================== */
-  --z-dropdown: 1000;
-  --z-sticky: 1020;
-  --z-fixed: 1030;
-  --z-modal-backdrop: 1040;
-  --z-modal: 1050;
-  --z-popover: 1060;
-  --z-tooltip: 1070;
-
-  /* ==================== LAYOUT ==================== */
-  --header-height: 64px;
-  --bottom-nav-height: 72px;
-  --container-max-width: 640px;
-  --sidebar-width: 280px;
-
-  /* ==================== COMPOSANTS SPÉCIFIQUES ==================== */
   
-  /* Cartes d'exercice */
-  --exercise-card-padding: var(--spacing-lg);
-  --exercise-card-gap: var(--spacing-md);
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
   
-  /* Badges */
-  --badge-height: 28px;
-  --badge-padding: 0 var(--spacing-sm);
-  --badge-font-size: var(--font-size-xs);
+  /* Z-index */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal: 400;
+  --z-toast: 500;
   
-  /* Boutons */
-  --button-height-sm: 36px;
-  --button-height-md: 44px;
-  --button-height-lg: 52px;
-  --button-padding-x: var(--spacing-lg);
+  /* Typographie */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", monospace;
   
-  /* Inputs */
-  --input-height: 48px;
-  --input-padding-x: var(--spacing-md);
-  --input-border-width: 2px;
+  /* Tailles de police */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
   
-  /* ==================== ANIMATIONS ==================== */
-  --animation-fade-in: fadeIn var(--transition-base) ease-out;
-  --animation-slide-up: slideUp var(--transition-base) ease-out;
-  --animation-scale: scale var(--transition-spring) ease-out;
+  /* Hauteurs de ligne */
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
   
-  /* ==================== BREAKPOINTS ==================== */
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
+  /* Safe area insets pour iPhone */
+  --safe-area-top: env(safe-area-inset-top);
+  --safe-area-bottom: env(safe-area-inset-bottom);
+  --safe-area-left: env(safe-area-inset-left);
+  --safe-area-right: env(safe-area-inset-right);
+  
+  /* Couleurs spécifiques aux exercices */
+  --exercise-strength: #3b82f6;
+  --exercise-cardio: #ef4444;
+  --exercise-mobility: #8b5cf6;
+  --exercise-power: #f59e0b;
+  
+  /* États des séries */
+  --set-default: rgba(255, 255, 255, 0.05);
+  --set-active: rgba(34, 197, 94, 0.15);
+  --set-completed: rgba(34, 197, 94, 0.25);
+  
+  /* Overlay et backdrop */
+  --overlay-dark: rgba(0, 0, 0, 0.7);
+  --overlay-light: rgba(0, 0, 0, 0.5);
+  --backdrop-blur: blur(10px);
 }
 
-/* ==================== THÈME CLAIR (optionnel) ==================== */
+/* Variables pour le thème clair (optionnel, désactivé par défaut) */
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --surface-color: #ffffff;
+  --surface-elevated: #f1f3f5;
+  
+  --text-primary: #1a1a1a;
+  --text-secondary: #6c757d;
+  --text-tertiary: #adb5bd;
+  
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Media queries pour les préférences système */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
 @media (prefers-color-scheme: light) {
-  :root[data-theme="light"] {
-    --color-bg-primary: #F7FAFC;
-    --color-bg-secondary: #FFFFFF;
-    --color-bg-tertiary: #EDF2F7;
-    --color-bg-card: #FFFFFF;
-    --color-bg-card-hover: #F7FAFC;
-    
-    --color-text-primary: #1A202C;
-    --color-text-secondary: #4A5568;
-    --color-text-tertiary: #718096;
-    --color-text-disabled: #CBD5E0;
-    
-    --color-border: rgba(0, 0, 0, 0.08);
-    --color-border-hover: rgba(0, 0, 0, 0.15);
-    --color-divider: rgba(0, 0, 0, 0.05);
-    
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  [data-theme="auto"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --surface-color: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6c757d;
   }
 }
 
-/* ==================== KEYFRAMES ==================== */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scale {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
+/* Variables pour les animations */
+:root {
+  --ease-in-out-cubic: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
