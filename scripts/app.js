@@ -1,226 +1,106 @@
-/**
- * HYBRID MASTER 51 - APPLICATION PRINCIPALE
- * Point d'entrée de l'application
- */
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0A0E14">
+  
+  <title>ðŸ† Hybrid Master 51</title>
+  
+  <!-- iOS App Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/01-reset.css">
+  <link rel="stylesheet" href="styles/02-variables.css">
+  <link rel="stylesheet" href="styles/03-base.css">
+  <link rel="stylesheet" href="styles/04-layout.css">
+  <link rel="stylesheet" href="styles/05-components.css">
+  <link rel="stylesheet" href="styles/08-responsive.css">
+</head>
+<body>
+  
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="header-title">
+        <span class="header-icon">ðŸ†</span>
+        <span>Hybrid Master 51</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon btn-secondary">
+          âš™ï¸
+        </button>
+      </div>
+    </div>
+  </header>
 
-// ============================================================================
-// IMPORTS - Commentés car les fichiers n'existent pas encore
-// ============================================================================
-// import ProgramData from './core/program-data.js';
-// import { ProgressionEngine } from './core/progression-engine.js';
-// import WorkoutRenderer from './ui/workout-renderer.js';
-// import { NavigationUI } from './ui/navigation-ui.js';
-// import { TimerManager } from './modules/timer-manager.js';
-// import { WorkoutSession } from './modules/workout-session.js';
-// import { LocalStorage } from './storage/local-storage.js';
+  <!-- Main Content -->
+  <main class="main-content" id="app">
+    <div class="container">
+      
+      <!-- Week Navigation -->
+      <div class="week-navigation slide-up">
+        <button class="week-nav-btn" id="prev-week">
+          â†
+        </button>
+        <div class="week-info" id="week-display">
+          <div class="week-current">Semaine 1/26</div>
+          <div class="week-date">Bloc 1 â€¢ Tempo 3-1-2</div>
+        </div>
+        <button class="week-nav-btn" id="next-week">
+          â†’
+        </button>
+      </div>
 
-// ============================================================================
-// APPLICATION PRINCIPALE
-// ============================================================================
-class HybridMasterApp {
-    constructor() {
-        console.log('🚀 Démarrage de Hybrid Master 51...');
-        
-        // Vérifier les éléments DOM requis
-        this.validateDOM();
-        
-        // État actuel
-        this.currentWeek = 1;
-        this.currentDay = 'dimanche';
+      <!-- Timer Section -->
+      <div class="timer-section" style="display: none;">
+        <div id="timer-display" class="timer-display">00:00</div>
+        <div class="timer-controls">
+          <button id="timer-start" class="btn-primary">DÃ©marrer</button>
+          <button id="timer-pause" class="btn-secondary">Pause</button>
+          <button id="timer-reset" class="btn-secondary">RÃ©initialiser</button>
+        </div>
+      </div>
 
-        // Initialiser les gestionnaires basiques
-        this.initBasicHandlers();
-    }
+      <!-- Workout Container (sera rempli dynamiquement) -->
+      <div id="workout-container">
+        <!-- Le contenu sera gÃ©nÃ©rÃ© par JavaScript -->
+        <div class="loading-message">
+          <p>Chargement du programme...</p>
+        </div>
+      </div>
 
-    /**
-     * Valide que tous les éléments DOM requis sont présents
-     */
-    validateDOM() {
-        const requiredIds = [
-            'app',
-            'workout-container',
-            'week-display',
-            'prev-week',
-            'next-week',
-            'timer-display',
-            'timer-start',
-            'timer-pause',
-            'timer-reset'
-        ];
+    </div>
+  </main>
 
-        const missing = requiredIds.filter(id => !document.getElementById(id));
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-content">
+      <div class="nav-item active">
+        <span class="nav-item-icon">ðŸ’ª</span>
+        <span class="nav-item-label">SÃ©ance</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-item-icon">ðŸ“Š</span>
+        <span class="nav-item-label">Stats</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-item-icon">ðŸ“ˆ</span>
+        <span class="nav-item-label">ProgrÃ¨s</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-item-icon">ðŸ‘¤</span>
+        <span class="nav-item-label">Profil</span>
+      </div>
+    </div>
+  </nav>
 
-        if (missing.length > 0) {
-            console.error('❌ Éléments DOM manquants:', missing);
-            throw new Error(`Éléments DOM manquants: ${missing.join(', ')}`);
-        }
-
-        console.log('✅ Tous les éléments DOM sont présents');
-    }
-
-    /**
-     * Initialise les gestionnaires basiques
-     */
-    initBasicHandlers() {
-        // Boutons de navigation
-        const prevBtn = document.getElementById('prev-week');
-        const nextBtn = document.getElementById('next-week');
-
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => this.changeWeek(-1));
-        }
-
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => this.changeWeek(1));
-        }
-
-        // Boutons du timer (basique)
-        const timerStart = document.getElementById('timer-start');
-        const timerPause = document.getElementById('timer-pause');
-        const timerReset = document.getElementById('timer-reset');
-
-        if (timerStart) {
-            timerStart.addEventListener('click', () => {
-                console.log('⏱️ Timer démarré');
-                // TODO: implémenter le timer
-            });
-        }
-
-        if (timerPause) {
-            timerPause.addEventListener('click', () => {
-                console.log('⏸️ Timer en pause');
-                // TODO: implémenter le timer
-            });
-        }
-
-        if (timerReset) {
-            timerReset.addEventListener('click', () => {
-                console.log('🔄 Timer réinitialisé');
-                // TODO: implémenter le timer
-            });
-        }
-
-        console.log('✅ Gestionnaires basiques initialisés');
-    }
-
-    /**
-     * Change de semaine
-     */
-    changeWeek(delta) {
-        const newWeek = this.currentWeek + delta;
-        
-        // Limiter entre 1 et 26
-        if (newWeek < 1 || newWeek > 26) {
-            console.warn('⚠️ Semaine hors limites:', newWeek);
-            return;
-        }
-
-        this.currentWeek = newWeek;
-        this.updateDisplay();
-    }
-
-    /**
-     * Met à jour l'affichage
-     */
-    updateDisplay() {
-        // Mettre à jour l'affichage de la semaine
-        const weekDisplay = document.getElementById('week-display');
-        if (weekDisplay) {
-            const weekCurrent = weekDisplay.querySelector('.week-current');
-            if (weekCurrent) {
-                weekCurrent.textContent = `Semaine ${this.currentWeek}/26`;
-            }
-
-            // Déterminer le bloc et la technique
-            let bloc = 1;
-            let technique = 'Tempo 3-1-2';
-            
-            if (this.currentWeek >= 7 && this.currentWeek <= 12) {
-                bloc = 2;
-                technique = 'Rest-Pause';
-            } else if (this.currentWeek >= 13 && this.currentWeek <= 18) {
-                bloc = 3;
-                technique = 'Drop-sets + Myo-reps';
-            } else if (this.currentWeek >= 19) {
-                bloc = 4;
-                technique = 'Cluster sets + Partials';
-            }
-
-            const weekDate = weekDisplay.querySelector('.week-date');
-            if (weekDate) {
-                weekDate.textContent = `Bloc ${bloc} • ${technique}`;
-            }
-        }
-
-        // Activer/désactiver les boutons
-        const prevBtn = document.getElementById('prev-week');
-        const nextBtn = document.getElementById('next-week');
-
-        if (prevBtn) {
-            prevBtn.disabled = this.currentWeek === 1;
-        }
-
-        if (nextBtn) {
-            nextBtn.disabled = this.currentWeek === 26;
-        }
-
-        // Afficher le message temporaire dans workout-container
-        const container = document.getElementById('workout-container');
-        if (container) {
-            container.innerHTML = `
-                <div style="text-align: center; padding: 2rem; color: #9BA3B0;">
-                    <h2 style="color: #00d4aa; margin-bottom: 1rem;">
-                        📅 Semaine ${this.currentWeek} - ${this.currentDay}
-                    </h2>
-                    <p>Les données du programme seront chargées depuis program-data.js</p>
-                    <p style="margin-top: 1rem; font-size: 0.9rem;">
-                        ℹ️ Il faut maintenant corriger les autres fichiers JS pour que le contenu s'affiche
-                    </p>
-                </div>
-            `;
-        }
-
-        console.log(`✅ Affichage mis à jour: Semaine ${this.currentWeek}`);
-    }
-
-    /**
-     * Initialise l'application
-     */
-    async init() {
-        try {
-            console.log('✅ Initialisation de l\'application...');
-
-            // Affichage initial
-            this.updateDisplay();
-
-            console.log('✅ Application initialisée !');
-            console.log('ℹ️  Navigation fonctionnelle - Les autres modules seront ajoutés progressivement');
-        } catch (error) {
-            console.error('❌ Erreur lors de l\'initialisation:', error);
-            this.displayError(error?.message || String(error));
-        }
-    }
-
-    /**
-     * Affichage d'une erreur dans l'UI
-     */
-    displayError(message) {
-        const container = document.getElementById('workout-container');
-        if (container) {
-            container.innerHTML = `
-                <div style="background: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; border-radius: 1rem; padding: 1.5rem; margin: 2rem 0;">
-                    <h3 style="color: #ef4444; margin-bottom: 0.5rem;">🚨 Erreur</h3>
-                    <p style="color: #E6E9EF;">${message}</p>
-                </div>
-            `;
-        }
-    }
-}
-
-// ============================================================================
-// Point d'entrée --- démarre l'application au chargement
-// ============================================================================
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new HybridMasterApp();
-    window.app.init();
-});
+  <!-- Scripts -->
+  <script src="scripts/core/program-data.js" type="module"></script>
+  <script src="scripts/core/progression-engine.js" type="module"></script>
+  <script src="scripts/app.js" type="module"></script>
+</body>
+</html>
