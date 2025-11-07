@@ -1,250 +1,467 @@
 /**
- * HYBRID MASTER 51 - APPLICATION PRINCIPALE
- * Point d'entrée de l'application
+ * HYBRID MASTER 51 - APPLICATION PRINCIPALE CORRIGÉE
+ * Tous les événements fonctionnels
  */
 
 // ============================================================================
 // IMPORTS
 // ============================================================================
 import ProgramData from './core/program-data.js';
-import { ProgressionEngine } from './core/progression-engine.js';
-// import { WorkoutRenderer } from './ui/workout-renderer.js'; // <- NE PAS UTILISER ACCOLADE sur un export default !
+import ProgressionEngine from './core/progression-engine.js';
 import WorkoutRenderer from './ui/workout-renderer.js';
-import { NavigationUI } from './ui/navigation-ui.js';
-import { TimerManager } from './modules/timer-manager.js';
-import { WorkoutSession } from './modules/workout-session.js';
-import { LocalStorage } from './storage/local-storage.js';
+import WorkoutSession from './modules/workout-session.js';
 
 // ============================================================================
-// APPLICATION PRINCIPALE
+// ÉTAT DE L'APPLICATION
 // ============================================================================
-class HybridMasterApp {
+class App {
     constructor() {
-        console.log('🚀 Démarrage de Hybrid Master 51...');
-        
-        // Vérifier les éléments DOM requis
-        this.validateDOM();
-        
-        // Initialiser les modules
-        this.storage = new LocalStorage();
-        this.progressionEngine = new ProgressionEngine(ProgramData.program);
-
-        // session = progression directe
-        this.session = new WorkoutSession(this.storage);
-
-        this.timer = new TimerManager();
-        this.navigation = new NavigationUI();
-
-        // Container pour l'affichage
-        this.workoutRenderer = new WorkoutRenderer();
-
-        // État actuel
         this.currentWeek = 1;
-        this.currentDay = 'dimanche';
-
-        // marqueur d'initialisation des listeners (idempotence)
-        this._workoutEventsSetup = false;
+        this.maxWeeks = 26;
+        this.currentDay = 0; // 0 = Dimanche
+        this.programData = null;
+        this.renderer = new WorkoutRenderer();
+        this.session = new WorkoutSession();
+        this.restTimer = null;
+        this.restTimeRemaining = 0;
     }
 
     /**
-     * Valide que tous les éléments DOM requis sont présents
-     */
-    validateDOM() {
-        const requiredIds = [
-            'app',
-            'workout-container',
-            'week-display',
-            'prev-week',
-            'next-week',
-            'timer-display',
-            'timer-start',
-            'timer-pause',
-            'timer-reset'
-        ];
-
-        const missing = requiredIds.filter(id => !document.getElementById(id));
-
-        if (missing.length > 0) {
-            console.error('❌ Éléments DOM manquants:', missing);
-            throw new Error(`Éléments DOM manquants: ${missing.join(', ')}`);
-        }
-
-        console.log('✅ Tous les éléments DOM sont présents');
-    }
-
-    /**
-     * Initialise l'application
+     * Initialisation de l'application
      */
     async init() {
+        console.log('🚀 Initialisation de l\'application...');
+
         try {
-            console.log('✅ Initialisation de l\'application...');
+            // Charger les données du programme
+            this.programData = new ProgramData();
+            console.log('✅ Données du programme chargées');
 
-            // Initialiser les sous-modules
-            this.timer.init();
-            this.navigation.init();
-            this.workoutRenderer.init?.();
+            // Initialiser le renderer
+            this.renderer.init();
+            console.log('✅ Renderer initialisé');
 
-            // Charger l'état sauvegardé (par défaut si rien dans le storage)
-            const savedState = this.storage.loadNavigationState?.() || { week: 1, day: 'dimanche' };
-            this.currentWeek = savedState.week;
-            this.currentDay = savedState.day;
+            // Initialiser la session
+            this.session.init();
+            console.log('✅ Session initialisée');
 
-            // Configurer les callbacks de navigation
-            this.navigation.onWeekChange = (week, day) => this.displayWorkout(week, day);
-            this.navigation.onDayChange = (week, day) => this.displayWorkout(week, day);
+            // Définir le jour actuel
+            this.currentDay = new Date().getDay(); // 0 = Dimanche, 1 = Lundi...
+            
+            // Attacher les événements
+            this.attachEventListeners();
+            console.log('✅ Événements attachés');
 
-            // Restaurer l'état de navigation
-            this.navigation.setState(this.currentWeek, this.currentDay);
+            // Afficher la séance du jour
+            this.renderCurrentWorkout();
+            console.log('✅ Application prête !');
 
-            // ✅ NOUVEAU : Connecter les événements du workout (idempotent)
-            this.setupWorkoutEvents();
-
-            // Afficher le workout initial
-            await this.displayWorkout(this.currentWeek, this.currentDay);
-
-            console.log('✅ Application initialisée !');
         } catch (error) {
             console.error('❌ Erreur lors de l\'initialisation:', error);
-            this.displayError(error?.message || String(error));
+            this.showError('Erreur de chargement du programme');
         }
     }
 
     /**
-     * ✅ CORRECTION : Configure les écouteurs d'événements du workout (idempotent)
+     * Attacher tous les event listeners
      */
-    setupWorkoutEvents() {
-        // Protection contre exécution multiple
-        if (this._workoutEventsSetup) {
-            console.warn('⚠️ Écouteurs déjà configurés, skip');
+    attachEventListeners() {
+        // Navigation de semaine
+        const prevWeekBtn = document.getElementById('prev-week');
+        const nextWeekBtn = document.getElementById('next-week');
+
+        if (prevWeekBtn) {
+            prevWeekBtn.addEventListener('click', () => this.changeWeek(-1));
+        }
+
+        if (nextWeekBtn) {
+            nextWeekBtn.addEventListener('click', () => this.changeWeek(1));
+        }
+
+        // Navigation du bas (onglets)
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach((item, index) => {
+            item.addEventListener('click', () => this.handleNavClick(index));
+        });
+
+        // Boutons de timer
+        const timerStart = document.getElementById('timer-start');
+        const timerPause = document.getElementById('timer-pause');
+        const timerReset = document.getElementById('timer-reset');
+
+        if (timerStart) {
+            timerStart.addEventListener('click', () => this.startTimer());
+        }
+
+        if (timerPause) {
+            timerPause.addEventListener('click', () => this.pauseTimer());
+        }
+
+        if (timerReset) {
+            timerReset.addEventListener('click', () => this.resetTimer());
+        }
+
+        // Événements des séries (checkboxes)
+        document.addEventListener('click', (e) => {
+            const checkButton = e.target.closest('.serie-check');
+            if (!checkButton) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            this.handleSetCompletion(checkButton);
+        });
+
+        // Écouter les événements de completion
+        document.addEventListener('set-completed', (e) => {
+            this.onSetCompleted(e.detail);
+        });
+
+        // Écouter les demandes de timer
+        document.addEventListener('start-rest-timer', (e) => {
+            this.startRestTimer(e.detail.duration);
+        });
+    }
+
+    /**
+     * Gérer le clic sur une série
+     */
+    handleSetCompletion(checkButton) {
+        const exerciseId = checkButton.dataset.exerciseId;
+        const setNumber = checkButton.dataset.setNumber;
+        const serieItem = checkButton.closest('.serie-item');
+        
+        if (!serieItem) return;
+
+        // Toggle l'état
+        const isCompleted = serieItem.classList.toggle('completed');
+        
+        // Mettre à jour l'icône
+        const checkIcon = checkButton.querySelector('.check-icon');
+        if (checkIcon) {
+            checkIcon.textContent = isCompleted ? '✓' : '';
+        }
+
+        // Sauvegarder l'état
+        this.session.markSetCompleted(exerciseId, parseInt(setNumber), isCompleted);
+
+        // Démarrer le timer de repos si série complétée
+        if (isCompleted) {
+            const exerciseCard = checkButton.closest('.exercise-card');
+            const restParam = exerciseCard?.querySelector('.param-item .param-label');
+            
+            if (restParam && restParam.textContent === 'REPOS') {
+                const restValue = restParam.nextElementSibling?.textContent;
+                const restSeconds = parseInt(restValue);
+                
+                if (restSeconds) {
+                    this.startRestTimer(restSeconds);
+                }
+            }
+        }
+
+        console.log(`Série ${setNumber} de ${exerciseId}: ${isCompleted ? 'complétée' : 'annulée'}`);
+    }
+
+    /**
+     * Changer de semaine
+     */
+    changeWeek(direction) {
+        const newWeek = this.currentWeek + direction;
+
+        if (newWeek < 1 || newWeek > this.maxWeeks) {
+            console.log('⚠️ Limite de semaines atteinte');
             return;
         }
-        this._workoutEventsSetup = true;
 
-        // 1. Événement : Démarrage du timer de repos
-        document.addEventListener('start-rest-timer', (e) => {
-            const duration = Number(e?.detail?.duration) || 0;
-            if (duration <= 0) {
-                console.warn('⚠️ Durée invalide pour le timer:', duration);
-                return;
-            }
-            if (!this.timer || typeof this.timer.start !== 'function') {
-                console.warn('⚠️ Timer non initialisé ou API start manquante');
-                return;
-            }
-            console.log(`⏱️ Démarrage timer repos: ${duration}s`);
-            this.timer.reset?.();
-            this.timer.start(duration);
-        });
-
-        // 2. Événement : Changement de poids
-        document.addEventListener('weight-changed', (e) => {
-            const { exerciseId, newWeight } = e?.detail || {};
-            if (exerciseId === undefined || newWeight === undefined) {
-                console.warn('⚠️ Données invalides pour weight-changed:', e?.detail);
-                return;
-            }
-            const w = Number(newWeight);
-            if (!Number.isFinite(w)) {
-                console.warn('⚠️ Poids non numérique:', newWeight);
-                return;
-            }
-            console.log(`💪 Poids modifié: exercice ${exerciseId} → ${w}kg`);
-            if (this.session && typeof this.session.updateWeight === 'function') {
-                this.session.updateWeight(exerciseId, 0, w);
-            }
-        });
-
-        // 3. Événement : Série complétée/décochée
-        document.addEventListener('set-completed', (e) => {
-            const { exerciseId, setNumber, isChecked } = e?.detail || {};
-            if (exerciseId === undefined || setNumber === undefined) {
-                console.warn('⚠️ Données invalides pour set-completed:', e?.detail);
-                return;
-            }
-            
-            const setIndex = Number.parseInt(setNumber, 10) - 1;
-            if (!Number.isInteger(setIndex) || setIndex < 0) {
-                console.warn('⚠️ Index de série invalide:', setNumber);
-                return;
-            }
-            
-            if (!this.session) {
-                console.warn('⚠️ Session non initialisée');
-                return;
-            }
-            
-            if (isChecked) {
-                console.log(`✅ Série ${setNumber} complétée (exercice ${exerciseId})`);
-                if (typeof this.session.completeSet === 'function') {
-                    this.session.completeSet(exerciseId, setIndex);
-                }
-            } else {
-                console.log(`❌ Série ${setNumber} décochée (exercice ${exerciseId})`);
-                if (typeof this.session.uncompleteSet === 'function') {
-                    this.session.uncompleteSet(exerciseId, setIndex);
-                }
-            }
-        });
-
-        console.log('✅ Événements workout connectés (3 listeners)');
+        this.currentWeek = newWeek;
+        console.log(`📅 Semaine ${this.currentWeek}`);
+        
+        this.updateWeekDisplay();
+        this.renderCurrentWorkout();
     }
 
     /**
-     * Affiche le workout pour une semaine et un jour donnés
+     * Mettre à jour l'affichage de la semaine
      */
-    async displayWorkout(week, day) {
-        try {
-            console.log(`🎯 Affichage Semaine ${week} - ${day}`);
-            // Récupérer le workout via ProgramData
-            const workoutDay = ProgramData.getWorkout(week, day);
-            if (!workoutDay) {
-                throw new Error(`Workout introuvable pour S${week} - ${day}`);
+    updateWeekDisplay() {
+        const weekDisplay = document.getElementById('week-display');
+        if (!weekDisplay) return;
+
+        const bloc = Math.ceil(this.currentWeek / 4);
+        const weekInBloc = ((this.currentWeek - 1) % 4) + 1;
+        
+        // Déterminer le tempo selon le bloc
+        const tempos = ['3-1-2', '2-0-2', '4-0-1', '1-0-1', '3-0-3', '2-1-1'];
+        const tempo = tempos[(bloc - 1) % tempos.length];
+
+        weekDisplay.innerHTML = `
+            <div class="week-current">Semaine ${this.currentWeek}/${this.maxWeeks}</div>
+            <div class="week-date">Bloc ${bloc} • Tempo ${tempo}</div>
+        `;
+
+        // Gérer les boutons
+        const prevBtn = document.getElementById('prev-week');
+        const nextBtn = document.getElementById('next-week');
+
+        if (prevBtn) prevBtn.disabled = this.currentWeek === 1;
+        if (nextBtn) nextBtn.disabled = this.currentWeek === this.maxWeeks;
+    }
+
+    /**
+     * Afficher la séance actuelle
+     */
+    renderCurrentWorkout() {
+        if (!this.programData) {
+            console.error('❌ Pas de données de programme');
+            return;
+        }
+
+        const weekData = this.programData.getWeek(this.currentWeek);
+        
+        if (!weekData || !weekData.days) {
+            console.error('❌ Pas de données pour cette semaine');
+            this.showError('Aucune séance trouvée pour cette semaine');
+            return;
+        }
+
+        // Trouver la séance du jour
+        const dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        const todayName = dayNames[this.currentDay];
+        
+        const workoutDay = weekData.days.find(day => 
+            day.day.toLowerCase() === todayName
+        );
+
+        if (!workoutDay) {
+            console.log(`🏖️ Repos le ${todayName}`);
+            this.renderer.render(null, this.currentWeek);
+            return;
+        }
+
+        console.log(`💪 Séance du ${todayName}:`, workoutDay);
+        this.renderer.render(workoutDay, this.currentWeek);
+    }
+
+    /**
+     * Gérer les clics sur la navigation du bas
+     */
+    handleNavClick(index) {
+        // Retirer la classe active de tous les items
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => item.classList.remove('active'));
+
+        // Ajouter la classe active à l'item cliqué
+        navItems[index].classList.add('active');
+
+        // Gérer les différentes sections
+        switch(index) {
+            case 0: // Séance
+                this.renderCurrentWorkout();
+                break;
+            case 1: // Stats
+                this.showStats();
+                break;
+            case 2: // Progrès
+                this.showProgress();
+                break;
+            case 3: // Profil
+                this.showProfile();
+                break;
+        }
+
+        console.log(`📱 Navigation: onglet ${index}`);
+    }
+
+    /**
+     * Démarrer le timer de repos
+     */
+    startRestTimer(seconds) {
+        // Arrêter le timer existant
+        if (this.restTimer) {
+            clearInterval(this.restTimer);
+        }
+
+        this.restTimeRemaining = seconds;
+        
+        // Afficher la section timer
+        const timerSection = document.querySelector('.timer-section');
+        if (timerSection) {
+            timerSection.style.display = 'block';
+        }
+
+        // Mettre à jour l'affichage
+        this.updateTimerDisplay();
+
+        // Démarrer le compte à rebours
+        this.restTimer = setInterval(() => {
+            this.restTimeRemaining--;
+            this.updateTimerDisplay();
+
+            if (this.restTimeRemaining <= 0) {
+                this.onTimerComplete();
             }
+        }, 1000);
 
-            // Mettre à jour l'état actuel
-            this.currentWeek = week;
-            this.currentDay = day;
+        console.log(`⏱️ Timer démarré: ${seconds}s`);
+    }
 
-            // Sauvegarder l'état de navigation si possible
-            this.storage.saveNavigationState?.(week, day);
+    /**
+     * Mettre à jour l'affichage du timer
+     */
+    updateTimerDisplay() {
+        const timerDisplay = document.getElementById('timer-display');
+        if (!timerDisplay) return;
 
-            // ✅ CORRIGÉ : Démarrer la session avec API compatible (start / startSession)
-            if (this.session && typeof this.session.start === 'function') {
-                this.session.start(week, day, workoutDay.exercises);
-            } else if (this.session && typeof this.session.startSession === 'function') {
-                this.session.startSession(week, day, workoutDay.exercises);
-            } else {
-                console.warn('⚠️ WorkoutSession.start() non disponible');
-            }
+        const minutes = Math.floor(this.restTimeRemaining / 60);
+        const seconds = this.restTimeRemaining % 60;
+        
+        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-            // Rendre le workout
-            this.workoutRenderer.render?.(workoutDay, week);
-        } catch (error) {
-            console.error('❌ Erreur d\'affichage du workout:', error);
-            this.displayError(error?.message || String(error));
+        // Changer la couleur selon le temps restant
+        if (this.restTimeRemaining <= 10) {
+            timerDisplay.style.color = '#ef4444'; // Rouge
+        } else if (this.restTimeRemaining <= 30) {
+            timerDisplay.style.color = '#f59e0b'; // Orange
+        } else {
+            timerDisplay.style.color = '#22c55e'; // Vert
         }
     }
 
     /**
-     * Affichage d'une erreur dans l'UI
+     * Timer terminé
      */
-    displayError(message) {
+    onTimerComplete() {
+        clearInterval(this.restTimer);
+        this.restTimer = null;
+
+        // Notification sonore (optionnel)
+        if ('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200]);
+        }
+
+        // Masquer le timer après 2 secondes
+        setTimeout(() => {
+            const timerSection = document.querySelector('.timer-section');
+            if (timerSection) {
+                timerSection.style.display = 'none';
+            }
+        }, 2000);
+
+        console.log('✅ Timer terminé !');
+    }
+
+    /**
+     * Contrôles du timer
+     */
+    startTimer() {
+        if (!this.restTimer && this.restTimeRemaining > 0) {
+            this.startRestTimer(this.restTimeRemaining);
+        }
+    }
+
+    pauseTimer() {
+        if (this.restTimer) {
+            clearInterval(this.restTimer);
+            this.restTimer = null;
+            console.log('⏸️ Timer en pause');
+        }
+    }
+
+    resetTimer() {
+        if (this.restTimer) {
+            clearInterval(this.restTimer);
+            this.restTimer = null;
+        }
+        this.restTimeRemaining = 0;
+        
+        const timerSection = document.querySelector('.timer-section');
+        if (timerSection) {
+            timerSection.style.display = 'none';
+        }
+        
+        console.log('🔄 Timer réinitialisé');
+    }
+
+    /**
+     * Afficher les stats (placeholder)
+     */
+    showStats() {
         const container = document.getElementById('workout-container');
-        if (container) {
-            container.innerHTML = `
-                <div class="error-message">
-                    <p>🚨 Erreur : ${message}</p>
-                </div>
-            `;
-        }
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="empty-workout">
+                <h2>📊 Statistiques</h2>
+                <p>Section en cours de développement...</p>
+            </div>
+        `;
+    }
+
+    /**
+     * Afficher les progrès (placeholder)
+     */
+    showProgress() {
+        const container = document.getElementById('workout-container');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="empty-workout">
+                <h2>📈 Progression</h2>
+                <p>Section en cours de développement...</p>
+            </div>
+        `;
+    }
+
+    /**
+     * Afficher le profil (placeholder)
+     */
+    showProfile() {
+        const container = document.getElementById('workout-container');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="empty-workout">
+                <h2>👤 Profil</h2>
+                <p>Section en cours de développement...</p>
+            </div>
+        `;
+    }
+
+    /**
+     * Gérer la completion d'une série
+     */
+    onSetCompleted(detail) {
+        console.log('✅ Série complétée:', detail);
+        // Logique additionnelle si nécessaire
+    }
+
+    /**
+     * Afficher une erreur
+     */
+    showError(message) {
+        const container = document.getElementById('workout-container');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="empty-workout">
+                <p style="color: #ef4444;">❌ ${message}</p>
+            </div>
+        `;
     }
 }
 
 // ============================================================================
-// Point d'entrée --- démarre l'application au chargement
+// DÉMARRAGE DE L'APPLICATION
 // ============================================================================
-// Expose app sur window pour faciliter le debug / tests console
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new HybridMasterApp();
-    window.app.init();
-});
+const app = new App();
+
+// Attendre que le DOM soit chargé
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => app.init());
+} else {
+    app.init();
+}
+
+// Export pour utilisation externe
+export default app;
