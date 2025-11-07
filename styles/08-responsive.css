@@ -1,409 +1,219 @@
-/* ============================================
-   08-responsive.css - Responsive Design
-   Optimisé pour iPhone 15 Pro Max
-   ============================================ */
+/* ========================================
+   RESPONSIVE FIXES - iPhone
+======================================== */
 
-/* ==================== MOBILE FIRST ==================== */
-
-/* iOS Safe Area */
-@supports (padding: env(safe-area-inset-bottom)) {
-  body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  .header {
-    padding-top: env(safe-area-inset-top);
-    height: calc(var(--header-height) + env(safe-area-inset-top));
-  }
-  
-  .bottom-nav {
-    padding-bottom: calc(var(--spacing-sm) + env(safe-area-inset-bottom));
-    height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
-  }
+/* Fix pour les cartes d'exercices */
+.exercise-card {
+  margin-bottom: 1rem;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Optimisations tactiles */
-* {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
+/* Fix pour le header de la carte */
+.exercise-header {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  min-height: 60px;
 }
 
-button, a, .clickable {
-  touch-action: manipulation;
-  -webkit-user-select: none;
-  user-select: none;
+.exercise-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
 }
 
-/* Amélioration du scroll */
+.exercise-title {
+  flex: 1;
+  min-width: 0; /* Important pour le text-overflow */
+}
+
+.exercise-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.exercise-details {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0.25rem 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Fix pour la navigation des semaines */
+.week-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: var(--surface-color);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.week-nav-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: var(--background-color);
+  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.week-info {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+.week-current {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.week-date {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Fix pour le conteneur principal */
+.container {
+  max-width: 100%;
+  padding: 0 1rem 5rem 1rem;
+  margin: 0 auto;
+}
+
+/* Fix pour le main-content */
 .main-content {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
+  padding-top: 60px;
+  padding-bottom: 80px;
+  min-height: 100vh;
 }
 
-/* ==================== SMALL MOBILE (< 375px) ==================== */
-
-@media (max-width: 374px) {
-  :root {
-    --font-size-base: 0.9375rem; /* 15px */
-    --font-size-lg: 1.0625rem;   /* 17px */
-    --font-size-xl: 1.1875rem;   /* 19px */
-    --font-size-2xl: 1.375rem;   /* 22px */
-    --font-size-3xl: 1.625rem;   /* 26px */
-    --font-size-4xl: 2rem;       /* 32px */
-    
-    --spacing-md: 0.875rem;      /* 14px */
-    --spacing-lg: 1.25rem;       /* 20px */
+/* Media Queries pour iPhone */
+@media screen and (max-width: 428px) {
+  /* iPhone 14 Pro Max et similaires */
+  .exercise-name {
+    font-size: 1rem;
   }
   
-  .workout-stats {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
+  .exercise-details {
+    font-size: 0.8rem;
   }
   
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .week-current {
+    font-size: 1.1rem;
   }
   
-  .exercise-meta {
-    grid-template-columns: 1fr;
-  }
-  
-  .day-selector {
-    grid-template-columns: 1fr;
+  .week-date {
+    font-size: 0.85rem;
   }
 }
 
-/* ==================== MOBILE STANDARD (375px - 428px) ==================== */
-
-@media (min-width: 375px) and (max-width: 428px) {
-  /* iPhone 15 Pro / Pro Max */
-  
-  .container {
-    padding: 0 var(--spacing-lg);
-  }
-  
-  .workout-header {
-    padding: var(--spacing-lg) var(--spacing-xl);
-  }
-  
-  .exercise-card {
-    padding: var(--spacing-md) var(--spacing-lg);
-  }
-  
-  /* Optimisation des grilles */
-  .set-row {
-    grid-template-columns: 36px 1fr 1fr 32px;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-  
-  /* Amélioration des zones tactiles */
-  .btn {
-    min-height: 44px; /* iOS guideline */
-  }
-  
-  .nav-item {
-    min-width: 70px;
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-}
-
-/* ==================== LARGE MOBILE / PHABLET (> 428px) ==================== */
-
-@media (min-width: 429px) and (max-width: 639px) {
-  .container {
-    padding: 0 var(--spacing-xl);
-  }
-  
-  .workout-stats {
-    gap: var(--spacing-lg);
-  }
-  
-  .stats-grid {
-    gap: var(--spacing-lg);
-  }
-  
-  .exercise-card {
-    padding: var(--spacing-xl);
-  }
-}
-
-/* ==================== TABLET (640px - 1023px) ==================== */
-
-@media (min-width: 640px) and (max-width: 1023px) {
-  .container {
-    max-width: 600px;
-    padding: 0 var(--spacing-xl);
-  }
-  
-  .workout-header {
-    padding: var(--spacing-2xl);
-  }
-  
-  .workout-stats {
-    gap: var(--spacing-xl);
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  .exercise-meta {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  
-  .day-selector {
-    grid-template-columns: repeat(5, 1fr);
-  }
-  
-  /* Navigation latérale pour tablette */
-  .bottom-nav {
-    left: 0;
-    width: var(--sidebar-width);
-    height: 100vh;
-    border-top: none;
-    border-right: 1px solid var(--color-border);
-  }
-  
-  .bottom-nav-content {
-    flex-direction: column;
-    justify-content: flex-start;
-    padding-top: calc(var(--header-height) + var(--spacing-xl));
-  }
-  
-  .nav-item {
-    width: 100%;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: var(--spacing-md);
-    padding: var(--spacing-md) var(--spacing-lg);
-  }
-  
-  .nav-item-label {
-    font-size: var(--font-size-base);
-  }
-  
-  .main-content {
-    margin-left: var(--sidebar-width);
-    padding-bottom: var(--spacing-2xl);
-  }
-}
-
-/* ==================== DESKTOP (> 1024px) ==================== */
-
-@media (min-width: 1024px) {
-  .container {
-    max-width: var(--container-max-width);
-    padding: 0 var(--spacing-2xl);
-  }
-  
-  .header-content {
-    padding: 0 var(--spacing-2xl);
-  }
-  
-  .workout-header {
-    padding: var(--spacing-3xl);
-    border-radius: var(--radius-2xl);
-  }
-  
-  .workout-stats {
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--spacing-2xl);
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--spacing-xl);
-  }
-  
-  .exercise-meta {
-    grid-template-columns: repeat(5, 1fr);
-  }
-  
-  .day-selector {
-    grid-template-columns: repeat(7, 1fr);
-  }
-  
-  .exercise-card {
-    padding: var(--spacing-2xl);
-  }
-  
-  .set-row {
-    padding: var(--spacing-lg);
-    gap: var(--spacing-lg);
-  }
-  
-  /* Hover effects pour desktop */
-  .exercise-card:hover {
-    transform: translateY(-4px);
-  }
-  
-  .btn:hover {
-    transform: translateY(-2px);
-  }
-  
-  /* Navigation latérale */
-  .bottom-nav {
-    left: 0;
-    width: var(--sidebar-width);
-    height: 100vh;
-    border-top: none;
-    border-right: 1px solid var(--color-border);
-  }
-  
-  .bottom-nav-content {
-    flex-direction: column;
-    justify-content: flex-start;
-    padding-top: calc(var(--header-height) + var(--spacing-2xl));
-    gap: var(--spacing-sm);
-  }
-  
-  .nav-item {
-    width: 100%;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: var(--spacing-md);
-    padding: var(--spacing-lg) var(--spacing-xl);
-    border-radius: var(--radius-md);
-    margin: 0 var(--spacing-md);
-  }
-  
-  .nav-item:hover {
-    background: var(--color-bg-tertiary);
-  }
-  
-  .nav-item.active {
-    background: var(--color-primary-glow);
-  }
-  
-  .nav-item-icon {
-    font-size: var(--font-size-xl);
-  }
-  
-  .nav-item-label {
-    font-size: var(--font-size-base);
-  }
-  
-  .main-content {
-    margin-left: var(--sidebar-width);
-    padding-bottom: var(--spacing-3xl);
-  }
-}
-
-/* ==================== LANDSCAPE MODE ==================== */
-
-@media (max-height: 500px) and (orientation: landscape) {
-  .workout-header {
-    padding: var(--spacing-lg);
-  }
-  
-  .workout-title {
-    font-size: var(--font-size-2xl);
-  }
-  
-  .workout-stats {
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  }
-  
-  .exercise-card {
-    padding: var(--spacing-md);
+@media screen and (max-width: 390px) {
+  /* iPhone 14 Pro, 13 Pro, 12 Pro */
+  .exercise-header {
+    padding: 0.875rem;
   }
   
   .exercise-name {
-    font-size: var(--font-size-lg);
+    font-size: 0.95rem;
   }
   
-  .timer-display {
-    padding: var(--spacing-lg);
-  }
-  
-  .timer-value {
-    font-size: 3rem;
+  .exercise-icon {
+    font-size: 1.3rem;
   }
 }
 
-/* ==================== PRINT STYLES ==================== */
-
-@media print {
-  .header,
-  .bottom-nav,
-  .nav-item,
-  .btn,
-  .timer-display {
-    display: none !important;
+@media screen and (max-width: 375px) {
+  /* iPhone SE, 13 mini */
+  .container {
+    padding: 0 0.75rem 5rem 0.75rem;
   }
   
-  .main-content {
-    margin: 0;
-    padding: 0;
+  .exercise-header {
+    padding: 0.75rem;
+    gap: 0.5rem;
   }
   
-  .exercise-card {
-    page-break-inside: avoid;
-    border: 1px solid #000;
+  .exercise-name {
+    font-size: 0.9rem;
   }
   
-  body {
-    background: white;
-    color: black;
+  .exercise-details {
+    font-size: 0.75rem;
+    gap: 0.375rem;
+  }
+  
+  .week-navigation {
+    padding: 0.875rem;
+    gap: 0.75rem;
+  }
+  
+  .week-nav-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    font-size: 1.1rem;
   }
 }
 
-/* ==================== REDUCED MOTION ==================== */
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ==================== HIGH CONTRAST MODE ==================== */
-
-@media (prefers-contrast: high) {
-  :root {
-    --color-border: rgba(255, 255, 255, 0.3);
-    --color-border-hover: rgba(255, 255, 255, 0.5);
-  }
-  
-  .exercise-card,
-  .card {
-    border-width: 2px;
-  }
-  
-  .btn {
-    border: 2px solid currentColor;
-  }
-}
-
-/* ==================== DARK MODE ENHANCEMENT ==================== */
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #000000;
-  }
-  
-  .header,
-  .bottom-nav {
-    background: rgba(10, 14, 20, 0.95);
-  }
-}
-
-/* ==================== NOTCH / DYNAMIC ISLAND ==================== */
-
-/* iPhone 15 Pro Max with Dynamic Island */
+/* Fix pour le safe area sur iPhone avec notch */
 @supports (padding: max(0px)) {
   .header {
-    padding-left: max(var(--spacing-md), env(safe-area-inset-left));
-    padding-right: max(var(--spacing-md), env(safe-area-inset-right));
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+  }
+  
+  .bottom-nav {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
   
   .main-content {
-    padding-left: max(var(--spacing-md), env(safe-area-inset-left));
-    padding-right: max(var(--spacing-md), env(safe-area-inset-right));
+    padding-top: calc(60px + max(0px, env(safe-area-inset-top)));
+    padding-bottom: calc(80px + max(0px, env(safe-area-inset-bottom)));
   }
+}
+
+/* Fix pour éviter le zoom sur les inputs sur iPhone */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Fix pour les boutons qui ne s'affichent pas bien */
+button {
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Amélioration de la lisibilité des emojis */
+.exercise-icon,
+.nav-item-icon,
+.header-icon {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Emoji", "Apple Color Emoji", sans-serif;
+  line-height: 1;
 }
